@@ -1,0 +1,12 @@
+
+docker build -t cannr-mule .
+docker run -d -p 5000:5000 cannr-mule
+
+# To bring up a command prompt
+docker run -it cannr-mule
+
+docker ps -a
+docker stop <container ID>
+
+
+

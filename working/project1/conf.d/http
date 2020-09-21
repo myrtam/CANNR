@@ -1,0 +1,22 @@
+http {
+	upstream pyFolder1 {
+		server localhost:5000 max_conns=1;
+	}
+	upstream folder2_iris {
+		server localhost:5001 max_conns=1;
+	}
+	upstream folder2_sum {
+		server localhost:5002 max_conns=1;
+	}
+	server {
+		location /services/pyFolder1 {
+			proxy_pass http://pyFolder1;
+		}
+		location /services/folder2/iris {
+			proxy_pass http://folder2_iris;
+		}
+		location /services/folder2/sum {
+			proxy_pass http://folder2_sum;
+		}
+	}
+}

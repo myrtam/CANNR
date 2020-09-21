@@ -1,0 +1,25 @@
+{
+	"packages": [
+		"dbus-python",
+		"python-apt",
+		"wheel",
+		"markupsafe",
+		"flask",
+		"unattended-upgrades",
+		"pandas",
+		"stdlib-list",
+		"pycurl",
+		"click",
+		"setuptools",
+		"six",
+		"python-dateutil",
+		"distro-info",
+		"numpy",
+		"jinja2",
+		"pytz",
+		"pygobject",
+		"pip",
+		"werkzeug",
+		"itsdangerous"
+	]
+}
