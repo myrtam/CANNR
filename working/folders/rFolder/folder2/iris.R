@@ -1,4 +1,9 @@
 
+# CANNR TM tool example showing R function to expose as a Web service.
+# Copyright 2020 Pat Tendick ptendick@gmail.com
+# All rights reserved
+# Maintainer Pat Tendick ptendick@gmail.com
+
 # Return the predicted petal length from sepal length for virginica species
 # of irises.
 

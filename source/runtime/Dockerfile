@@ -12,9 +12,10 @@ COPY conf.d/http /etc/nginx/http
 
 # Install R packages
 #<R Packages>
-# Install Python packages
 
+# Install Python packages
 #<P Packages>
+
 # Copy project contents
 COPY . .
 

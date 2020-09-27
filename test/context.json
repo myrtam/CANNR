@@ -1,7 +1,7 @@
 {
 	"directoryType": "file",
 	"workingDirectory": {
-		"path": "../../working"
+		"path": "../working"
 	},
 	"baseImage": "cannr",
 	"maintainerEmail": "pat@pat.com",

@@ -29,8 +29,8 @@ noDirectorySpecCode = 1001
 noDirectoryMsg = "Working directory does not exist"
 noDirectoryCode = 1002
 
-noDirectoryMsg = "No project name specified"
-noDirectoryCode = 1003
+noProjectNameMsg = "No project name specified"
+noProjectNameCode = 1003
 
 invalidProjectMsg = "Invalid or missing project"
 invalidProjectCode = 1004
@@ -210,7 +210,7 @@ def isStdPkg(packageName):
     return packageName in stdPkgSet
 
 
-# Returns the Dockerfile template
+# Returns the library path
 def getLibPath():
     libPathLen = __file__.rfind(os.path.sep)
     libPath = os.path.sep
@@ -219,7 +219,7 @@ def getLibPath():
     return libPath
 
 
-# Tests whether a Python package has already been installed
+# Tests whether a Python package is installed in the base image
 jsonText = None
 with open(getLibPath() + os.path.sep + 'packageList.json','r') as jsonFile:
     jsonText = jsonFile.read()
@@ -260,7 +260,7 @@ def hashPassword(password, salt, hashAlgorithm):
     salted = salt + password
     h.update(salted.encode('utf-8'))
 
-    return h.hexdigest()
+    return h.hexdigest().upper()
     
 # Cryptographically hash a password
 def buildHash(password, hashAlgorithm):
@@ -339,6 +339,7 @@ def getService(serviceName, module):
     return services.get(serviceName, None)
 
 # Extracts the module name from the file name.
+# TODO:  REMOVE!  NO LONGER USED
 comp = None
 def getModuleNameFromFile(fileName):
 
@@ -363,7 +364,7 @@ def getRelativePath(filePath):
         return folders[0]
     return None
 
-# Get the relative home directory of the folder.
+# Get the home directory of the folder in the container.
 # TODO: HANDLE OTHER TYPES OF STORAGE (Web, S3, etc.)
 def getHome(folderName, folder):
     source = folder.get("source", None)
@@ -425,7 +426,8 @@ def saveProject(project, filePath, authPolicyLen, authPolicyChars):
             'salt': hashInfo.get('salt', None)
             }
         
-        # Write out Dockerfile to the project directory
+        print(filePath)
+        # Write out project file to the project directory
         with open(filePath, 'w') as projectFile:
             projectFile.write(json.dumps(project))
 
@@ -435,6 +437,18 @@ def saveProject(project, filePath, authPolicyLen, authPolicyChars):
     
     return 0
 
-
+"""
+project = readJSONFile('../../../../examples/project1/project.json')
+context = readJSONFile('../../../runtime/context.json')
+authPolicy = context.get('authPolicy')
+authPolicyLen = authPolicy.get('authPolicyLen')
+authPolicyChars = authPolicy.get('authPolicyChars')
+authentication = {
+    'password': '123456',
+    'adminID': 'IRule'
+    }
+project['authentication'] = authentication
+result = saveProject(project, '/Users/ptendick/Documents/GitHub/CANNR/test/project1.json', authPolicyLen, authPolicyChars)
+"""
 
 

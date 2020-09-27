@@ -192,6 +192,7 @@ def buildPyFolder(folderName, project):
         moduleText += buildCodeLine(2, ['lastUpdateID = updateID'])
         moduleText += buildCodeLine(2, [''])
         moduleText += buildCodeLine(1, ['return({"workerID": workerID})'])
+        moduleText += '\n'
 
         moduleNumber += 1
 
@@ -316,7 +317,7 @@ def checkWorkingDirectory(context):
         
     path = workingDirectory.get("path")
     if not existsDirectory(path):
-        raise cc.RTAMError(noDirectoryMsg, noDirectoryCode)
+        raise cc.RTAMError(cc.noDirectoryMsg, cc.noDirectoryCode)
 
     return os.path.abspath(path)
 
@@ -330,26 +331,26 @@ def getFolderPath(foldersPath, folderName):
     try:
         return foldersPath + os.path.sep + folderName
     except:
-        raise cc.RTAMError(folderPathErrorMsg, folderPathErrorCode)
+        raise cc.RTAMError(cc.folderPathErrorMsg, cc.folderPathErrorCode)
 
 # Initializes the build by checking the context and project and creating the working directory,
 def initBuild(project, context):
 
     # Check project & context.
     if not project or not isinstance(project,dict):
-        raise cc.RTAMError(invalidProjectMsg, invalidProjectCode)
+        raise cc.RTAMError(cc.invalidProjectMsg, cc.invalidProjectCode)
 
     if not context or not isinstance(context,dict):
-        raise cc.RTAMError(invalidContextMsg, invalidContextCode)
+        raise cc.RTAMError(cc.invalidContextMsg, cc.invalidContextCode)
 
     projectName = project.get("name", None)
-    if not context or not isinstance(context,dict):
-        raise cc.RTAMError(invalidContextMsg, invalidContextCode)
+    if not projectName:
+        raise cc.RTAMError(cc.noProjectNameMsg, cc.noProjectNameCode)
 
     # Check whether the base image has been specified.
     baseImage = context.get("baseImage", None)
     if not baseImage:
-        raise cc.RTAMError(noBaseImageMsg, noBaseImageCode)
+        raise cc.RTAMError(cc.noBaseImageMsg, cc.noBaseImageCode)
 
     path = checkWorkingDirectory(context)
     
@@ -367,32 +368,33 @@ def copySource(folder, foldersPath, folderName):
     
     # Check that folder object exists
     if not folder:
-        raise cc.RTAMError(noFolderMsg, noFolderCode)
+        raise cc.RTAMError(cc.noFolderMsg, cc.noFolderCode)
 
     # Check for source info
     source = folder.get("source", None)
     if not source:
-        raise cc.RTAMError(noSourceInfoMsg, noSourceInfoCode)
+        raise cc.RTAMError(cc.noSourceInfoMsg, cc.noSourceInfoCode)
 
     # Check for valid source type
     sourceType = source.get("sourceType", None)
     if not sourceType or sourceType!='file':
-        raise cc.RTAMError(badSourceTypeMsg, badSourceTypeCode)
+        raise cc.RTAMError(cc.badSourceTypeMsg, cc.badSourceTypeCode)
 
     # Chwck for source path
     sourcePath = source.get("sourcePath", None)
     if not sourcePath:
-        raise cc.RTAMError(noSourcePathMsg, noSourcePathCode)
+        raise cc.RTAMError(cc.noSourcePathMsg, cc.noSourcePathCode)
     
     # Copy the source tree
     try:
-        os.chdir(foldersPath)
-        os.mkdir(folderName)
+        sourcePath = os.path.abspath(sourcePath)
+        #os.chdir(foldersPath)
+        os.mkdir(foldersPath + os.path.sep + folderName)
         folderPath = getFolderPath(foldersPath, folderName)
         baseName = os.path.basename(sourcePath)
         shutil.copytree(sourcePath, folderPath + os.path.sep + baseName)
     except:
-        raise cc.RTAMError(errorCopyingSourceMsg, errorCopyingSourceCode)
+        raise cc.RTAMError(cc.errorCopyingSourceMsg, cc.errorCopyingSourceCode)
     
     return
 

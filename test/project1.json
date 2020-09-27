@@ -1,0 +1,155 @@
+{
+   "title": "Basic test project",
+   "name": "project1",
+   "version": "0.1",
+   "baseImage": "cannr",
+   "maintainerName": "Pat Tendick",
+   "maintainerEmail": "ptendick@gmail.com",
+   "notice": "Copyright/license notice for the project",
+   "dependencyNotice": "Copyright/license notice for dependencies",
+   "portRange": [
+      5000,
+      5500
+   ],
+   "nginxPort": 80,
+   "smiPort": 8080,
+   "folders": {
+      "pyFolder1": {
+         "language": "Python",
+         "source": {
+            "sourceType": "file",
+            "sourcePath": "/Users/ptendick/open-source-workspace/cannr-project-examples/project1/folder1"
+         },
+         "workers": 1,
+         "modules": {
+            "sum": {
+               "sourceFile": "sum.py",
+               "title": "Sum module",
+               "version": "0.1",
+               "help": "Help!",
+               "packages": [
+                  "numpy",
+                  "json"
+               ],
+               "services": {
+                  "sum": {
+                     "function": "calcSum",
+                     "method": "POST",
+                     "includeParams": false,
+                     "input": {
+                        "parse": true,
+                        "parseType": "dictionary",
+                        "capacity": 1000,
+                        "note": "If parseType is dictionary, capacity is ignored"
+                     },
+                     "output": {
+                        "parse": true,
+                        "parseType": "dictionary"
+                     },
+                     "help": "Help!",
+                     "testInput": null
+                  }
+               }
+            },
+            "rand": {
+               "sourceFile": "rand.py",
+               "title": "Rand module",
+               "version": "0.1",
+               "help": "Help!",
+               "packages": [
+                  "random",
+                  "time"
+               ],
+               "services": {
+                  "rand": {
+                     "function": "rand",
+                     "method": "GET",
+                     "includeParams": false,
+                     "output": {
+                        "parse": true,
+                        "parseType": "dictionary"
+                     },
+                     "help": "Help!",
+                     "testInput": null
+                  }
+               }
+            }
+         }
+      },
+      "folder2": {
+         "language": "R",
+         "source": {
+            "sourceType": "file",
+            "sourcePath": "/Users/ptendick/open-source-workspace/cannr-project-examples/project1/folder2"
+         },
+         "paths": [],
+         "initializationType": null,
+         "modules": {
+            "iris": {
+               "sourceFile": "iris.R",
+               "title": "Iris measurement prediction module",
+               "version": "0.1",
+               "help": "Help!",
+               "workers": 1,
+               "notes": [
+                  "workers parameter shouldn't be specified at the module level.  May not be forward compatible if convert modules to packages and have one script per folder as with Python."
+               ],
+               "packages": [],
+               "services": {
+                  "predPLengthSLength": {
+                     "function": "predPLengthSLength",
+                     "method": "GET",
+                     "includeParams": true,
+                     "input": {
+                        "parse": true,
+                        "parseType": "dataframe",
+                        "parseOptions": {},
+                        "capacity": 1
+                     },
+                     "output": {
+                        "parse": true,
+                        "parseType": "dataframe",
+                        "parseOptions": {}
+                     },
+                     "help": "Help!",
+                     "testInput": null
+                  }
+               }
+            },
+            "sum": {
+               "sourceFile": "sum.R",
+               "title": "Sum variable x in a data frame",
+               "version": "0.1",
+               "help": "Help!",
+               "workers": 1,
+               "services": {
+                  "sum": {
+                     "function": "sumX",
+                     "method": "POST",
+                     "includeParams": false,
+                     "input": {
+                        "parse": true,
+                        "parseType": "dataframe",
+                        "parseOptions": {},
+                        "capacity": 1000
+                     },
+                     "output": {
+                        "parse": true,
+                        "parseType": "dataframe",
+                        "parseOptions": {}
+                     },
+                     "help": "Help!",
+                     "testInput": null
+                  }
+               }
+            }
+         }
+      }
+   },
+   "authentication": {
+      "adminID": "IRule",
+      "hashAlgorithm": "SHA256",
+      "hash": "E76830CDF18E7282385BF612AEE5240F5903E2B0AFFB426D5F9476B9D69A09C4",
+      "salt": "80bdf26b-eab5-4004-9385-1ca589361954"
+   }
+}

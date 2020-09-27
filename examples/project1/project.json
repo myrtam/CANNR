@@ -7,15 +7,15 @@
 	"maintainerEmail": "ptendick@gmail.com",
 	"notice": "Copyright/license notice for the project",
 	"dependencyNotice": "Copyright/license notice for dependencies",
-	"portRange": [5000,5500],
+	"portRange": [4000,4500],
 	"nginxPort": 80,
 	"smiPort": 8080,
 	"folders": {
-		"pyFolder1": {
+		"pyFolder": {
 			"language": "Python",
 			"source": {
 				"sourceType": "file",
-				"sourcePath": "/Users/ptendick/open-source-workspace/cannr-project-examples/project1/folder1"
+				"sourcePath": "../examples/project1/folder1"
 			},
 			"workers": 1,
 			"modules": {
@@ -68,11 +68,11 @@
 				}
 			}
 		},
-		"folder2": {
+		"rFolder": {
 			"language": "R",
 			"source": {
 				"sourceType": "file",
-				"sourcePath": "/Users/ptendick/open-source-workspace/cannr-project-examples/project1/folder2"
+				"sourcePath": "../examples/project1/folder2"
 			},
 			"paths": [],
 			"initializationType": null,
