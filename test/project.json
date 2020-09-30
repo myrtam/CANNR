@@ -15,7 +15,7 @@
 			"language": "Python",
 			"source": {
 				"sourceType": "file",
-				"sourcePath": "./folder1"
+				"sourcePath": "../examples/project1/folder1"
 			},
 			"workers": 1,
 			"modules": {
@@ -72,7 +72,7 @@
 			"language": "R",
 			"source": {
 				"sourceType": "file",
-				"sourcePath": "./folder2"
+				"sourcePath": "../examples/project1/folder2"
 			},
 			"paths": [],
 			"initializationType": null,

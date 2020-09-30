@@ -3,6 +3,7 @@ Test harness for cannrcore.py
 """
 
 import sys
+import os
 import json
 import unittest
 
@@ -110,21 +111,21 @@ class TestCannrCore(unittest.TestCase):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        self.assertTrue(cnc.getFolder('folder2', project))
+        self.assertTrue(cnc.getFolder('rFolder', project))
     
     # Completed
     def test_getFolderNames(self):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folderNames = cnc.getFolderNames(project)
-        self.assertTrue('folder2' in folderNames)
+        self.assertTrue('rFolder' in folderNames)
     
     # Completed
     def test_getModules(self):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
+        folder = cnc.getFolder('rFolder', project)
         self.assertTrue(cnc.getModules(folder))
     
     # Completed
@@ -132,7 +133,7 @@ class TestCannrCore(unittest.TestCase):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
+        folder = cnc.getFolder('rFolder', project)
         self.assertTrue(cnc.getModule('iris', folder))
     
     # Completed
@@ -140,7 +141,7 @@ class TestCannrCore(unittest.TestCase):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
+        folder = cnc.getFolder('rFolder', project)
         moduleNames = cnc.getModuleNames(folder)
         self.assertTrue('iris' in moduleNames)
     
@@ -149,7 +150,7 @@ class TestCannrCore(unittest.TestCase):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
+        folder = cnc.getFolder('rFolder', project)
         module = cnc.getModule('iris', folder)
         self.assertTrue(cnc.getServices(module))
     
@@ -158,7 +159,7 @@ class TestCannrCore(unittest.TestCase):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
+        folder = cnc.getFolder('rFolder', project)
         module = cnc.getModule('iris', folder)
         serviceNames = cnc.getServiceNames(module)
         self.assertTrue('predPLengthSLength' in serviceNames)
@@ -168,22 +169,24 @@ class TestCannrCore(unittest.TestCase):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
+        folder = cnc.getFolder('rFolder', project)
         module = cnc.getModule('iris', folder)
         self.assertTrue(cnc.getService('predPLengthSLength', module))
     
     # Completed
     def test_getRelativePath(self):
         
-        self.assertEqual(cnc.getRelativePath('/examples/project1/folder1'), 'folder1')
+        path = '/examples/project1/pyFolder'.replace('/', os.path.sep)
+        self.assertEqual(cnc.getRelativePath(path), 'pyFolder')
     
     # Completed
     def test_getHome(self):
     
         project = cnc.readJSONFile('../examples/project1/project.json')
         folders = cnc.getFolders(project)
-        folder = cnc.getFolder('folder2', project)
-        self.assertEqual(cnc.getHome('folder2', folder), '/folders/folder2/folder2')
+        folder = cnc.getFolder('rFolder', project)
+        path = '/folders/rFolder/folder2'.replace('/', os.path.sep)
+        self.assertEqual(cnc.getHome('rFolder', folder), path)
     
     # Completed
     def test_saveProject(self):
@@ -201,7 +204,7 @@ class TestCannrCore(unittest.TestCase):
             'adminID': 'IRule'
             }
         project['authentication'] = authentication
-        result = cnc.saveProject(project, '/Users/ptendick/Documents/GitHub/CANNR/test/project1.json', authPolicyLen, authPolicyChars)
+        result = cnc.saveProject(project, 'project1.json', authPolicyLen, authPolicyChars)
         self.assertEqual(result, 3)
     
         authentication = {
@@ -209,7 +212,7 @@ class TestCannrCore(unittest.TestCase):
             'adminID': 'IRule'
             }
         project['authentication'] = authentication
-        result = cnc.saveProject(project, '/Users/ptendick/Documents/GitHub/CANNR/test/project1.json', authPolicyLen, authPolicyChars)
+        result = cnc.saveProject(project, 'project1.json', authPolicyLen, authPolicyChars)
         self.assertEqual(result, 0)
     
 if __name__ == '__main__':

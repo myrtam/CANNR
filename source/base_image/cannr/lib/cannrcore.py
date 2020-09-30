@@ -197,7 +197,7 @@ class EventCalendar():
 # Returns the module, which must be assigned to a variable to be used.
 def importPackage(packageName, filePath):
 
-    packageSpec = importlib.util.spec_from_file_location(packageName, filePath)
+    packageSpec = importlib.util.spec_from_file_location(packageName, filePath.replace('/', os.path.sep))
     module = importlib.util.module_from_spec(packageSpec)
     packageSpec.loader.exec_module(module)
     return module
@@ -374,7 +374,7 @@ def getHome(folderName, folder):
     path = source.get("sourcePath", None)
     if not path:
         return folderPath + 'home'
-    return folderPath + getRelativePath(path)
+    return folderPath + getRelativePath(path.replace('/', os.path.sep))
 
 # Saves the project to the specified file path.
 # If a password is specified, populates the password hash/salt and deletes the password.

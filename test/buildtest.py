@@ -1,5 +1,5 @@
 """
-Test harness for cannrcore.py
+Test harness for cannrbuild.py
 """
 
 import sys
@@ -74,8 +74,8 @@ class TestCannrBuild(unittest.TestCase):
     # Completed
     def test_getFolderPath(self):
 
-        folderPath = cnb.getFolderPath('../working/project1', 'folder1')
-        self.assertEqual(folderPath, '../working/project1/folder1')
+        folderPath = cnb.getFolderPath('../working/project1', 'pyFolder')
+        self.assertEqual(folderPath, '../working/project1/pyFolder'.replace('/', os.path.sep))
     
     # Completed
     def test_initBuild(self):
@@ -111,6 +111,7 @@ class TestCannrBuild(unittest.TestCase):
         
     
     # Completed
+    """
     def test_copySource(self):
 
         # Setup
@@ -155,6 +156,31 @@ class TestCannrBuild(unittest.TestCase):
         except cnc.RTAMError as err:
             failed = True
         self.assertFalse(failed)
+    """
+
+    # Completed
+    def test_copySourceFromPath(self):
+
+        # Setup
+        context = cnc.readJSONFile('context.json')
+        workingDirectory = context.get('workingDirectory')
+        workingPath = workingDirectory.get('path')
+        foldersPath = workingPath + os.path.sep + 'folders'
+        if cnb.existsDirectory(foldersPath):
+            shutil.rmtree(foldersPath)
+        os.mkdir(foldersPath)
+        projectFilePath = os.path.abspath('../examples/project1/project.json')
+        project = cnc.readJSONFile(projectFilePath)
+        folders = cnc.getFolders(project)
+        folder = cnc.getFolder('rFolder', project)
+
+        # Ensure that copySource does not fail.
+        failed = False
+        try:
+            cnb.copySourceFromPath('../examples/project1/folder2', foldersPath, 'rFolder')
+        except cnc.RTAMError as err:
+            failed = True
+        self.assertFalse(failed)
 
     # Completed
     def test_getPortRange(self):
@@ -179,11 +205,20 @@ class TestCannrBuild(unittest.TestCase):
         context = cnc.readJSONFile('context.json')
         failed = False
         try:
-            cnb.buildProject(project, context)
+            cnb.buildProject(project, '../examples/project1', context)
         except cnc.RTAMError as err:
             failed = True
         self.assertFalse(failed)
     
+    def test_buildFromFile(self):
+
+        context = cnc.readJSONFile('context.json')
+        failed = False
+        try:
+            cnb.buildFromFile('../examples/project1/project.json', context)
+        except cnc.RTAMError as err:
+            failed = True
+        self.assertFalse(failed)
     
 if __name__ == '__main__':
     unittest.main()    

@@ -3,4 +3,4 @@ export PYTHONPATH=$PYTHONPATH:../base_image/cannr/lib
 python3 runcnr.py $1 context.json
 
 # Example:
-# ./runcnr.sh ../examples/project1/project.json
+# ./runcnr.sh ../../examples/project1/project.json

@@ -10,6 +10,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 import cannrcore as cc
 import json
 import os
+from pathlib import Path
 from datetime import datetime
 import shutil
 
@@ -329,7 +330,7 @@ def existsDirectory(path):
 # Returns the folder path.
 def getFolderPath(foldersPath, folderName):
     try:
-        return foldersPath + os.path.sep + folderName
+        return foldersPath.replace('/', os.path.sep) + os.path.sep + folderName
     except:
         raise cc.RTAMError(cc.folderPathErrorMsg, cc.folderPathErrorCode)
 
@@ -365,7 +366,8 @@ def initBuild(project, context):
 
 # Copy the source directory into the current directory
 def copySource(folder, foldersPath, folderName):
-    
+    print(60*'!')
+    print(os.getcwd())
     # Check that folder object exists
     if not folder:
         raise cc.RTAMError(cc.noFolderMsg, cc.noFolderCode)
@@ -380,15 +382,20 @@ def copySource(folder, foldersPath, folderName):
     if not sourceType or sourceType!='file':
         raise cc.RTAMError(cc.badSourceTypeMsg, cc.badSourceTypeCode)
 
-    # Chwck for source path
+    # Check for source path
     sourcePath = source.get("sourcePath", None)
     if not sourcePath:
         raise cc.RTAMError(cc.noSourcePathMsg, cc.noSourcePathCode)
     
+    copySourceFromPath(sourcePath, foldersPath, folderName)
+
+    return
+
+def copySourceFromPath(sourcePath, foldersPath, folderName):
+    
     # Copy the source tree
     try:
         sourcePath = os.path.abspath(sourcePath)
-        #os.chdir(foldersPath)
         os.mkdir(foldersPath + os.path.sep + folderName)
         folderPath = getFolderPath(foldersPath, folderName)
         baseName = os.path.basename(sourcePath)
@@ -430,8 +437,10 @@ def walkNumber(project):
 
 # Builds the project
 # Arguments:
-# 
-def buildProject(project, context):
+# * project - The project dictionary
+# * basePath - The base directory path to which the source directories are relative
+# * context - The context dictionary of the tool
+def buildProject(project, basePath, context):
     
     # TODO: CONFIGURE TLS FOR NGINX BASED ON THE serviceTLS PARAMETER
     
@@ -506,11 +515,35 @@ def buildProject(project, context):
         
         # Get the folder and copy the source files to the new folder
         folder = cc.getFolder(folderName, project)
-        copySource(folder, foldersPath, folderName)
+
+        # Check for source info
+        source = folder.get("source", None)
+        if not source:
+            raise cc.RTAMError(cc.noSourceInfoMsg, cc.noSourceInfoCode)
+    
+        # Check for valid source type
+        sourceType = source.get("sourceType", None)
+        if not sourceType or sourceType!='file':
+            raise cc.RTAMError(cc.badSourceTypeMsg, cc.badSourceTypeCode)
+    
+        # Check for source path
+        sourcePath = source.get("sourcePath", None)
+        if not sourcePath:
+            raise cc.RTAMError(cc.noSourcePathMsg, cc.noSourcePathCode)
+
+        # Adjust if not absolute path
+        sp = Path(sourcePath)
+        if not sp.is_absolute():
+            str(Path(basePath).resolve())
+            sp = Path(str(Path(basePath).resolve()) + os.path.sep + sourcePath)
+            sourcePath = str(sp.resolve())
+        
+        # copySource(folder, foldersPath, folderName)
+        copySourceFromPath(sourcePath, foldersPath, folderName)
         timeout = folder.get('timeout', 5)
         queueSize = folder.get('queueSize', 10)
-        source = folder.get('source', None)
-        sourcePath = source.get("sourcePath", None)
+        ##source = folder.get('source', None)
+        ##sourcePath = source.get("sourcePath", None)
         folderLogPath = logPath + os.path.sep + 'workers' + os.path.sep + folderName
                 
         # If Python
@@ -707,4 +740,14 @@ def buildProject(project, context):
         
     return
 
+# Builds the project from a project file.
+# 
+def buildFromFile(path, context):
+    
+    # projectFilePath = os.path.abspath('../examples/project1/project.json')
+    project = cc.readJSONFile(path)
+    basePath = os.path.dirname(path)
+    
+    buildProject(project, basePath, context)
 
+    return

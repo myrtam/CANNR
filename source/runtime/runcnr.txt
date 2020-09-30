@@ -1,0 +1,20 @@
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem Command script to run the CANNR TM containerizer tool 
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem You need to install the stdlib_list package to use this tool. 
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem E.g. pip3 install stdlib_list 
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem To run the tool, change to the source\runtime directory and then run this 
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem file with the path of the project file as an argument, e.g., 
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem runcnr.cmd ..\..\examples\project1\project.json 
+
+Z:\Documents\GitHub\CANNR\source\runtime>rem to run the example. 
+
+Z:\Documents\GitHub\CANNR\source\runtime>set PYTHONPATH=..\base_image\cannr\lib 
+
+Z:\Documents\GitHub\CANNR\source\runtime>python runcnr.py ..\..\examples\project1\project.json context.json 
+../examples/project1/folder1
+Z:\Documents\GitHub\CANNR\source\examples\project1\folder1

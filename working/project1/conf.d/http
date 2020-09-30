@@ -1,0 +1,22 @@
+http {
+	upstream pyFolder {
+		server localhost:4000 max_conns=1;
+	}
+	upstream rFolder_iris {
+		server localhost:4001 max_conns=1;
+	}
+	upstream rFolder_sum {
+		server localhost:4002 max_conns=1;
+	}
+	server {
+		location /services/pyFolder {
+			proxy_pass http://pyFolder;
+		}
+		location /services/rFolder/iris {
+			proxy_pass http://rFolder_iris;
+		}
+		location /services/rFolder/sum {
+			proxy_pass http://rFolder_sum;
+		}
+	}
+}
