@@ -1,5 +1,5 @@
-
-# CANNR TM tool example showing how to fit an R model that can then be exposed as a Web service.
+# CANNR TM analytics container building tool example showing how to fit an
+# R model that can then be exposed as a Web service.
 # Copyright 2020 Pat Tendick ptendick@gmail.com
 # All rights reserved
 # Maintainer Pat Tendick ptendick@gmail.com

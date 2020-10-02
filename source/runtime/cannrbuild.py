@@ -1,5 +1,5 @@
 """
-CANNR TM tool build functions.
+CANNR TM analytics container building tool build functions.
 Module that generates Web service code from source files.
 Copyright 2020 Pat Tendick ptendick@gmail.com
 All rights reserved

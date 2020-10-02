@@ -1,3 +1,10 @@
+"""
+CANNR TM analytics container building tool command line program.
+Python script for running the tool stand alone.
+Copyright 2020 Pat Tendick ptendick@gmail.com
+All rights reserved
+Maintainer Pat Tendick ptendick@gmail.com
+"""
 
 # Python script for running cannR stand alone 
 
@@ -10,7 +17,6 @@ name = project.get('name', 'Unknown')
 
 context = crc.readJSONFile(sys.argv[2])
 
-#cnb.buildProject(project, context)
 cnb.buildFromFile(sys.argv[1], context)
 
 print(f'Project {name} built successfully!')

@@ -1,5 +1,5 @@
 """
-CANNR TM system management process functions.
+CANNR TM analytics container building tool system management process functions.
 Module of supporting functions for the Service Management Process (SMP).
 Copyright 2020 Pat Tendick ptendick@gmail.com
 All rights reserved

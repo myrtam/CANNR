@@ -1,5 +1,4 @@
-
-# CANNR TM tool script that runs R services.
+# CANNR TM analytics container building tool script that runs R services.
 # Copyright 2020 Pat Tendick ptendick@gmail.com
 # All rights reserved
 # Maintainer Pat Tendick ptendick@gmail.com

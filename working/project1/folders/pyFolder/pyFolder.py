@@ -1,6 +1,6 @@
 """
 Copyright/license notice for the project
-Generated 2020-09-29 21:36:38
+Generated 2020-10-01 21:38:10
 """
 import json
 import os
@@ -12,9 +12,9 @@ from flask import Flask, render_template, request
 import cannrcore as cnr
 
 
-os.chdir("\folders\pyFolder\folder1")
-m_1 = cnr.importPackage("m_1", "/folders/pyFolder/./folder1/sum.py")
-m_2 = cnr.importPackage("m_2", "/folders/pyFolder/./folder1/rand.py")
+os.chdir("/folders/pyFolder/folder1")
+m_1 = cnr.importPackage("m_1", "/folders/pyFolder/folder1/sum.py")
+m_2 = cnr.importPackage("m_2", "/folders/pyFolder/folder1/rand.py")
 
 app = Flask(__name__)
 workerID = str(uuid.uuid4())

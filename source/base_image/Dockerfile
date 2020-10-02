@@ -1,5 +1,4 @@
-
-# CANNR TM tool base container.
+# CANNR TM analytics container building tool base container.
 # Copyright 2020 Pat Tendick ptendick@gmail.com
 # All rights reserved
 # Maintainer Pat Tendick ptendick@gmail.com

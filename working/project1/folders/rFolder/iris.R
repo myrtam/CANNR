@@ -1,5 +1,5 @@
-
-# CANNR TM tool example showing R function to expose as a Web service.
+# CANNR TM analytics container building tool example showing R function to
+# expose as a Web service.
 # Copyright 2020 Pat Tendick ptendick@gmail.com
 # All rights reserved
 # Maintainer Pat Tendick ptendick@gmail.com
@@ -11,6 +11,8 @@
 irisModel <- readRDS('models/irisModel.rds')
 
 # Function to predict petal length from sepal length
+# Example:
+# http://<host>/services/rFolder/iris/predPLengthSLength?x=6.5
 predPLengthSLength <- function(new) {
 
 	# Convert input to numeric
@@ -28,7 +30,7 @@ predPLengthSLength <- function(new) {
 
 ################################################################################
 # Copyright/license notice for the project
-# Generated 2020-09-29 21:36:38
+# Generated 2020-10-01 21:38:10
 ################################################################################
 
 library(urltools)

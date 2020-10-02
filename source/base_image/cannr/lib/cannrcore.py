@@ -1,5 +1,5 @@
 """
-CANNR TM tool core functions.
+CANNR TM analytics container building tool core functions.
 Copyright 2020 Pat Tendick ptendick@gmail.com
 All rights reserved
 Maintainer Pat Tendick ptendick@gmail.com

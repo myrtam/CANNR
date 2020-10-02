@@ -1,5 +1,4 @@
-
-# CANNR TM tool Dockerfile template.
+# CANNR TM analytics container building tool Dockerfile template.
 # Copyright 2020 Pat Tendick ptendick@gmail.com
 # All rights reserved
 # Maintainer Pat Tendick ptendick@gmail.com

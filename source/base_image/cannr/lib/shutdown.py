@@ -1,7 +1,5 @@
-
-# Utility to shut down a Flask worker.
 """
-CANNR TM tool Flask worker shutdown module.
+CANNR TM analytics container building tool Flask worker shutdown module.
 Utility to shut down a Flask (werkzeug) worker.
 Copyright 2020 Pat Tendick ptendick@gmail.com
 All rights reserved
