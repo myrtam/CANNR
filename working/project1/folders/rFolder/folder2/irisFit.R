@@ -7,10 +7,10 @@
 # Fit a model to iris data, specifically predict petal length from sepal length
 # for virginica species.
 
-library(tidyverse)
+# Set the working directory to the directory containing this script, e.g.
+setwd('examples/project1/folder2')
 
-# Set the working directory, e.g.
-setwd('examples/project1/folder2/home')
+library(tidyverse)
 
 # Subset virginica
 irisData <- as_tibble(subset(iris, Species == 'virginica'))
