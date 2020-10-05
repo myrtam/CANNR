@@ -20,7 +20,7 @@ the command
 To run the example from Windows, navigate to the source\runtime directory,
 then run the command
 
-runcnr.cmd ..\..\examples\project1\project.json
+runcnr.cmd ..\..\examples\project1\winproject.json
 
 Then navigate to the working\project1 or working/project1 directory, where you
 will find a Docker project.  You can then use Docker to build the container

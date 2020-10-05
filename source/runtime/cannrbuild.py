@@ -85,7 +85,7 @@ def buildPyFolder(folderName, project):
     # Add paths to search for dependent modules.
     # Loop through paths, add.
     folderPath = '/folders/' + folderName
-    relativePath = cc.getRelativePath(folder['source']['sourcePath'])
+    relativePath = cc.getRelativePath(folder['source']['sourcePath'].replace(os.path.sep, '/'))
     paths = folder.get('paths', None)
     if paths:
         for path in paths:
@@ -237,6 +237,7 @@ def buildRModuleEpilogue(folderName, moduleName, project):
     moduleText += buildCodeLine(0, ['#'*80])
     moduleText += '\n'
     
+    moduleText += buildCodeLine(0, ['library(jsonlite)'])
     moduleText += buildCodeLine(0, ['library(urltools)'])
     moduleText += '\n'
     moduleText += buildCodeLine(0, ['workerID <- Sys.getenv("WORKER_ID")'])
@@ -559,8 +560,13 @@ def buildProject(project, basePath, context):
                 if not sourceFileName:
                     raise cc.RTAMError(missingSourceFileNameMsg, missingSourceFileNameCode)
                 
+                # TODO: PREFIX THIS WITH THE FOLLOWING
+                # 'setwd("' + cc.getHome(folderName, folder) + ")'
+                sourceText = '# Change to the source directory\n'
+                sourceText += buildCodeLine(0, ['setwd("', cc.getHome(folderName, folder), '")\n'])
+                
                 with open(sourcePath + os.path.sep + sourceFileName, "r") as sourceFile:
-                    sourceText = sourceFile.read()
+                    sourceText += sourceFile.read()
 
                 moduleText = sourceText + 2*'\n' + buildRModuleEpilogue(folderName, moduleName, project)
                 folderPath = getFolderPath(foldersPath, folderName)
@@ -581,7 +587,8 @@ def buildProject(project, basePath, context):
                     ngnixHttpBlock += 2*'\t' + 'server localhost:' + str(port) + ' max_conns=1;\n'
                     #eventCalendar.addEntry(None, "startPlumber", {"folder": folderName, "module": moduleName, "path": modulePath, "port": port}, 1)
                     # TODO: THROW EXCEPTION IF PORT OUT OF RANGE
-                    mainText += buildCodeLine(0, ['Rscript', ' --vanilla ', cannrHome + os.path.sep + 'runApp.R', ' ', path, ' ', cc.getHome(folderName, folder), ' ', str(port), ' ', str(workerID), ' &'])
+                    #mainText += buildCodeLine(0, ['Rscript', ' --vanilla ', cannrHome + '/runApp.R', ' ', path, ' ', cc.getHome(folderName, folder), ' ', str(port), ' ', str(workerID), ' &'])
+                    mainText += buildCodeLine(0, ['Rscript', ' --vanilla ', cannrHome + '/runApp.R', ' ', path, ' ', str(port), ' ', str(workerID), ' &'])
                     port += 1
                     workerID += 1
     

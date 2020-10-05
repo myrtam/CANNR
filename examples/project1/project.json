@@ -2,7 +2,7 @@
 	"title": "Basic test project",
 	"name": "project1",
 	"version": "0.1",
-	"baseImage": "cannr",
+	"baseImage": "cannr-base",
 	"maintainerName": "Pat Tendick",
 	"maintainerEmail": "ptendick@gmail.com",
 	"notice": "Copyright/license notice for the project",

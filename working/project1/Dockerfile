@@ -3,7 +3,7 @@
 # All rights reserved
 # Maintainer Pat Tendick ptendick@gmail.com
 
-FROM cannr
+FROM cannr-base
 LABEL maintainer="pat@pat.com"
 
 # Copy specific NGINX configuration

@@ -6,6 +6,12 @@
 # Use Rocker image
 FROM r-base
 
+# Install required libraries
+RUN apt-get update
+RUN apt-get -y install libcurl4-openssl-dev
+RUN apt-get -y install libsodium-dev
+RUN apt-get -y install libsodium23
+
 # Install Python 3.8
 RUN apt update --fix-missing
 RUN apt install -y software-properties-common

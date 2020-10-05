@@ -1,3 +1,6 @@
+# Change to the source directory
+setwd("/folders/rFolder/folder2")
+
 # CANNR TM analytics container building tool example showing R function to
 # expose as a Web service.
 # Copyright 2020 Pat Tendick ptendick@gmail.com
@@ -16,9 +19,10 @@ sumX <- function(df) {
 
 ################################################################################
 # Copyright/license notice for the project
-# Generated 2020-10-01 21:38:10
+# Generated 2020-10-04 19:58:08
 ################################################################################
 
+library(jsonlite)
 library(urltools)
 
 workerID <- Sys.getenv("WORKER_ID")

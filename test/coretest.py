@@ -5,6 +5,7 @@ Test harness for cannrcore.py
 import sys
 import os
 import json
+import platform
 import unittest
 
 sys.path.append('../source/base_image/cannr/lib')
@@ -15,6 +16,13 @@ class TestCannrCore(unittest.TestCase):
     
     # Stub
     def setUp(self):
+        
+        self.context = cnc.readJSONFile('../source/runtime/context.json')
+        if platform.system() == 'Windows':
+            self.project = cnc.readJSONFile('../examples/project1/winproject.json')
+        else:
+            self.project = cnc.readJSONFile('../examples/project1/project.json')
+                
         pass
 
     # Completed
@@ -97,69 +105,60 @@ class TestCannrCore(unittest.TestCase):
     # Completed
     def test_readJSONFile(self):
     
-        x = cnc.readJSONFile('../examples/project1/project.json')
-        self.assertTrue(json.dumps(x))
+        self.assertTrue(json.dumps(self.project))
     
     # Completed
     def test_getFolders(self):
         
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        self.assertTrue(cnc.getFolders(project))
+        self.assertTrue(cnc.getFolders(self.project))
     
     # Completed
     def test_getFolder(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        self.assertTrue(cnc.getFolder('rFolder', project))
+        folders = cnc.getFolders(self.project)
+        self.assertTrue(cnc.getFolder('rFolder', self.project))
     
     # Completed
     def test_getFolderNames(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folderNames = cnc.getFolderNames(project)
+        folderNames = cnc.getFolderNames(self.project)
         self.assertTrue('rFolder' in folderNames)
     
     # Completed
     def test_getModules(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
         self.assertTrue(cnc.getModules(folder))
     
     # Completed
     def test_getModule(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
         self.assertTrue(cnc.getModule('iris', folder))
     
     # Completed
     def test_getModuleNames(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
         moduleNames = cnc.getModuleNames(folder)
         self.assertTrue('iris' in moduleNames)
     
     # Completed
     def test_getServices(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
         module = cnc.getModule('iris', folder)
         self.assertTrue(cnc.getServices(module))
     
     # Completed
     def test_getServiceNames(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
         module = cnc.getModule('iris', folder)
         serviceNames = cnc.getServiceNames(module)
         self.assertTrue('predPLengthSLength' in serviceNames)
@@ -167,36 +166,33 @@ class TestCannrCore(unittest.TestCase):
     # Completed
     def test_getService(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
         module = cnc.getModule('iris', folder)
         self.assertTrue(cnc.getService('predPLengthSLength', module))
     
     # Completed
     def test_getRelativePath(self):
         
-        path = '/examples/project1/pyFolder'.replace('/', os.path.sep)
+        path = '/examples/project1/pyFolder'
         self.assertEqual(cnc.getRelativePath(path), 'pyFolder')
     
     # Completed
     def test_getHome(self):
     
-        project = cnc.readJSONFile('../examples/project1/project.json')
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
-        path = '/folders/rFolder/folder2'.replace('/', os.path.sep)
+        folders = cnc.getFolders(self.project)
+        folder = cnc.getFolder('rFolder', self.project)
+        path = '/folders/rFolder/folder2'
         self.assertEqual(cnc.getHome('rFolder', folder), path)
     
     # Completed
     def test_saveProject(self):
         
         project = cnc.readJSONFile('../examples/project1/project.json')
-        context = cnc.readJSONFile('../source/runtime/context.json')
-        authPolicy = context.get('authPolicy')
+        authPolicy = self.context.get('authPolicy')
         authPolicyLen = authPolicy.get('authPolicyLen')
         authPolicyChars = authPolicy.get('authPolicyChars')
-        result = cnc.saveProject(project, 'project1.json', authPolicyLen, authPolicyChars)
+        result = cnc.saveProject(self.project, 'project1.json', authPolicyLen, authPolicyChars)
         self.assertEqual(result, 1)
 
         authentication = {

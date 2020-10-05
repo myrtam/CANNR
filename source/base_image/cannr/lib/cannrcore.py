@@ -357,7 +357,7 @@ def getPort():
 
 # Get relative folder name from full path.
 def getRelativePath(filePath):
-    folders = filePath.split(os.path.sep)
+    folders = filePath.split('/')
     if len(folders) > 1:
         return folders[len(folders)-1]
     if len(folders) == 1:
@@ -365,16 +365,16 @@ def getRelativePath(filePath):
     return None
 
 # Get the home directory of the folder in the container.
-# TODO: HANDLE OTHER TYPES OF STORAGE (Web, S3, etc.)
+# TODO: HANDLE OTHER TYPES OF STORAGE (Web, S3, etc.) FOR SOURCE
 def getHome(folderName, folder):
     source = folder.get("source", None)
-    folderPath = os.path.sep + 'folders' + os.path.sep + folderName + os.path.sep
+    folderPath = '/folders/' + folderName + '/'
     if not source:
         return folderPath + 'home'
     path = source.get("sourcePath", None)
     if not path:
         return folderPath + 'home'
-    return folderPath + getRelativePath(path.replace('/', os.path.sep))
+    return folderPath + getRelativePath(path.replace(os.path.sep, '/'))
 
 # Saves the project to the specified file path.
 # If a password is specified, populates the password hash/salt and deletes the password.
@@ -426,7 +426,6 @@ def saveProject(project, filePath, authPolicyLen, authPolicyChars):
             'salt': hashInfo.get('salt', None)
             }
         
-        print(filePath)
         # Write out project file to the project directory
         with open(filePath, 'w') as projectFile:
             projectFile.write(json.dumps(project))
@@ -437,18 +436,5 @@ def saveProject(project, filePath, authPolicyLen, authPolicyChars):
     
     return 0
 
-"""
-project = readJSONFile('../../../../examples/project1/project.json')
-context = readJSONFile('../../../runtime/context.json')
-authPolicy = context.get('authPolicy')
-authPolicyLen = authPolicy.get('authPolicyLen')
-authPolicyChars = authPolicy.get('authPolicyChars')
-authentication = {
-    'password': '123456',
-    'adminID': 'IRule'
-    }
-project['authentication'] = authentication
-result = saveProject(project, '/Users/ptendick/Documents/GitHub/CANNR/test/project1.json', authPolicyLen, authPolicyChars)
-"""
 
 

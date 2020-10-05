@@ -3,7 +3,7 @@
 	"workingDirectory": {
 		"path": "../../working"
 	},
-	"baseImage": "cannr",
+	"baseImage": "cannr-base",
 	"maintainerEmail": "pat@pat.com",
 	"authPolicy": {
 		"authPolicyLen": 12,
