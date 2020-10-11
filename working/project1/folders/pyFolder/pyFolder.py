@@ -1,6 +1,13 @@
 """
-Copyright/license notice for the project
-Generated 2020-10-05 10:31:58
+CANNR TM analytics container building tool Python service script.
+Module that calls other modules to provide Web services.
+Copyright 2020 Pat Tendick ptendick@gmail.com
+All rights reserved
+Maintainer Pat Tendick ptendick@gmail.com
+"""
+
+"""
+Generated 2020-10-10 21:22:24
 """
 import json
 import os
@@ -30,7 +37,6 @@ def shutdown():
 # Service sum in module sum
 @app.route("/services/pyFolder/sum/sum", methods=["POST"])
 def s_1():
-	parsedParams = request.args.to_dict()
 	output = m_1.calcSum(request.get_json())
 	parsedOutput = json.dumps(output)
 	return(parsedOutput)
@@ -55,7 +61,6 @@ def updateCred_1():
 # Service rand in module rand
 @app.route("/services/pyFolder/rand/rand", methods=["GET"])
 def s_2():
-	parsedParams = request.args.to_dict()
 	output = m_2.rand()
 	parsedOutput = json.dumps(output)
 	return(parsedOutput)

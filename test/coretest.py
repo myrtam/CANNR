@@ -184,6 +184,19 @@ class TestCannrCore(unittest.TestCase):
         folder = cnc.getFolder('rFolder', self.project)
         path = '/folders/rFolder/folder2'
         self.assertEqual(cnc.getHome('rFolder', folder), path)
+        
+    def test_getProjectPath(self):
+        
+        # Save the current directory and change to the runtime directory
+        cwd = os.getcwd()
+        os.chdir('../source/runtime')
+
+        # Get the project path and the correct value
+        projectPath = cnc.getProjectPath(self.project, self.context)
+        os.chdir(cwd)
+        absPath = os.path.abspath('../working/project1'.replace('/', os.path.sep))
+
+        self.assertEqual(projectPath, absPath)
     
     # Completed
     def test_saveProject(self):

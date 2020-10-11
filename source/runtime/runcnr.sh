@@ -10,7 +10,16 @@
 # file with the path of the project file as an argument, e.g.,
 # ./runcnr.sh ../../examples/project1/project.json
 
-# Run build script
 export PYTHONPATH=$PYTHONPATH:../base_image/cannr/lib
-python3 runcnr.py $1 context.json
 
+# Warning that directories will be overwritten/deleted
+echo "The directory"
+python3 checkdel.py $1 context.json
+echo "and its descendants will be deleted or overwritten!"
+read -p "Proceed(Y/n)? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Y]$ ]]
+then
+	# Run build script
+	python3 runcnr.py $1 context.json
+fi

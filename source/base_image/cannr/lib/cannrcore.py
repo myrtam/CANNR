@@ -9,16 +9,15 @@ import json
 import os
 import sys
 import importlib.util
-import traceback
+#import traceback
 from datetime import datetime
 import re
-import shutil
+#import shutil
 import tempfile
 import hashlib
 import uuid
 import logging
 
-# TODO:  NEED TO NOTE IN DOCS THAT THIS PKG HAS TO BE INSTALLED.
 from stdlib_list import stdlib_list
 
 
@@ -197,6 +196,7 @@ class EventCalendar():
 # Returns the module, which must be assigned to a variable to be used.
 def importPackage(packageName, filePath):
 
+    # TODO: DON'T NEED TO REPLACE / SINCE THIS IS CALLED IN CONTAINER!
     packageSpec = importlib.util.spec_from_file_location(packageName, filePath.replace('/', os.path.sep))
     module = importlib.util.module_from_spec(packageSpec)
     packageSpec.loader.exec_module(module)
@@ -338,19 +338,6 @@ def getService(serviceName, module):
         return None
     return services.get(serviceName, None)
 
-# Extracts the module name from the file name.
-# TODO:  REMOVE!  NO LONGER USED
-comp = None
-def getModuleNameFromFile(fileName):
-
-    global comp
-    if not comp:
-        comp = re.compile('^.*(?=\.\w+$)')
-    result = comp.match(fileName)
-    if result:
-        return comp.match(fileName).group(0)
-    return fileName
-
 # Get port to use.
 def getPort():
     return int(sys.argv[1])
@@ -375,6 +362,32 @@ def getHome(folderName, folder):
     if not path:
         return folderPath + 'home'
     return folderPath + getRelativePath(path.replace(os.path.sep, '/'))
+
+
+# Test whether a directory exists.
+def existsDirectory(path):
+    return True if os.path.isdir(path) else False
+
+# Returns the project path (directory where the project will be written).
+def getProjectPath(project, context):
+
+    # Check whether the tool has a working directory
+    workingDirectory = context.get("workingDirectory", None)
+    if not workingDirectory or not workingDirectory.get("path", None):
+        raise RTAMError(noDirectorySpecMsg, noDirectorySpecCode)
+        
+    path = workingDirectory.get("path")
+    if not existsDirectory(path):
+        raise RTAMError(noDirectoryMsg, noDirectoryCode)
+
+    # Check the project name
+    projectName = project.get("name", None)
+    if not projectName:
+        raise RTAMError(noProjectNameMsg, noProjectNameCode)
+
+    # Project path is the project name directory in the working directory
+    return os.path.abspath(path) + os.path.sep + projectName
+
 
 # Saves the project to the specified file path.
 # If a password is specified, populates the password hash/salt and deletes the password.

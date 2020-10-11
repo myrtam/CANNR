@@ -57,6 +57,8 @@ class TestCannrBuild(unittest.TestCase):
         self.assertTrue(rFolderText)
     
     # Completed
+    # No longer used
+    """
     def test_checkWorkingDirectory(self):
         
         context = cnc.readJSONFile('../source/runtime/context.json')
@@ -70,12 +72,13 @@ class TestCannrBuild(unittest.TestCase):
         workingDirectory = self.context['workingDirectory']
         workingDirectory['path'] = '../working'
         self.assertTrue(cnb.checkWorkingDirectory(self.context))
+    """
     
     # Completed
     def test_existsDirectory(self):
 
-        self.assertTrue(cnb.existsDirectory('/'))
-        self.assertFalse(cnb.existsDirectory('/doesnotexist'))
+        self.assertTrue(cnc.existsDirectory('/'))
+        self.assertFalse(cnc.existsDirectory('/doesnotexist'))
     
     # Completed
     def test_getFolderPath(self):
@@ -103,10 +106,12 @@ class TestCannrBuild(unittest.TestCase):
             cnb.initBuild(project, context)
         
         project = cnc.readJSONFile('../examples/project1/project.json')
+        project['baseImage'] = None
         context['baseImage'] = None
         with self.assertRaises(cnc.RTAMError) as result:
             cnb.initBuild(project, context)
         
+        project = cnc.readJSONFile('../examples/project1/project.json')
         context = cnc.readJSONFile('context.json')
         context['workingDirectory'] = {'path': '../doesnotexist'}
         with self.assertRaises(cnc.RTAMError) as result:
@@ -125,7 +130,7 @@ class TestCannrBuild(unittest.TestCase):
         workingDirectory = context.get('workingDirectory')
         workingPath = workingDirectory.get('path')
         foldersPath = workingPath + os.path.sep + 'folders'
-        if cnb.existsDirectory(foldersPath):
+        if cnc.existsDirectory(foldersPath):
             shutil.rmtree(foldersPath)
         os.mkdir(foldersPath)
         projectFilePath = os.path.abspath('../examples/project1/project.json')
@@ -172,7 +177,7 @@ class TestCannrBuild(unittest.TestCase):
         workingDirectory = self.context.get('workingDirectory')
         workingPath = workingDirectory.get('path')
         foldersPath = workingPath + os.path.sep + 'project1' + os.path.sep + 'folders'
-        if cnb.existsDirectory(foldersPath):
+        if cnc.existsDirectory(foldersPath):
             shutil.rmtree(foldersPath)
         os.mkdir(foldersPath)
         #projectFilePath = os.path.abspath('../examples/project1/project.json')

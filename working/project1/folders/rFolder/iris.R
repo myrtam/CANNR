@@ -32,8 +32,15 @@ predPLengthSLength <- function(new) {
 
 
 ################################################################################
-# Copyright/license notice for the project
-# Generated 2020-10-05 10:31:58
+# CANNR TM analytics container building tool R service script.
+# Wrapper module that provides Web services.
+# Copyright 2020 Pat Tendick ptendick@gmail.com
+# All rights reserved
+# Maintainer Pat Tendick ptendick@gmail.com
+################################################################################
+
+################################################################################
+# Generated 2020-10-10 21:22:24
 ################################################################################
 
 library(jsonlite)

@@ -10,10 +10,10 @@ LABEL maintainer="pat@pat.com"
 COPY conf.d/http /etc/nginx/http
 
 # Install R packages
-#<R Packages>
+# No R packages to install
 
 # Install Python packages
-#<P Packages>
+# No Python packages to install
 
 # Copy project contents
 COPY . .

@@ -5,11 +5,16 @@
 	"baseImage": "cannr-base",
 	"maintainerName": "Pat Tendick",
 	"maintainerEmail": "ptendick@gmail.com",
-	"notice": "Copyright/license notice for the project",
 	"dependencyNotice": "Copyright/license notice for dependencies",
 	"portRange": [4000,4500],
 	"nginxPort": 80,
 	"smiPort": 8080,
+	"objectStoreInfo": {
+		"objectStoreType": "S3",
+		"accessKey": "accessKey",
+		"secretKey": "secretKey"
+	},
+	"initRequired": true,
 	"folders": {
 		"pyFolder": {
 			"language": "Python",
@@ -76,16 +81,13 @@
 			},
 			"paths": [],
 			"initializationType": null,
+			"workers": 1,
 			"modules": {
 				"iris": {
 					"sourceFile": "iris.R",
 					"title": "Iris measurement prediction module",
 					"version": "0.1",
 					"help": "Help!",
-					"workers": 1,
-					"notes": [
-						"workers parameter shouldn't be specified at the module level.  May not be forward compatible if convert modules to packages and have one script per folder as with Python."
-					],
 					"packages": [],
 					"services": {
 						"predPLengthSLength": {
@@ -114,7 +116,6 @@
 					"title": "Sum variable x in a data frame",
 					"version": "0.1",
 					"help": "Help!",
-					"workers": 1,
 					"services": {
 						"sum": {
 							"function": "sumX",

@@ -4,13 +4,18 @@ source files and creates scalable containerized microservices that expose things
 like models and calculations so that they may be easily consumed by software
 applications.
 
-You need to have Docker and Python 3.7 or higher installed.  Also, you need to install the
-stdlib_list package, using e.g.,
+You need to have Docker and Python 3.7 or higher installed.  Also, you need to
+install the stdlib_list package, using e.g.,
 
 pip3 install stdlib_list
 
 Future versions will probably run in a container and only require having Docker
 installed.
+
+To install the tool, clone the CANNR project or download and copy the
+directories to your computer.
+
+THIS INITIAL RELEASE DOES NOT ALLOW FOR SPACES IN FILE OR DIRECTORY NAMES!
 
 To run the example on OSX, navigate to the source/runtime directory, then run
 the command
