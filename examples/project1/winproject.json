@@ -6,7 +6,7 @@
 	"maintainerName": "Pat Tendick",
 	"maintainerEmail": "ptendick@gmail.com",
 	"dependencyNotice": "Copyright/license notice for dependencies",
-	"portRange": [4000,4500],
+	"portRange": [5000,5500],
 	"nginxPort": 80,
 	"smiPort": 8080,
 	"folders": {
