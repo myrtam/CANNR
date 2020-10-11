@@ -4,6 +4,8 @@ source files and creates scalable containerized microservices that expose things
 like models and calculations so that they may be easily consumed by software
 applications.
 
+NOTE:  THIS IS A PRE-RELEASE.  WATCH THIS PROJECT FOR UPCOMING RELEASES!
+
 You need to have Docker and Python 3.7 or higher installed.  Also, you need to
 install the stdlib_list package, using e.g.,
 
