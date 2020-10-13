@@ -54,6 +54,7 @@ class TestCannrCore(unittest.TestCase):
     def test_isStdPkg(self):
     
         self.assertTrue(cnc.isStdPkg('os'))
+        self.assertFalse(cnc.isStdPkg('scipy'))
     
     # Completed
     def test_getLibPath(self):
@@ -64,6 +65,7 @@ class TestCannrCore(unittest.TestCase):
     def test_isInstPkg(self):
     
         self.assertTrue(cnc.isInstPkg('numpy'))
+        self.assertFalse(cnc.isStdPkg('scipy'))
     
     # Completed
     def test_isRInstPkg(self):

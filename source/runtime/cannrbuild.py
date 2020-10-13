@@ -651,7 +651,7 @@ def buildProject(project, basePath, context):
     # Add imports of Python packages to container and Dockerfile
     installText = ''
     pPackageSet = set(pPackageNames)
-    if len(rPackageSet):
+    if len(pPackageSet):
         for pkg in pPackageSet:
             if not cc.isStdPkg(pkg) and not cc.isInstPkg(pkg):
                 installText += 'RUN pip3 install ' + pkg + '\n'
