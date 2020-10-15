@@ -199,7 +199,7 @@ class TestCannrBuild(unittest.TestCase):
 
         #projectFilePath = os.path.abspath('../examples/project1/project.json')
         #project = cnc.readJSONFile(projectFilePath)
-        self.assertEqual(cnb.getPortRange(self.project), [4000,4500])
+        self.assertEqual(cnb.getPortRange(self.project), [5000,5500])
     
     # Completed
     def test_walkNumber(self):

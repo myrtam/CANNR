@@ -25,6 +25,9 @@ docker build -t cannr-base
 Once you have built the base image, you can run the tool to create containerized
 microservices from your R or Python code.
 
+If you have R code, it must be compatible with R 4.0.  If you have Python code,
+it needs to be compatible with Python 3.8.
+
 There is currently one example project in the directory examples/project1.
 The example consists of two Python scripts and two R scripts.  The Python
 scripts are in subdirectory folder1 and the R scripts are in folder2.
