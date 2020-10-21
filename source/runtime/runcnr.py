@@ -13,7 +13,7 @@ import cannrbuild as cnb
 import sys
 
 project = crc.readJSONFile(sys.argv[1])
-name = project.get('name', 'Unknown')
+name = project.get('projectName', 'Unknown')
 
 context = crc.readJSONFile(sys.argv[2])
 

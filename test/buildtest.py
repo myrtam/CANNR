@@ -101,7 +101,7 @@ class TestCannrBuild(unittest.TestCase):
         with self.assertRaises(cnc.RTAMError) as result:
             cnb.initBuild(project, [])
         
-        project['name'] = None
+        project['projectName'] = None
         with self.assertRaises(cnc.RTAMError) as result:
             cnb.initBuild(project, context)
         

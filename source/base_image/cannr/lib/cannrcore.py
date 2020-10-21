@@ -381,7 +381,7 @@ def getProjectPath(project, context):
         raise RTAMError(noDirectoryMsg, noDirectoryCode)
 
     # Check the project name
-    projectName = project.get("name", None)
+    projectName = project.get("projectName", None)
     if not projectName:
         raise RTAMError(noProjectNameMsg, noProjectNameCode)
 

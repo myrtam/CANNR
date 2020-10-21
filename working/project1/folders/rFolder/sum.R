@@ -26,7 +26,7 @@ sumX <- function(df) {
 ################################################################################
 
 ################################################################################
-# Generated 2020-10-11 11:19:58
+# Generated 2020-10-20 21:50:30
 ################################################################################
 
 library(jsonlite)
@@ -42,9 +42,6 @@ function(req) {
 	rawJSON <- req$postBody
 	listFromJSON <- fromJSON(rawJSON)
 	bodyInput <- as.data.frame(listFromJSON)
-	if (nrow(bodyInput) > 1000) {
-		return(data.frame(error = "Capacity exceeded"))
-	}
 	output <- sumX(bodyInput)
 	return(output)
 }

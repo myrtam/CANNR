@@ -1,7 +1,7 @@
 {
-	"title": "Basic test project",
-	"name": "project1",
-	"version": "0.1",
+	"projectTitle": "Basic test project",
+	"projectName": "project1",
+	"projectDescription": "<description here>",
 	"baseImage": "cannr-base",
 	"maintainerName": "Pat Tendick",
 	"maintainerEmail": "ptendick@gmail.com",
@@ -9,14 +9,11 @@
 	"portRange": [5000,5500],
 	"nginxPort": 80,
 	"smiPort": 8080,
-	"objectStoreInfo": {
-		"objectStoreType": "S3",
-		"accessKey": "accessKey",
-		"secretKey": "secretKey"
-	},
 	"initRequired": true,
 	"folders": {
 		"pyFolder": {
+			"folderTitle": "Basic test project",
+			"folderDescription": "<description here>",
 			"language": "Python",
 			"source": {
 				"sourceType": "file",
@@ -26,26 +23,23 @@
 			"modules": {
 				"sum": {
 					"sourceFile": "sum.py",
-					"title": "Sum module",
-					"version": "0.1",
-					"help": "Help!",
+					"moduleTitle": "Sum module",
+					"moduleDescription": "Help!",
 					"packages": ["numpy","json"],
 					"services": {
 						"sum": {
+							"serviceTitle": "Sum numbers",
+							"serviceDescription": "Service that sums an array of numbers",
 							"function": "calcSum",
 							"method": "POST",
 							"includeParams": false,
-							"input": {
-								"parse": true,
-								"parseType": "dictionary",
-								"capacity": 1000,
-								"note": "If parseType is dictionary, capacity is ignored"
-							},
-							"output": {
-								"parse": true,
-								"parseType": "dictionary"
-							},
-							"help": "Help!",
+							"parseInput": true,
+							"inputParseType": "dictionary",
+							"capacity": 1000,
+							"note": "If parseType is dictionary, capacity is ignored",
+							"parseOutput": true,
+							"outputParseType": "dictionary",
+							"serviceHelp": "Help!",
 							"testInput": null
 						}
 						
@@ -53,20 +47,17 @@
 				},
 				"rand": {
 					"sourceFile": "rand.py",
-					"title": "Rand module",
-					"version": "0.1",
-					"help": "Help!",
+					"moduleTitle": "Rand module",
+					"moduleHelp": "Help!",
 					"packages": ["random","time"],
 					"services": {
 						"rand": {
 							"function": "rand",
 							"method": "GET",
 							"includeParams": false,
-							"output": {
-								"parse": true,
-								"parseType": "dictionary"
-							},
-							"help": "Help!",
+							"parseOutput": true,
+							"outputParseType": "dictionary",
+							"serviceHelp": "Help!",
 							"testInput": null
 						}
 					}
@@ -85,27 +76,22 @@
 			"modules": {
 				"iris": {
 					"sourceFile": "iris.R",
-					"title": "Iris measurement prediction module",
-					"version": "0.1",
-					"help": "Help!",
+					"moduleTitle": "Iris measurement prediction module",
+					"moduleHelp": "Help!",
 					"packages": [],
 					"services": {
 						"predPLengthSLength": {
 							"function": "predPLengthSLength",
 							"method": "GET",
 							"includeParams": true,
-							"input": {
-								"parse": true,
-								"parseType": "dataframe",
-								"parseOptions": {},
-								"capacity": 1
-							},
-							"output": {
-								"parse": true,
-								"parseType": "dataframe",
-								"parseOptions": {}
-							},
-							"help": "Help!",
+							"parseInput": true,
+							"inputParseType": "dataframe",
+							"inputParseOptions": {},
+							"capacity": 1,
+							"parseOutput": true,
+							"outputParseType": "dataframe",
+							"outputParseOptions": {},
+							"serviceHelp": "Help!",
 							"testInput": null
 						}
 						
@@ -113,26 +99,21 @@
 				},
 				"sum": {
 					"sourceFile": "sum.R",
-					"title": "Sum variable x in a data frame",
-					"version": "0.1",
-					"help": "Help!",
+					"moduleTitle": "Sum variable x in a data frame",
+					"moduleHelp": "Help!",
 					"services": {
 						"sum": {
 							"function": "sumX",
 							"method": "POST",
 							"includeParams": false,
-							"input": {
-								"parse": true,
-								"parseType": "dataframe",
-								"parseOptions": {},
-								"capacity": 1000
-							},
-							"output": {
-								"parse": true,
-								"parseType": "dataframe",
-								"parseOptions": {}
-							},
-							"help": "Help!",
+							"parseInput": true,
+							"inputParseType": "dataframe",
+							"inputParseOptions": {},
+							"capacity": 1000,
+							"parseOutput": true,
+							"outputParseType": "dataframe",
+							"outputParseOptions": {},
+							"serviceHelp": "Help!",
 							"testInput": null
 						}
 						
