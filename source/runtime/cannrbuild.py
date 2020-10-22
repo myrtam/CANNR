@@ -87,7 +87,7 @@ def buildPyFolder(folderName, project):
     # Add paths to search for dependent modules.
     # Loop through paths, add.
     folderPath = '/folders/' + folderName
-    relativePath = cc.getRelativePath(folder['source']['sourcePath'].replace(os.path.sep, '/'))
+    relativePath = cc.getRelativePath(folder['sourcePath'].replace(os.path.sep, '/'))
     paths = folder.get('paths', None)
     if paths:
         for path in paths:
@@ -476,18 +476,8 @@ def buildProject(project, basePath, context):
         # Get the folder and copy the source files to the new folder
         folder = cc.getFolder(folderName, project)
 
-        # Check for source info
-        source = folder.get("source", None)
-        if not source:
-            raise cc.RTAMError(cc.noSourceInfoMsg, cc.noSourceInfoCode)
-    
-        # Check for valid source type
-        sourceType = source.get("sourceType", None)
-        if not sourceType or sourceType!='file':
-            raise cc.RTAMError(cc.badSourceTypeMsg, cc.badSourceTypeCode)
-    
         # Check for source path
-        sourcePath = source.get("sourcePath", None)
+        sourcePath = folder.get("sourcePath", None)
         if not sourcePath:
             raise cc.RTAMError(cc.noSourcePathMsg, cc.noSourcePathCode)
 

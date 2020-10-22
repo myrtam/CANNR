@@ -15,10 +15,7 @@
 			"folderTitle": "Basic test project",
 			"folderDescription": "<description here>",
 			"language": "Python",
-			"source": {
-				"sourceType": "file",
-				"sourcePath": ".\\folder1"
-			},
+			"sourcePath": ".\\folder1",
 			"workers": 1,
 			"modules": {
 				"sum": {
@@ -66,10 +63,7 @@
 		},
 		"rFolder": {
 			"language": "R",
-			"source": {
-				"sourceType": "file",
-				"sourcePath": ".\\folder2"
-			},
+			"sourcePath": ".\\folder2",
 			"paths": [],
 			"initializationType": null,
 			"workers": 1,

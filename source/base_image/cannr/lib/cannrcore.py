@@ -352,13 +352,10 @@ def getRelativePath(filePath):
     return None
 
 # Get the home directory of the folder in the container.
-# TODO: HANDLE OTHER TYPES OF STORAGE (Web, S3, etc.) FOR SOURCE
 def getHome(folderName, folder):
-    source = folder.get("source", None)
+
     folderPath = '/folders/' + folderName + '/'
-    if not source:
-        return folderPath + 'home'
-    path = source.get("sourcePath", None)
+    path = folder.get("sourcePath", None)
     if not path:
         return folderPath + 'home'
     return folderPath + getRelativePath(path.replace(os.path.sep, '/'))
