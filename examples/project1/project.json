@@ -6,12 +6,13 @@
 	"maintainerName": "Pat Tendick",
 	"maintainerEmail": "ptendick@gmail.com",
 	"dependencyNotice": "Copyright/license notice for dependencies",
-	"portRange": [5000,5500],
+	"portRange": [5001,5500],
 	"nginxPort": 80,
 	"smiPort": 8080,
 	"initRequired": true,
+	"local": true,
 	"folders": {
-		"pyFolder": {
+		"pyfolder": {
 			"folderTitle": "Basic test project",
 			"folderDescription": "<description here>",
 			"language": "Python",
@@ -61,7 +62,7 @@
 				}
 			}
 		},
-		"rFolder": {
+		"rfolder": {
 			"language": "R",
 			"sourcePath": "./folder2",
 			"paths": [],
@@ -74,7 +75,7 @@
 					"moduleHelp": "Help!",
 					"packages": [],
 					"services": {
-						"predPLengthSLength": {
+						"predplengthslength": {
 							"function": "predPLengthSLength",
 							"method": "GET",
 							"includeParams": true,
@@ -115,6 +116,11 @@
 				}
 			}
 		}
-	}
+	},
+	"content": {
+		"static": "./mystatic",
+		"tools": "./mytools"
+	},
+	"note": "The above content entry copys the diretory ./tool to /web/pages/tool and maps /tool to /web/pages/tool"
 }
 

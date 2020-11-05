@@ -1,6 +1,6 @@
 {
-	"directoryType": "file",
 	"workingDirectory": {
+		"directoryType": "file",
 		"path": "../../working"
 	},
 	"baseImage": "cannr-base",
@@ -13,5 +13,6 @@
 			"[A-Z]",
 			"[~!@#%&_=<>/:;]"
 		]
-	}
+	},
+	"local": true
 }

@@ -44,6 +44,11 @@ RUN install2.r urltools
 # Create the event calendar directory
 RUN mkdir -p /eventCalendar
 
+# Add the /web directory, which is exposed through NGINX
+RUN mkdir -p /content
+RUN mkdir -p /content/web
+RUN mkdir -p /content/temp
+
 # Copy base NGINX configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 

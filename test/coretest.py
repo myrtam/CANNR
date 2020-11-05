@@ -118,33 +118,33 @@ class TestCannrCore(unittest.TestCase):
     def test_getFolder(self):
     
         folders = cnc.getFolders(self.project)
-        self.assertTrue(cnc.getFolder('rFolder', self.project))
+        self.assertTrue(cnc.getFolder('rfolder', self.project))
     
     # Completed
     def test_getFolderNames(self):
     
         folderNames = cnc.getFolderNames(self.project)
-        self.assertTrue('rFolder' in folderNames)
+        self.assertTrue('rfolder' in folderNames)
     
     # Completed
     def test_getModules(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
+        folder = cnc.getFolder('rfolder', self.project)
         self.assertTrue(cnc.getModules(folder))
     
     # Completed
     def test_getModule(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
+        folder = cnc.getFolder('rfolder', self.project)
         self.assertTrue(cnc.getModule('iris', folder))
     
     # Completed
     def test_getModuleNames(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
+        folder = cnc.getFolder('rfolder', self.project)
         moduleNames = cnc.getModuleNames(folder)
         self.assertTrue('iris' in moduleNames)
     
@@ -152,7 +152,7 @@ class TestCannrCore(unittest.TestCase):
     def test_getServices(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
+        folder = cnc.getFolder('rfolder', self.project)
         module = cnc.getModule('iris', folder)
         self.assertTrue(cnc.getServices(module))
     
@@ -160,18 +160,18 @@ class TestCannrCore(unittest.TestCase):
     def test_getServiceNames(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
+        folder = cnc.getFolder('rfolder', self.project)
         module = cnc.getModule('iris', folder)
         serviceNames = cnc.getServiceNames(module)
-        self.assertTrue('predPLengthSLength' in serviceNames)
+        self.assertTrue('predplengthslength' in serviceNames)
     
     # Completed
     def test_getService(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
+        folder = cnc.getFolder('rfolder', self.project)
         module = cnc.getModule('iris', folder)
-        self.assertTrue(cnc.getService('predPLengthSLength', module))
+        self.assertTrue(cnc.getService('predplengthslength', module))
     
     # Completed
     def test_getRelativePath(self):
@@ -183,9 +183,9 @@ class TestCannrCore(unittest.TestCase):
     def test_getHome(self):
     
         folders = cnc.getFolders(self.project)
-        folder = cnc.getFolder('rFolder', self.project)
-        path = '/folders/rFolder/folder2'
-        self.assertEqual(cnc.getHome('rFolder', folder), path)
+        folder = cnc.getFolder('rfolder', self.project)
+        path = '/folders/rfolder/folder2'
+        self.assertEqual(cnc.getHome('rfolder', folder), path)
         
     def test_getProjectPath(self):
         
@@ -200,6 +200,20 @@ class TestCannrCore(unittest.TestCase):
 
         self.assertEqual(projectPath, absPath)
     
+    def test_legalName(self):
+        
+        self.assertFalse(cnc.legalName(''))
+    
+        self.assertTrue(cnc.legalName('nrjd9276_vnkhb'))
+    
+        self.assertFalse(cnc.legalName('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'))
+    
+        self.assertFalse(cnc.legalName('NRjd92*76_vnkhB'))
+
+        self.assertFalse(cnc.legalName('nrjd9@276_vn&`khb'))
+    
+        self.assertFalse(cnc.legalName('NRjd9276_vnkhB'))
+
     # Completed
     def test_saveProject(self):
         

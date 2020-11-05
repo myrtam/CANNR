@@ -1,5 +1,5 @@
 # Change to the source directory
-setwd("/folders/rFolder/folder2")
+setwd("/folders/rfolder/folder2")
 
 # CANNR TM analytics container building tool example showing R function to
 # expose as a Web service.
@@ -40,7 +40,7 @@ predPLengthSLength <- function(new) {
 ################################################################################
 
 ################################################################################
-# Generated 2020-10-21 21:18:06
+# Generated 2020-11-04 20:12:16
 ################################################################################
 
 library(jsonlite)
@@ -50,8 +50,8 @@ workerID <- Sys.getenv("WORKER_ID")
 credentials <- NULL
 lastUpdateID <- NULL
 
-# Service predPLengthSLength in module iris in folder rFolder
-#' @get /services/rFolder/iris/predPLengthSLength
+# Service predplengthslength in module iris in folder rfolder
+#' @get /services/rfolder/iris/predplengthslength
 function(req) {
 	queryParams <- param_get(paste0("http://x.com/x", req$QUERY_STRING))
 	output <- predPLengthSLength(queryParams)
@@ -59,14 +59,14 @@ function(req) {
 }
 
 # Refresh objects in module iris
-#' @post /refreshObjects/rFolder/iris
+#' @post /refreshObjects/rfolder/iris
 function(req) {
 	# TODO:  STUB
 	return
 }
 
 # Update credentials in module iris
-#' @post /updateCredentials/rFolder/iris
+#' @post /updateCredentials/rfolder/iris
 function(req) {
 	rawJSON <- req$postBody
 	listFromJSON <- fromJSON(rawJSON)

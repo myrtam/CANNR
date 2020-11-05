@@ -1,5 +1,5 @@
 # Change to the source directory
-setwd("/folders/rFolder/folder2")
+setwd("/folders/rfolder/folder2")
 
 # CANNR TM analytics container building tool example showing R function to
 # expose as a Web service.
@@ -26,7 +26,7 @@ sumX <- function(df) {
 ################################################################################
 
 ################################################################################
-# Generated 2020-10-21 21:18:06
+# Generated 2020-11-04 20:12:16
 ################################################################################
 
 library(jsonlite)
@@ -36,8 +36,8 @@ workerID <- Sys.getenv("WORKER_ID")
 credentials <- NULL
 lastUpdateID <- NULL
 
-# Service sum in module sum in folder rFolder
-#' @post /services/rFolder/sum/sum
+# Service sum in module sum in folder rfolder
+#' @post /services/rfolder/sum/sum
 function(req) {
 	rawJSON <- req$postBody
 	listFromJSON <- fromJSON(rawJSON)
@@ -47,14 +47,14 @@ function(req) {
 }
 
 # Refresh objects in module sum
-#' @post /refreshObjects/rFolder/sum
+#' @post /refreshObjects/rfolder/sum
 function(req) {
 	# TODO:  STUB
 	return
 }
 
 # Update credentials in module sum
-#' @post /updateCredentials/rFolder/sum
+#' @post /updateCredentials/rfolder/sum
 function(req) {
 	rawJSON <- req$postBody
 	listFromJSON <- fromJSON(rawJSON)

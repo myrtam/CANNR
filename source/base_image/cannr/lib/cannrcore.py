@@ -73,6 +73,15 @@ invalidEventCalendarDirCode = 1016
 portOutOfRangeMsg = "Port out of range"
 portOutOfRangeCode = 1017
 
+noProjectNameMsg = "No project name"
+noProjectNameCode = 1018
+
+invalidFolderNameMsg = "Invalid folder name"
+invalidFolderNameCode = 1019
+
+errorCopyingContentMsg = "Error copying content"
+errorCopyingContentCode = 1020
+
 # Base class for exceptions
 class Error(Exception):
     pass
@@ -86,6 +95,12 @@ class RTAMError(Error):
     def __init__(self, message, errorCode):
         self.message = message
         self.errorCode = errorCode
+
+    def getMessage(self):
+        return self.message
+
+    def getErrorCode(self):
+        return errorCode
 
 
 # Represents the event calendar used to manage services
@@ -368,12 +383,16 @@ def existsDirectory(path):
 # Returns the project path (directory where the project will be written).
 def getProjectPath(project, context):
 
+    # Flag telling whether local
+    local = context.get('local', False)
+    
     # Check whether the tool has a working directory
     workingDirectory = context.get("workingDirectory", None)
-    if not workingDirectory or not workingDirectory.get("path", None):
+    if local and (not workingDirectory or not workingDirectory.get("path", None)):
         raise RTAMError(noDirectorySpecMsg, noDirectorySpecCode)
-        
-    path = workingDirectory.get("path")
+    
+    # /external/config would contain configuration information
+    path = workingDirectory.get("path") if local else '/external/working'
     if not existsDirectory(path):
         raise RTAMError(noDirectoryMsg, noDirectoryCode)
 
@@ -384,6 +403,18 @@ def getProjectPath(project, context):
 
     # Project path is the project name directory in the working directory
     return os.path.abspath(path) + os.path.sep + projectName
+
+
+# Check for legal names
+def legalName(nameString):
+    
+    if len(nameString)==0 or len(nameString)>30:
+        return False
+    
+    if re.search('[^a-z0-9_]', nameString):
+        return False
+    
+    return True
 
 
 # Saves the project to the specified file path.

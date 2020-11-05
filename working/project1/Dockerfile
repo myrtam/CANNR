@@ -18,6 +18,11 @@ COPY conf.d/http /etc/nginx/http
 # Copy project contents
 COPY . .
 
+# Copy static content
+COPY ./content/web/static /content
+COPY ./content/web/tools /content
+
+
 # Change permissions and run main script to start services
 RUN chmod a+x main.sh
 CMD ./main.sh

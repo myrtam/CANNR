@@ -30,49 +30,27 @@ class TestCannrBuild(unittest.TestCase):
     def test_getDockerfile(self):
 
         dockerFileText = cnb.getDockerfile()
-        print(dockerFileText)
         self.assertTrue(dockerFileText)
     
     # Completed
     def test_buildCodeLine(self):
 
         codeLine = cnb.buildCodeLine(3, ['a','b','c','d'])
-        print(codeLine)
         self.assertTrue(True)
     
     # Completed
     def test_buildPyFolder(self):
 
         #project = cnc.readJSONFile('../examples/project1/project.json')
-        pyFolderText = cnb.buildPyFolder('pyFolder', self.project)
-        print(pyFolderText)
+        pyFolderText = cnb.buildPyFolder('pyfolder', self.project)
         self.assertTrue(pyFolderText)
     
     # Completed
     def test_buildRModuleEpilogue(self):
 
         #project = cnc.readJSONFile('../examples/project1/project.json')
-        rFolderText = cnb.buildRModuleEpilogue('rFolder', 'iris', self.project)
-        print(rFolderText)
+        rFolderText = cnb.buildRModuleEpilogue('rfolder', 'iris', self.project)
         self.assertTrue(rFolderText)
-    
-    # Completed
-    # No longer used
-    """
-    def test_checkWorkingDirectory(self):
-        
-        context = cnc.readJSONFile('../source/runtime/context.json')
-        with self.assertRaises(cnc.RTAMError) as result:
-            cnb.checkWorkingDirectory(context)
-        ex = result.exception
-        self.assertEqual(ex.message, cnc.noDirectoryMsg)
-        self.assertEqual(ex.errorCode, cnc.noDirectoryCode)
-        
-        context = cnc.readJSONFile('../source/runtime/context.json')
-        workingDirectory = self.context['workingDirectory']
-        workingDirectory['path'] = '../working'
-        self.assertTrue(cnb.checkWorkingDirectory(self.context))
-    """
     
     # Completed
     def test_existsDirectory(self):
@@ -83,8 +61,8 @@ class TestCannrBuild(unittest.TestCase):
     # Completed
     def test_getFolderPath(self):
 
-        folderPath = cnb.getFolderPath('../working/project1', 'pyFolder')
-        self.assertEqual(folderPath, '../working/project1/pyFolder'.replace('/', os.path.sep))
+        folderPath = cnb.getFolderPath('../working/project1', 'pyfolder')
+        self.assertEqual(folderPath, '../working/project1/pyfolder'.replace('/', os.path.sep))
     
     # Completed
     def test_initBuild(self):
@@ -118,56 +96,8 @@ class TestCannrBuild(unittest.TestCase):
             cnb.initBuild(project, context)
         
         context = cnc.readJSONFile('context.json')
-        self.assertEqual(cnb.initBuild(project, context), os.path.abspath('../working/project1'))
-        
-    
-    # Completed
-    """
-    def test_copySource(self):
-
-        # Setup
-        context = cnc.readJSONFile('context.json')
-        workingDirectory = context.get('workingDirectory')
-        workingPath = workingDirectory.get('path')
-        foldersPath = workingPath + os.path.sep + 'folders'
-        if cnc.existsDirectory(foldersPath):
-            shutil.rmtree(foldersPath)
-        os.mkdir(foldersPath)
-        projectFilePath = os.path.abspath('../examples/project1/project.json')
-        project = cnc.readJSONFile(projectFilePath)
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
-
-        # Make sure that copySource raises appropriate exceptions.
-        with self.assertRaises(cnc.RTAMError) as result:
-            cnb.copySource(None, foldersPath, 'rFolder')
-        folder['source'] = None
-        with self.assertRaises(cnc.RTAMError) as result:
-            cnb.copySource(folder, foldersPath, 'rFolder')
-        project = cnc.readJSONFile(projectFilePath)
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
-        folder['source'] = {}
-        with self.assertRaises(cnc.RTAMError) as result:
-            cnb.copySource(folder, foldersPath, 'rFolder')
-        project = cnc.readJSONFile(projectFilePath)
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
-        folder['source'] = {'sourceType': 'file'}
-        with self.assertRaises(cnc.RTAMError) as result:
-            cnb.copySource(folder, foldersPath, 'rFolder')
-
-        # Ensure that copySource does not fail.
-        project = cnc.readJSONFile(projectFilePath)
-        folders = cnc.getFolders(project)
-        folder = cnc.getFolder('rFolder', project)
-        failed = False
-        try:
-            cnb.copySource(folder, foldersPath, 'rFolder')
-        except cnc.RTAMError as err:
-            failed = True
-        self.assertFalse(failed)
-    """
+        workingDir = cnb.initBuild(project, context)
+        self.assertEqual(workingDir, os.path.abspath('../working/project1'))        
 
     # Completed
     def test_copySourceFromPath(self):
@@ -199,7 +129,7 @@ class TestCannrBuild(unittest.TestCase):
 
         #projectFilePath = os.path.abspath('../examples/project1/project.json')
         #project = cnc.readJSONFile(projectFilePath)
-        self.assertEqual(cnb.getPortRange(self.project), [5000,5500])
+        self.assertEqual(cnb.getPortRange(self.project), [5001,5500])
     
     # Completed
     def test_walkNumber(self):
@@ -207,7 +137,7 @@ class TestCannrBuild(unittest.TestCase):
         projectFilePath = os.path.abspath('../examples/project1/project.json')
         project = cnc.readJSONFile(projectFilePath)
         cnb.walkNumber(project)
-        self.assertTrue(project['folders']['pyFolder']['modules']['sum']['nodeNumber'])
+        self.assertTrue(project['folders']['pyfolder']['modules']['sum']['nodeNumber'])
     
     # Completed
     def test_buildProject(self):
@@ -219,6 +149,7 @@ class TestCannrBuild(unittest.TestCase):
         try:
             cnb.buildProject(self.project, '../examples/project1', self.context)
         except cnc.RTAMError as err:
+            print(err.message)
             failed = True
         self.assertFalse(failed)
     
@@ -232,6 +163,7 @@ class TestCannrBuild(unittest.TestCase):
             else:
                 cnb.buildFromFile('../examples/project1/project.json', self.context)
         except cnc.RTAMError as err:
+            print(err.message)
             failed = True
         self.assertFalse(failed)
     
