@@ -12,11 +12,12 @@ import importlib.util
 #import traceback
 from datetime import datetime
 import re
-#import shutil
+import shutil
 import tempfile
 import hashlib
 import uuid
 import logging
+from werkzeug.utils import secure_filename
 
 from stdlib_list import stdlib_list
 
@@ -81,6 +82,9 @@ invalidFolderNameCode = 1019
 
 errorCopyingContentMsg = "Error copying content"
 errorCopyingContentCode = 1020
+
+errorRetrievingProjectMsg = "Error retrieving project"
+errorRetrievingProjectCode = 1021
 
 # Base class for exceptions
 class Error(Exception):
@@ -388,11 +392,11 @@ def getProjectPath(project, context):
     
     # Check whether the tool has a working directory
     workingDirectory = context.get("workingDirectory", None)
-    if local and (not workingDirectory or not workingDirectory.get("path", None)):
-        raise RTAMError(noDirectorySpecMsg, noDirectorySpecCode)
+    if local and not workingDirectory:
+        raise RTAMError(noDirectoryMsg, noDirectoryCode)
     
     # /external/config would contain configuration information
-    path = workingDirectory.get("path") if local else '/external/working'
+    path = workingDirectory if local else '/external/working'
     if not existsDirectory(path):
         raise RTAMError(noDirectoryMsg, noDirectoryCode)
 
@@ -478,4 +482,124 @@ def saveProject(project, filePath, authPolicyLen, authPolicyChars):
     return 0
 
 
+# Returns the first line of a byte string, along with the start and end positions. 
+def getFirstLine(byteString):
+    
+    m = re.search(b'[^\r\n]*', byteString)
+    if m:
+        return m[0]
+    else:
+        return None
 
+
+# Returns the first line of a byte string, along with the start and end positions. 
+def getFilePath(byteString):
+    
+    #m = re.search(b'^.*\n.*filename="(.*)"\n', byteString)
+    m = re.search(b'^[^\r\n]*(?:\n|\r\n)[^\r\n]*filename="([^\r\n]*)"(?:\n|\r\n)', byteString)
+    
+    if m and m.lastindex>0:
+        return m[1].decode('utf-8') 
+    else:
+        return None
+
+
+# Returns all file chunks in a bytes object, given the form boundary string.
+# Includes the file header info. 
+def getAllChunks(byteString, formBoundary):
+    
+    #m = re.findall(formBoundary + b'(\n|\r\n).*(\n|\r\n).*(\n|\r\n).*(\n|\r\n)', byteString)
+    """
+    return re.findall(
+        formBoundary + b'(?:\n|\r\n)' + 3*b'[^\r\n]*(?:\n|\r\n)' + b'(.*?)(?=' + formBoundary + b')',
+        byteString, re.DOTALL)
+    """
+    return re.findall(
+        b'(' + formBoundary + b'.*?)(?:\n|\r\n)(?=' + formBoundary + b')',
+        byteString, re.DOTALL)
+
+
+# Strips off the first four lines of byteString, returns the rest.
+def getContents(byteString):
+
+    m = re.search(4*b'[^\r\n]*(?:\n|\r\n)' + b'(.*)', byteString, re.DOTALL)
+
+    if m and m.lastindex>0:
+        return m[1]
+    else:
+        return None
+   
+# Returns the subdirectory, if any associated with the file.
+# E.g., if the file path is directory/file.txt, then the subdirectory is blank.
+# If the file path is directory/subdirectory/file.txt.
+def getSubdirectory(filePath):
+    
+    m = re.search('[\\/](.*[\\/])', filePath)
+    if m and m.lastindex>0:
+        return m[1]
+    else:
+        return ''
+
+# Returns the file name portion of the file path.
+def getFileName(filePath):
+    
+    m = re.search('[^\\/]*$', filePath)
+    
+    if m and m[0]:
+        return m[0]
+    else:
+        return None
+
+# Returns the file name portion of the file path.
+def getDirName(filePath):
+    
+    m = re.search('^[^\\/]*', filePath)
+    
+    if m and m[0]:
+        return m[0]
+    else:
+        return None
+
+
+# Filter a list of strings based on a regex
+def regexFilter(stringList, regex):
+
+    # Return strings that match the regex
+    return [str for str in stringList
+        if re.search(regex, str)]
+
+
+# Given multipart form data containing files as a bytes object, saves the files
+# to the specified directory.  If the directory exists, replaces it.
+# Returns a list of the files written.
+def writeFiles(data, directory):
+    
+    if not data:
+        return None
+    
+    if existsDirectory(directory):
+        shutil.rmtree(directory)
+    
+    formBoundary = getFirstLine(data)
+    if formBoundary:
+        fileNames = []
+        foldersPath = directory
+        m = getAllChunks(data, formBoundary)
+        for chunk in m:
+            filePath = getFilePath(chunk)
+            # TODO:  CHECK THAT filePath is legit
+            if not filePath:
+                break
+            subDirPath = directory + ('' if directory.endswith('/') else '/') + getSubdirectory(filePath)
+            if not existsDirectory(subDirPath):
+                os.makedirs(subDirPath)
+            contents = getContents(chunk)
+            fileName = getFileName(filePath)
+            if not fileName or not secure_filename(fileName):
+                break
+            subDirFilePath = subDirPath + fileName
+            fileNames.append(subDirFilePath)
+            with open(subDirFilePath, "wb") as dataFile:
+                dataFile.write(contents)
+                
+    return fileNames

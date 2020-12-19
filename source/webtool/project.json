@@ -1,0 +1,203 @@
+{
+   "projectTitle": "CANNR Web Tool",
+   "projectName": "cannrtool",
+   "projectDescription": "CANNR Web based analytics container building tool",
+   "baseImage": "cannr-base",
+   "maintainerName": "Pat Tendick",
+   "maintainerEmail": "ptendick@gmail.com",
+   "dependencyNotice": "Copyright/license notice for dependencies",
+   "portRange": [
+      5001,
+      5500
+   ],
+   "nginxPort": 80,
+   "smiPort": 8080,
+   "initRequired": false,
+   "local": true,
+   "folders": {
+      "tool": {
+         "folderTitle": "Services",
+         "folderDescription": "Backend services for the tool",
+         "language": "Python",
+         "sourcePath": "./server",
+         "workers": 1,
+         "modules": {
+            "services": {
+               "sourceFile": "services.py",
+               "moduleTitle": "Services",
+               "moduleDescription": "Services module",
+               "packages": [
+                  "numpy",
+                  "json"
+               ],
+               "services": {
+                  "createproject": {
+                     "serviceDescription": "Creates a new project folder in the container's work area.",
+                     "function": "createProject",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "deleteproject": {
+                     "serviceDescription": "Deletes the project from the container's work area.",
+                     "function": "deleteProject",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "getproject": {
+                     "serviceDescription": "Returns a project document given its name.",
+                     "function": "getProject",
+                     "method": "GET",
+					 "includeParams": true,
+                     "includeRequest": false,
+					 "includeBody": false,
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "getprojects": {
+                     "serviceDescription": "Returns a list of all project documents.",
+                     "function": "getProjects",
+                     "method": "GET",
+					 "includeParams": false,
+                     "includeRequest": false,
+					 "includeBody": false,
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "uploadfolder": {
+                     "serviceDescription": "Uploads a folder to a project.",
+                     "function": "uploadFolder",
+                     "method": "POST",
+					 "includeParams": true,
+                     "includeRequest": true,
+					 "includeBody": false,
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "deletefolder": {
+                     "serviceDescription": "Deletes a folder from a project.",
+                     "function": "deleteFolder",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "updateproject": {
+                     "serviceDescription": "Updates project data, excluding folders",
+                     "function": "updateProject",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "updatemodule": {
+					"serviceDescription": "Updates a project and returns the project file for the project with function names populated for a particular module.",
+					"function": "updateModule", 
+					"method": "POST", 
+					"includeParams": true,
+					"parseInput": true, 
+					"inputParseType": "dictionary", 
+					"parseOutput": true, 
+					"outputParseType": "dictionary"},
+                  "buildproject": {
+                     "serviceDescription": "Builds the project.",
+                     "function": "buildProject",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "buildimage": {
+                     "serviceDescription": "Builds the image for the project.",
+                     "function": "buildImage",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "exportproject": {
+                     "serviceDescription": "Exports the project.  This is the project as specified by the user, not the built project, which can be used to build the image.",
+                     "function": "exportProject",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "importproject": {
+                     "serviceDescription": "Imports a previously exported project.  This is the project as specified by the user, not the built project, which can be used to build the image.",
+                     "function": "importProject",
+                     "method": "POST",
+					 "includeParams": true,
+                     "includeRequest": true,
+					 "includeBody": false,
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "exportbuild": {
+                     "serviceDescription": "Exports the built project.  This can then be used to build an image in another environment.",
+                     "function": "exportBuild",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "runcontainer": {
+                     "serviceDescription": "Runs a project image in a container.",
+                     "function": "runContainer",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "stopcontainer": {
+                     "serviceDescription": "Stops the container running a project image.",
+                     "function": "stopContainer",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "renameproject": {
+                     "serviceDescription": "Renames the project.",
+                     "function": "renameProject",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  },
+                  "renamefolder": {
+                     "serviceDescription": "Renames a folder.",
+                     "function": "renameFolder",
+                     "method": "POST",
+                     "parseInput": true,
+                     "inputParseType": "dictionary",
+                     "parseOutput": true,
+                     "outputParseType": "dictionary"
+                  }
+               }
+            }
+         }
+      }
+   },
+   "content": {
+      "tool": {
+         "folderTitle": "Tool Web pages",
+         "folderDescription": "Tool Web page",
+         "sourcePath": "./web/tool"
+      }
+   }
+}

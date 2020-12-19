@@ -31,6 +31,8 @@
 							"function": "calcSum",
 							"method": "POST",
 							"includeParams": false,
+							"includeRequest": false,
+							"includeBody": true,
 							"parseInput": true,
 							"inputParseType": "dictionary",
 							"capacity": 1000,
@@ -89,7 +91,6 @@
 							"serviceHelp": "Help!",
 							"testInput": null
 						}
-						
 					}
 				},
 				"sum": {
@@ -101,6 +102,8 @@
 							"function": "sumX",
 							"method": "POST",
 							"includeParams": false,
+							"includeRequest": false,
+							"includeBody": true,
 							"parseInput": true,
 							"inputParseType": "dataframe",
 							"inputParseOptions": {},
@@ -111,15 +114,22 @@
 							"serviceHelp": "Help!",
 							"testInput": null
 						}
-						
 					}
 				}
 			}
 		}
 	},
 	"content": {
-		"static": "./mystatic",
-		"tools": "./mytools"
+		"static": {
+			"folderTitle": "Static content test folder",
+			"folderDescription": "<description here>",
+			"sourcePath": "./mystatic"
+			},
+		"tools": {
+			"folderTitle": "Tools content test project",
+			"folderDescription": "<description here>",
+			"sourcePath": "./mytools"
+		}
 	},
 	"note": "The above content entry copys the diretory ./tool to /web/pages/tool and maps /tool to /web/pages/tool"
 }

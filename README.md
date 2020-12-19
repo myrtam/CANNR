@@ -50,7 +50,7 @@ the command
 To run the example from Windows, navigate to the source\runtime directory,
 then run the command
 
-runcnr.cmd ..\..\examples\project1\winproject.json
+runcnr.cmd ..\\..\examples\project1\winproject.json
 
 Then navigate to the working\project1 or working/project1 directory, where you
 will find a Docker project.  You can then use Docker to build the container
@@ -64,6 +64,6 @@ docker run -d -p 80:80 project1
 
 You should then be able to access some of the example services from a browser using
 
-http://127.0.0.1/services/pyFolder/rand/rand
+http://127.0.0.1/services/pyfolder/rand/rand
 
-http://127.0.0.1/services/rFolder/iris/predPLengthSLength?x=6.5
+http://127.0.0.1/services/rfolder/iris/predplengthslength?x=6.5

@@ -1,0 +1,17 @@
+{
+	"configPath": "/external/config.json",
+	"workingDirectory": "/external/working",
+	"projectsPath": "/external/projects",
+	"baseImage": "cannr-base",
+	"maintainerEmail": "pat@pat.com",
+	"authPolicy": {
+		"authPolicyLen": 12,
+		"authPolicyChars": [
+			"[0-9]",
+			"[a-z]",
+			"[A-Z]",
+			"[~!@#%&_=<>/:;]"
+		]
+	},
+	"local": true
+}

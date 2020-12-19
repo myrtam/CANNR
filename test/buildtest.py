@@ -91,7 +91,7 @@ class TestCannrBuild(unittest.TestCase):
         
         project = cnc.readJSONFile('../examples/project1/project.json')
         context = cnc.readJSONFile('context.json')
-        context['workingDirectory'] = {'path': '../doesnotexist'}
+        context['workingDirectory'] = '../doesnotexist'
         with self.assertRaises(cnc.RTAMError) as result:
             cnb.initBuild(project, context)
         
@@ -105,8 +105,7 @@ class TestCannrBuild(unittest.TestCase):
         # Setup
         #context = cnc.readJSONFile('context.json')
         workingDirectory = self.context.get('workingDirectory')
-        workingPath = workingDirectory.get('path')
-        foldersPath = workingPath + os.path.sep + 'project1' + os.path.sep + 'folders'
+        foldersPath = workingDirectory + os.path.sep + 'project1' + os.path.sep + 'folders'
         if cnc.existsDirectory(foldersPath):
             shutil.rmtree(foldersPath)
         os.mkdir(foldersPath)
@@ -149,7 +148,6 @@ class TestCannrBuild(unittest.TestCase):
         try:
             cnb.buildProject(self.project, '../examples/project1', self.context)
         except cnc.RTAMError as err:
-            print(err.message)
             failed = True
         self.assertFalse(failed)
     

@@ -11,7 +11,7 @@
 	"smiPort": 8080,
 	"initRequired": true,
 	"folders": {
-		"pyFolder": {
+		"pyfolder": {
 			"folderTitle": "Basic test project",
 			"folderDescription": "<description here>",
 			"language": "Python",
@@ -61,7 +61,7 @@
 				}
 			}
 		},
-		"rFolder": {
+		"rfolder": {
 			"language": "R",
 			"sourcePath": ".\\folder2",
 			"paths": [],
@@ -74,7 +74,7 @@
 					"moduleHelp": "Help!",
 					"packages": [],
 					"services": {
-						"predPLengthSLength": {
+						"predplengthslength": {
 							"function": "predPLengthSLength",
 							"method": "GET",
 							"includeParams": true,
@@ -115,6 +115,19 @@
 				}
 			}
 		}
-	}
+	},
+	"content": {
+		"static": {
+			"folderTitle": "Static content test folder",
+			"folderDescription": "<description here>",
+			"sourcePath": "./mystatic"
+			},
+		"tools": {
+			"folderTitle": "Tools content test project",
+			"folderDescription": "<description here>",
+			"sourcePath": "./mytools"
+		}
+	},
+	"note": "The above content entry copys the diretory ./tool to /web/pages/tool and maps /tool to /web/pages/tool"
 }
 

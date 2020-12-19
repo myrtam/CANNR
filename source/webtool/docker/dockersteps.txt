@@ -1,0 +1,12 @@
+
+# Build the tool
+docker build -t cannrtool .
+
+# Run the tool the first time
+docker run -d -p 80:80 --name cannrtool --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external,target=/external cannrtool
+
+# Restart the tool
+docker start cannrtool
+
+# Remove the container
+docker rm /cannrtool

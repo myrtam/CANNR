@@ -22,8 +22,9 @@ class TestCannrCore(unittest.TestCase):
             self.project = cnc.readJSONFile('../examples/project1/winproject.json')
         else:
             self.project = cnc.readJSONFile('../examples/project1/project.json')
-                
-        pass
+            
+        with open('testfiles/upload.dat','rb') as uploadFile:
+            self.uploadData = uploadFile.read()
 
     # Completed
     def test_RTAMError(self):
@@ -239,6 +240,48 @@ class TestCannrCore(unittest.TestCase):
         project['authentication'] = authentication
         result = cnc.saveProject(project, 'project1.json', authPolicyLen, authPolicyChars)
         self.assertEqual(result, 0)
+
+    def test_getFirstLine(self):
+        
+        firstLine = cnc.getFirstLine(self.uploadData)
+        self.assertEqual(firstLine, b'------WebKitFormBoundary7mqeUsPtFGhYEsuU')
+        
+    def test_getFilePath(self):
+        
+        filePath = cnc.getFilePath(self.uploadData)
+        self.assertEqual(filePath, 'uploadTest/file2.txt')
+        
+    def test_getAllChunks(self):
+        
+        m = cnc.getAllChunks(self.uploadData, b'------WebKitFormBoundary7mqeUsPtFGhYEsuU')
+        self.assertTrue(True)
+
+    def test_getContents(self):
+        
+        m = cnc.getAllChunks(self.uploadData, b'------WebKitFormBoundary7mqeUsPtFGhYEsuU')
+        self.assertEqual(cnc.getContents(m[0]), b'Second file.')
+
+    def test_getSubdirectory(self):
+        
+        subDirectory = cnc.getSubdirectory('xxx/yyy/zzz/file.txt')
+        self.assertEqual(subDirectory, 'yyy/zzz/')
+
+    def test_getFileName(self):
+        
+        fileName = cnc.getFileName('xxx/yyy/zzz/file.txt')
+        self.assertEqual(fileName, 'file.txt')
+
+    def test_getDirName(self):
+        
+        directoryName = cnc.getDirName('xxx/yyy/zzz/file.txt')
+        self.assertEqual(directoryName, 'xxx')
+
+    def test_writeFiles(self):
+        
+        fileNames = cnc.writeFiles(self.uploadData, 'folders/folder123')
+        print(fileNames)
+        self.assertTrue(True)
+
     
 if __name__ == '__main__':
     unittest.main()    
