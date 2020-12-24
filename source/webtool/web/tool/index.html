@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+CANNR TM analytics container building tool main page.
+Copyright 2020 Pat Tendick ptendick@gmail.com
+All rights reserved
+Maintainer Pat Tendick ptendick@gmail.com
+-->
 <html>
 <head>
 <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -6,170 +12,47 @@
 <link rel='stylesheet' href='css/all.css'>
 <script src="jquery-2.0.1.min.js"></script>
 <script src="bootstrap.min.js"></script>
+<script src="common.js"></script>
+<script src="index.js"></script>
 <meta charset="UTF-8">
 <title>CANNR Tool</title>
-
-<script type="text/javascript">
-
-var baseURL = '/services/tool/services/';
-var selectedProjectName = null;
-
-
-//Remove all child nodes
-function deleteChildNodes(node) {
-
-	if (!node)
-		return;
-	
-	while (node.firstChild)
-		node.removeChild(node.firstChild);
-
-}
-
-
-function getProjects() {
-
-	// Prepare the XHR request.
-	var xhr = new XMLHttpRequest();
-	xhr.withCredentials = true;
-	var date = new Date();
-	xhr.open("GET", baseURL + "getprojects" + "?timestamp=" + date.getTime());
-
-	// Define the callback function.
-	xhr.onload = function () {
-
-		// Get the response, check HTTP status.
-		if (xhr.status == "200") {
-
-			// Retrieve the response and check whether the request succeeded.
-			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
-
-				// If success, get the projects collection.
-				var projects = response['projects'];
-				var projectSelect = document.getElementById('projectSelect');
-				deleteChildNodes(projectSelect);
-
-				// Load the projects into the pick list.
-				var keys = Object.keys(projects);
-				if (keys.length == 0) {
-					projectSelect.style.visibility = 'hidden';
-					document.getElementById('goButton').style.visibility = 'hidden';
-				}
-				else {
-					projectSelect.style.visibility = 'visible';
-					document.getElementById('goButton').style.visibility = 'visible';
-					keys.forEach( function (key, index) {
-	
-						// Create a new pick list item and add the project to it.
-						var option = document.createElement('option');
-						projectSelect.appendChild(option);
-						project = projects[key];
-						label = key
-						if (project['projectTitle'])
-							key = key + ' - ' + project['projectTitle'];
-						option.innerHTML = label;
-						option.setAttribute('value', key);
-	
-						// If only one project, select it by default.
-						if (keys.length==1) {
-							selectedProjectName = key;
-							option.selected = true;
-						}
-						
-					});
-				}
-
-			}
-			else
-				alert(response.errorMsg);
-	
-		} else {
-			console.error(xhr.responseText);
-			alert("Error retrieving session state");
-		}
-
-	}
-
-	// Send the request.
-	xhr.send();
-	
-}
-
-
-// Handle changes to the selection in the project pick list.
-function onProjectSelectChange() {
-
-	var projectSelect = document.getElementById('projectSelect');
-	var selectedIndex = projectSelect.selectedIndex;
-
-	if (selectedIndex)
-		selectedProjectName = projectSelect[selectedIndex].value;
-
-}
-
-
-// Go to the project page for the selected project.
-function go() {
-
-	if (!selectedProjectName)
-		alert('No project selected');
-	else
-		window.location.assign("project.html?projectname=" + selectedProjectName + "&timestamp=" + Date.now());	
-	
-}
-
-
-// Handle add project events.
-function addProject() {
-
-	window.location.assign("project.html?timestamp=" + Date.now());
-	
-}
-
-
-// Handle edit configuration events.
-function configure() {
-
-	
-}
-
-
-getProjects();
-
-</script>
-
 </head>
+
 <body style="background-color:#F5F5F5;">
 
 <div class="top-margin">
 <h2>CANNR<sup>TM</sup> Analytics Container Building Tool</h2>
 <br>
+<div>
+<p>Create a project to produce a container for your services.</p>
 <!--
-If no project, hide this and the Go button.
+If no project, display the following:
+<h3>You currently have no projects.  Would you like to add one?<h3>
 -->
+<button type="button" id="addProject" class="enabled-button" onclick="addProject()">New Project...</button>
+</div>
+<br>
+<span id='projectSelectLabel'>Projects:</span><br>
 <div class="input-group mb-3" id="projectSelectGroup">
 	<select class="custom-select" id="projectSelect" style='visibility:hidden;' onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
 		<option selected>Select a project...</option>
 	</select>
 </div>
-<div>
-<button type="button" id="goButton" class="cnr-button" onclick='go()' style='visibility:hidden;'>Go</button>
-</div>
 <br>
-<!--
-If no project, display the following:
-<h3>You currently have no projects.  Would you like to add one?<h3>
--->
 <div>
-<button type="button" id="addProject" class="cnr-button" onclick="addProject()">New Project...</button>
+<button type="button" id="goButton" class="enabled-button" onclick='go()' style='visibility:hidden;'>Go</button>
 </div>
 <br>
 <br>
 <div>
-<button type="button" id="configure" class="cnr-button" onclick="configure()">Configure...</button>
+<button type="button" id="configure" class="enabled-button" onclick="configure()">Configure...</button>
 </div>
 </div>
 </body>
+<script>
+
+// Populate select list of projects
+getProjects();
+
+</script>
 </html>

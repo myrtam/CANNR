@@ -5,7 +5,7 @@ button {
      padding: 5px; 
 }
 
-/* Chat button style */
+/* Basic button style */
 .cnr-button {
   background-color: #254D93;
   color: #FFFFFF;
@@ -19,24 +19,23 @@ button {
   width: 200px;
 }
 
-/* Sign in button style */
-.option-button {
+/* Basic button style */
+.enabled-button {
   background-color: #254D93;
   color: #FFFFFF;
   border: none;
   color: white;
   padding: 5px 10px;
-  margin-top: 5px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  width: 100px;
+  width: 200px;
 }
 
-/* Sign in button style */
-.simple-button {
-  background-color: #254D93;
+/* Basic button style */
+.disabled-button {
+  background-color: #909090;
   color: #FFFFFF;
   border: none;
   color: white;
@@ -44,20 +43,8 @@ button {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 12px;
-}
-
-/* Login button style */
-.login-button {
-  background-color: #254D93;
-  color: #FFFFFF;
-  border: none;
-  color: white;
-  padding: 5px 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 12px;
+  font-size: 16px;
+  width: 200px;
 }
 
 .left-margin {
