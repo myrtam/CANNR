@@ -8,9 +8,10 @@ Maintainer Pat Tendick ptendick@gmail.com
 // Global variables related to the current project
 var selectedFolderName = null;
 var project = null;
-var folder = null;
+var module = null;
 var module = null;
 var service = null;
+var projectName = null;
 var folderName = null;
 var moduleName = null;
 var serviceName = null;
@@ -54,9 +55,10 @@ var moduleNext = null;
 var moduleSelect = null;
 var modulesRow = null;
 var moduleTitleInput = null;
-var newModule = null;
+var newFolderButton = null;
+var newModuleButton = null;
 var newModulesRow = null;
-var newService = null;
+var newServiceButton = null;
 var newServicesRow = null;
 var outputParseTypeInput = null;
 var packageAddButton = null;
@@ -86,8 +88,16 @@ var servicesRow = null;
 var serviceTitleInput = null;
 var sourcePathInput = null;
 var	sourceUpload = null;
+var titleFolder = null;
 var titleFolderPath = null;
+var titleModuleFolder = null;
+var titleModuleModule = null;
+var titleModulePath = null;
+var titleServiceFolder = null;
+var titleServiceModule = null;
 var titleServicePath = null;
+var titleServicePort = null;
+var titleServiceService = null;
 var uploadRequired = null;
 var workersInput = null;
 
@@ -123,9 +133,10 @@ function initDOMObjects() {
 	moduleSelect = document.getElementById('moduleSelect');
 	modulesRow = document.getElementById('modulesRow');
 	moduleTitleInput = document.getElementById('moduleTitleInput');
-	newModule = document.getElementById('newModule');
+	newFolderButton = document.getElementById('newFolderButton');
+	newModuleButton = document.getElementById('newModuleButton');
 	newModulesRow = document.getElementById('newModulesRow');
-	newService = document.getElementById('newService');
+	newServiceButton = document.getElementById('newServiceButton');
 	newServicesRow = document.getElementById('newServicesRow');
 	outputParseTypeInput = document.getElementById('outputParseTypeInput');
 	packageAddButton = document.getElementById('packageAddButton');
@@ -155,8 +166,16 @@ function initDOMObjects() {
 	serviceTitleInput = document.getElementById('serviceTitleInput');
 	sourcePathInput = document.getElementById('sourcePathInput');
 	sourceUpload = document.getElementById('sourceUpload');
+	titleFolder = document.getElementById('titleFolder');
 	titleFolderPath = document.getElementById('titleFolderPath');
+	titleModuleFolder = document.getElementById('titleModuleFolder');
+	titleModulePath = document.getElementById('titleModulePath');
+	titleModuleModule = document.getElementById('titleModuleModule');
+	titleServiceFolder = document.getElementById('titleServiceFolder');
+	titleServiceModule = document.getElementById('titleServiceModule');
 	titleServicePath = document.getElementById('titleServicePath');
+	titleServicePort = document.getElementById('titleServicePort');
+	titleServiceService = document.getElementById('titleServiceService');
 	uploadRequired = document.getElementById('uploadRequired');
 	workersInput = document.getElementById('workersInput');
 
@@ -197,18 +216,19 @@ function initDOMObjects() {
 
 //Display project properties.
 function onProjectProps() {
-
-	// Disable and hide the next button.
-	if (newProject)
-		projectNext.innerHTML = 'Next';
-	else
-		projectNext.innerHTML = 'Save';
-
-	// Populate the modal
-	popProjectProps();
+/*
+	// Populate the project modal
+	if (!popProjectProps()) {
+		alert('An error occurred while loading the project.');
+		onExitProject();
+	}
 
 	// Display the modal
 	switchModal('projectPropertiesModal');
+*/
+	changed = false;
+
+	goModal('projectPropertiesModal');
 
 }
 
@@ -256,87 +276,165 @@ function whichModal() {
 	
 }
 
+// Populates the folder select list
+function popFolderSelect() {
+
+	deleteChildNodes(folderSelect);
+
+	// Check for valid project and name
+	if (!project)
+		return;
+
+	// Get the folders in the project.
+	var folders = project['folders'];
+	if (!folders)
+		return;
+		
+	// Load the folders into the pick list.
+	var keys = Object.keys(folders);
+	keys.forEach(function(key, index) {
+
+		// Create a new pick list item and add the folder to it.
+		var option = document.createElement('option');
+		folderSelect.appendChild(option);
+		var label = key;
+		var newFolder = folders[key];
+		if (newFolder['folderTitle'])
+			label += ' - ' + newFolder['folderTitle'];
+		option.innerHTML = label;
+		option.setAttribute('value', key);
+
+		// If only one project, select it by default.
+		if (keys.length==1) {
+			selectedFolderName = key;
+			option.selected = true;
+		}
+		
+	});
+
+}
+
 // Populates project properties screen
 function popProjectProps() {
 
 	// Populate project properties
 	projectPageTitle.innerHTML = 'New Project';
 	projectPropertiesTitle.innerHTML = 'Project Properties';
-	projectNameInput.innerHTML = '';
+	projectNameInput.value = '';
 	projectNameInput.disabled = false;
 	projectTitleInput.value = '';
 	projectDescriptionInput.value = '';
 
 	// Disable the Save button
-	disableButton(projectNext, true);
+	disableButton(projectNext, newProject&&!folderName);
 	
 	// Check for valid project and name
-	if (!project)
+	if (!newProject&&!project)
 		return false;
 
-	projectName = project['projectName'];
-	if (!projectName)
+	// Try to get the project name
+	projectName = project? project['projectName']: null;
+	if (!newProject&&!projectName)
 		return false;
 
-	// Populate project properties
-	projectPageTitle.innerHTML = 'Project ' + projectName;
-	projectPropertiesTitle.innerHTML = 'Project Properties';
-	projectNameInput.innerHTML = projectName;
-	projectNameInput.disabled = true;
-	var projectTitle = project['projectTitle'];
-	var projectDescription = project['projectDescription'];
-	if (projectTitle)
-		projectTitleInput.value = projectTitle;
-	if (projectDescription)
-		projectDescriptionInput.value = projectDescription;
+	// Populate the folder select list
+	popFolderSelect();
 
-	// Get the folders in the project.
-	var folders = project['folders'];
-	if (!folders) {
-		folders = {}
-		project['folders'] = folders
-	}
-		
-	deleteChildNodes(folderSelect);
+	if (projectName) {
 
-	// Load the folders into the pick list.
-	var keys = Object.keys(folders);
-	if (keys.length == 0) {
-		folderSelectGroup.style.visibility = 'hidden';
-		folderSelectLabel.style.visibility = 'hidden';
-		goFolderButton.style.visibility = 'hidden';
-		disableButton(goFolderButton, true);
-	}
-	else {
-		keys.forEach(function(key, index) {
-
-			// Create a new pick list item and add the folder to it.
-			var option = document.createElement('option');
-			folderSelect.appendChild(option);
-			var label = key;
-			var newFolder = folders[key];
-			if (newFolder['folderTitle'])
-				label += ' - ' + newFolder['folderTitle'];
-			option.innerHTML = label;
-			option.setAttribute('value', key);
-
-			// If only one project, select it by default.
-			if (keys.length==1) {
-				selectedFolderName = key;
-				option.selected = true;
-			}
+		// Populate project properties
+		projectPageTitle.innerHTML = 'Project ' + projectName;
+		projectPropertiesTitle.innerHTML = 'Project Properties';
+		projectNameInput.value = projectName;
+		projectNameInput.disabled = true;
+		var projectTitle = project['projectTitle'];
+		var projectDescription = project['projectDescription'];
+		if (projectTitle)
+			projectTitleInput.value = projectTitle;
+		if (projectDescription)
+			projectDescriptionInput.value = projectDescription;
+	
+		// Get the folders in the project.
+		var folders = project['folders'];
+		if (!folders) {
+			folders = {}
+			project['folders'] = folders
+		}
 			
-		});
-		folderSelectGroup.style.visibility = 'visible';
-		folderSelectLabel.style.visibility = 'visible';
-		disableButton(goFolderButton, false);
-		goFolderButton.style.visibility = 'visible';
 	}
 
 	return true;
 
 }
 
+//Shows or hides the folder path on the folder properties screen
+function showFolderPath(folderName2) {
+	
+	if (folderName2) {
+		titleFolder.innerHTML = folderName2;
+		titleFolderPath.style.visibility = 'visible';
+	}
+	else
+		titleFolderPath.style.visibility = 'hidden';
+	
+}
+
+//Shows or hides the module path on the module properties screen
+function showModulePath(folderName2, moduleName2) {
+	
+	if (folderName2&&moduleName2) {
+		titleModuleFolder.innerHTML = folderName2;
+		titleModuleModule.innerHTML = moduleName2;
+		titleModulePath.style.visibility = 'visible';
+	}
+	else
+		titleModulePath.style.visibility = 'hidden';
+	
+}
+
+//Shows or hides the folder path on the folder properties screen
+function showServicePath(folderName2, moduleName2, serviceName2) {
+	
+	if (folderName2&&moduleName2&&serviceName2) {
+		var port = project['nginxPort'];
+		port = port? (port=='80'? '': ':' + port): '';
+		titleServicePort.innerHTML = port;
+		titleServiceFolder.innerHTML = folderName2;
+		titleServiceModule.innerHTML = moduleName2;
+		titleServiceService.innerHTML = serviceName2;
+		titleServicePath.style.visibility = 'visible';
+	}
+	else
+		titleServicePath.style.visibility = 'hidden';
+	
+}
+
+// Prepare the folder properties screen
+function prepFolderScreen() {
+
+	// Initialize screen items
+	showFolderPath(null);
+	folderNameInput.value = '';
+	folderNameInput.disabled = false;
+	folderNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
+	folderNameRules.style.color = 'Black';
+	languageR.checked = false;
+	languageP.checked = false;
+	sourcePathInput.innerHTML = '';
+	sourceUpload.value = '';
+	uploadRequired.innerHTML = '&nbsp;*';
+	workersInput.value = 2;
+	//modulesRow.style.visibility = 'hidden';
+	//goModuleButton.style.visibility = 'hidden';
+	//disableButton(goModuleButton, true);
+	//disableButton(newModuleButton, false);
+	//newModuleButton.style.visibility = 'visible';
+	deleteChildNodes(moduleSelect);
+
+	// Disable the Save button
+	//disableButton(folderNext, true);
+
+}
 
 //Populates project properties screen
 function popFolderProps() {
@@ -352,35 +450,13 @@ function popFolderProps() {
 		project['folders'] = folders;
 	}
 
-	// Initialize screen items
-	titleFolderPath.innerHTML = '';
-	folderNameInput.value = '';
-	folderNameInput.disabled = false;
-	folderNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
-	folderNameRules.style.color = 'Black';
-	sourcePathInput.innerHTML = '';
-	//sourceUpload.files = null;
-	sourceUpload.value = '';
-	uploadRequired.innerHTML = '&nbsp;*';
-	workersInput.value = 2;
-	deleteChildNodes(moduleSelect);
-	modulesRow.style.visibility = 'hidden';
-	disableButton(goModuleButton, true);
 	changed = false;
 
-	// Disable the Save button
-	disableButton(folderNext, true);
-	
-	// If new project, hide module related buttons
-	if (newProject) {
-		newModulesRow.style.visibility = 'hidden';
-		disableButton(newModule, true);
-	}
-	else {
-		disableButton(newModule, false);
-		newModulesRow.style.visibility = 'visible';
-	}
-	
+	// Prepare the folder properties screen
+	prepFolderScreen();
+
+	setFolderButtons();
+
 	// If folder name doesn't exist, we're done
 	if (folderName) {
 
@@ -389,8 +465,8 @@ function popFolderProps() {
 		if (!folder)
 			return false;
 	
-		// Set subtitle to /projectname/foldername
-		titleFolderPath.innerHTML = '/' + projectName + '/' + folderName;
+		// Set subtitle to /foldername
+		showFolderPath(folderName);
 
 		// Populate the folder name
 		folderNameInput.value = folderName;
@@ -409,8 +485,6 @@ function popFolderProps() {
 
 		// Set programming language
 		language = folder['language'];
-		languageR.checked = false;
-		languageP.checked = false;
 		if (language) {
 			if (language == 'R')
 				languageR.checked = true;
@@ -426,39 +500,76 @@ function popFolderProps() {
 
 		// Handle modules
 		var modules = folder['modules'];
-		deleteChildNodes(moduleSelect);
-		
+
 		// Load the modules into the pick list.
 		var keys = Object.keys(modules);
-		if (keys.length == 0) {
-			moduleSelect.style.visibility = "hidden";
-			goModuleButton.style.visibility = 'hidden';
-		}
-		else
-			keys.forEach( function (key, index) {
+		keys.forEach( function (key, index) {
 
-				// Create a new pick list item and add the project to it.
-				var option = document.createElement('option');
-				moduleSelect.appendChild(option);
-				var module = modules[key];
-				label = key
-				if (module['moduleTitle'])
-					key = key + ' - ' + module['moduleTitle'];
-				option.innerHTML = label;
-				option.setAttribute('value', key);
+			// Create a new pick list item and add the project to it.
+			var option = document.createElement('option');
+			moduleSelect.appendChild(option);
+			var module = modules[key];
+			label = key
+			if (module['moduleTitle'])
+				label += ' - ' + module['moduleTitle'];
+			option.innerHTML = label;
+			option.setAttribute('value', key);
 
-				// If only one project, select it by default.
-				if (keys.length==1) {
-					selectedModuleName = key;
-					option.selected = true;
-				}
-				
-			});
-		
+			// If only one project, select it by default.
+			if (keys.length==1) {
+				selectedModuleName = key;
+				option.selected = true;
+			}
+			
+		});
+
 	}
+
+	disableModuleSelect();
 
 	return true;
 	
+}
+
+// Prep the module properties screen
+function prepModuleScreen() {
+	
+	// Prep the module name, title, and description inputs
+	showModulePath(null, null);
+	moduleNameInput.value = '';
+	moduleNameInput.disabled = false;
+	moduleNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
+	moduleNameRules.style.color = 'Black';
+	moduleTitleInput.value = '';
+	moduleDescriptionInput.value = '';
+
+	// Initially list of services is hidden and button disabled
+	deleteChildNodes(serviceSelect);
+	/*
+	servicesRow.style.visibility = 'hidden';
+	goServiceButton.style.visibility = 'hidden';
+	disableButton(goServiceButton, true);
+	disableButton(newServiceButton, false);
+	newServiceButton.style.visibility = 'visible';
+	*/
+
+	// Prep the package input items
+	deleteChildNodes(packageSelect);
+	packageInput.value = '';
+	packageAddButton.disabled = true;
+	packageDelButton.disabled = true;
+
+	// Prep the path input items
+	deleteChildNodes(pathSelect);
+	pathInput.value = '';
+	pathAddButton.disabled = true;
+	pathDelButton.disabled = true;
+
+	deleteChildNodes(fileSelect);
+
+	// Disable the Save button
+	disableButton(moduleNext, true);
+
 }
 
 
@@ -477,9 +588,19 @@ function popModuleProps() {
 
 	// Get the list of filenames
 	var fileNames = folder['fileNames']
-	if (!fileNames||fileNames.length==0)
-		return false;
+	if (!fileNames||fileNames.length==0) {
+		alert('The folder contains no files.');
+		goModal('folderPropertiesModal');
+		return true;
+	}
 
+	changed = false;
+
+	// Prep the module properties screen
+	prepModuleScreen();
+	
+	setModuleButtons();
+	
 	// Get the modules collection
 	var modules = folder['modules'];
 	if (!modules) {
@@ -488,7 +609,6 @@ function popModuleProps() {
 	}
 
 	// Populate the Source File pulldown
-	deleteChildNodes(fileSelect);
 	for (var i=0; i<fileNames.length; i++) {
 
 		// Create a new pick list item and add the file name to it.
@@ -504,44 +624,6 @@ function popModuleProps() {
 		
 	}
 
-	// Prep the module name, title, and description inputs
-	moduleNameInput.disabled = false;
-	moduleNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
-	moduleNameRules.style.color = 'Black';
-	moduleTitleInput.value = '';
-	moduleDescriptionInput.value = '';
-
-	// Initially list of services is hidden and button disabled
-	servicesRow.style.visibility = 'hidden';
-	disableButton(goServiceButton, true);
-
-	// Prep the package input items
-	deleteChildNodes(packageSelect);
-	packageInput.value = '';
-	packageAddButton.disabled = true;
-	packageDelButton.disabled = true;
-
-	// Prep the path input items
-	deleteChildNodes(pathSelect);
-	pathInput.value = '';
-	pathAddButton.disabled = true;
-	pathDelButton.disabled = true;
-
-	changed = false;
-
-	// Disable the Save button
-	disableButton(moduleNext, true);
-
-	// If new project, hide module related buttons
-	if (newProject) {
-		newServicesRow.style.visibility = 'hidden';
-		disableButton(newService, true);
-	}
-	else {
-		disableButton(newService, false);
-		newServicesRow.style.visibility = 'visible';
-	}
-
 	// Populate module data if exists
 	if (moduleName) {
 
@@ -549,6 +631,9 @@ function popModuleProps() {
 		var module = modules[moduleName];
 		if (!module)
 			return false;
+
+		// Display module path
+		showModulePath(folderName, moduleName);
 
 		// If module name exists, can't be changed
 		moduleNameInput.value = moduleName;
@@ -578,36 +663,26 @@ function popModuleProps() {
 			setSelected(fileSelect, sourceFile);
 
 		// Load the services into the pick list.
-		deleteChildNodes(serviceSelect);
 		var keys = Object.keys(services);
-		// If there are existing services
-		if (keys.length > 0) {
+		keys.forEach( function (key, index) {
 
-			// Enable and make visible
-			disableButton(goServiceButton, false);
-			servicesRow.style.visibility = 'visible';
+			// Create a new pick list item and add the project to it.
+			var option = document.createElement('option');
+			serviceSelect.appendChild(option);
+			var service = services[key];
+			label = key
+			if (service['serviceTitle'])
+				label += ' - ' + service['serviceTitle'];
+			option.innerHTML = label;
+			option.setAttribute('value', key);
 
-			// Load the list
-			keys.forEach( function (key, index) {
-
-				// Create a new pick list item and add the project to it.
-				var option = document.createElement('option');
-				serviceSelect.appendChild(option);
-				var service = services[key];
-				label = key
-				if (service['serviceTitle'])
-					key = key + ' - ' + service['serviceTitle'];
-				option.innerHTML = label;
-				option.setAttribute('value', key);
-
-				// If only one project, select it by default.
-				if (keys.length==1) {
-					selectedServiceName = key;
-					option.selected = true;
-				}
-				
-			});
-		}
+			// If only one project, select it by default.
+			if (keys.length==1) {
+				selectedServiceName = key;
+				option.selected = true;
+			}
+			
+		});
 
 		// Add required packages
 		// Make sure packages exist in the module
@@ -639,7 +714,7 @@ function popModuleProps() {
 		packageDelButton.disabled = !packageSelect.length;		
 
 		// Add paths (Python only)
-		var language = folder['language'];
+		language = folder['language'];
 		if (language=='Python') {
 
 			// Make sure paths exist in the module
@@ -674,10 +749,40 @@ function popModuleProps() {
 
 	}
 
+	disableServiceSelect();
+
 	return true;
 	
 }
 
+// Prep the service properties screen
+function prepServiceScreen() {
+	
+	// Prep the module name, title, and description inputs
+	showServicePath(null, null, null);
+	serviceNameInput.value = '';
+	serviceNameInput.disabled = false;
+	serviceNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
+	serviceNameRules.style.color = 'Black';
+	serviceTitleInput.value = '';
+	serviceDescriptionInput.value = '';
+	methodPOSTInput.checked = true;
+	methodGETInput.checked = false;
+	includeBodyInput.checked = true;
+	includeParamsInput.checked = false;
+	paramsToDFInput.checked = false;
+	paramsToDFInput.disabled = true;
+	includeRequestInput.checked = false;
+	
+	deleteChildNodes(functionSelect);
+
+	// Disable the Save button
+	//disableButton(serviceNext, true);
+
+	deleteChildNodes(inputParseTypeInput);
+	deleteChildNodes(outputParseTypeInput);
+
+}
 
 //Populate the module properties screen
 function popServiceProps() {
@@ -702,10 +807,23 @@ function popServiceProps() {
 	if (!module)
 		return false;
 
+	// Get the language
+	language = folder['language'];
+	language = language? language: 'Python';
+
 	// Get the list of filenames
 	var functionNames = module['functionNames']
-	if (!functionNames||functionNames.length==0)
-		return false;
+	if (!functionNames||functionNames.length==0) {
+		alert('The module contains no ' + language + ' functions.');
+		goModal('modulePropertiesModal');
+	}
+
+	changed = false;
+
+	// Prep the service properties screen
+	prepServiceScreen();
+
+	setServiceButtons();
 
 	// Get the modules collection
 	var services = module['services'];
@@ -715,7 +833,6 @@ function popServiceProps() {
 	}
 
 	// Populate the Function pulldown
-	deleteChildNodes(functionSelect);
 	for (var i=0; i<functionNames.length; i++) {
 
 		// Create a new pick list item and add the file name to it.
@@ -733,28 +850,8 @@ function popServiceProps() {
 			option.selected = true;
 		
 	}
-
-	// Prep the module name, title, and description inputs
-	serviceNameInput.disabled = false;
-	serviceNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
-	serviceNameRules.style.color = 'Black';
-	serviceTitleInput.value = '';
-	serviceDescriptionInput.value = '';
-	methodPOSTInput.checked = true;
-	methodGETInput.checked = false;
-	includeBodyInput.checked = true;
-	includeParamsInput.checked = false;
-	paramsToDFInput.checked = false;
-	paramsToDFInput.disabled = true;
-	includeRequestInput.checked = false;
-	changed = false;
-
-	// Disable the Save button
-	disableButton(serviceNext, true);
-
-
+	
 	var option = null;
-	deleteChildNodes(inputParseTypeInput);
 
 	option = document.createElement('option');
 	inputParseTypeInput.appendChild(option);
@@ -802,8 +899,6 @@ function popServiceProps() {
 		setSelected(inputParseTypeInput, 'rlist');
 	else
 		setSelected(inputParseTypeInput, 'dictionary');
-
-	deleteChildNodes(outputParseTypeInput);
 
 	option = document.createElement('option');
 	outputParseTypeInput.appendChild(option);
@@ -860,6 +955,9 @@ function popServiceProps() {
 		if (!service)
 			return false;
 
+		// Display service path
+		showServicePath(folderName, moduleName, serviceName);
+
 		// If service name exists, can't be changed
 		serviceNameInput.value = serviceName;
 		serviceNameInput.disabled = true;
@@ -908,49 +1006,42 @@ function popServiceProps() {
 
 
 // Handle the results from backend project operations.
-function handleResponse(response, nextModalID) {
+function goModal(nextModalID) {
 
 	// Get the project.
-	project = response['project'];
+	//project = response['project'];
 
 	// If no modal and the current project exists, not a new project.
 	if (!nextModalID && project)
 		newProject = false;
 
 	// Populate project properties screen.
-	if (!popProjectProps()) {
-		alert('Error reading project');
-		return;
+	if (!nextModalID||nextModalID=='projectPropertiesModal') {
+		if (!popProjectProps()) {
+			alert('An error occurred while loading the project.');
+			onExitProject();
+		}
 	}
-
-	if (nextModalID && nextModalID!='projectPropertiesModal') {
-
-		// Populate folder properties screen.
+	// Populate folder properties screen.
+	else if (nextModalID=='folderPropertiesModal') {
 		if (!popFolderProps()) {
-			alert('Error reading folder');
-			return;
+			alert('An error occurred while loading the folder.');
+			onExitProject();
 		}
-	
-		if (nextModalID!='folderPropertiesModal') {
-
-			// Populate the module properties screen.
-			if (!popModuleProps()) {
-				alert('Error reading module');
-				return;
-			}
-		
-			if (nextModalID!='modulePropertiesModal') {
-
-				// Populate the service properties screen.
-				if (!popServiceProps()) {
-					alert('Error reading service');
-					return;
-				}
-
-			}
-
+	}
+	// Populate module properties screen.
+	else if (nextModalID=='modulePropertiesModal') {
+		if (!popModuleProps()) {
+			alert('An error occurred while loading the module.');
+			onExitProject();
 		}
-
+	}
+	// Populate service properties screen.
+	else if (nextModalID=='servicePropertiesModal') {
+		if (!popServiceProps()) {
+			alert('An error occurred while loading the service.');
+			onExitProject();
+		}
 	}
 
 	// Switch to the next modal.
@@ -958,53 +1049,16 @@ function handleResponse(response, nextModalID) {
 
 }
 
-// Captures project properties and writes the modified document to the service.
-function writeProject(project1, overwrite, cancel) {
+// Saves an existing project
+function updateProject(nextModalID) {
 
-	// Get the project name and check it.
-	var projectName = projectNameInput.value;
-
-	// Check the project name.
-	if (!checkName(projectName)) {
-		if (!cancel) {
-			alert('Project name must consist of lower case letters, numbers, and underscores, and be no more than 30 characters.');
-			return;
-		}
-		else if (newProject) {
-			onExitProject();
-			return;
-		}
-		else
-			switchModal(null);
-	}
-	
-	// Prepare the project to write to the service.
-	var project2 = project1? JSON.parse(JSON.stringify(project1)): null;
-	if (!project2) {
-		project2 = {};
-		project2['projectName'] = projectName;
-	}
-	project2['projectTitle'] = projectTitleInput.value;
-	project2['projectDescription'] = projectDescriptionInput.value;
-	if (!project2['folders'])
-		project2['folders'] = {};
-	
-	// Check that the project has a name.  This should never happen.
-	if (!project2['projectName']) {
-		alert('Missing project name');
-		return;
-	}
-
-	// Define the request, including the project.
-	var request = {
-			'project': project2,
-			'overwrite': overwrite
-		};
+	// Prepare the request doc
+	var request = {'project': project};
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
 	var date = new Date();
-	xhr.open("POST", baseURL + "createproject?timestamp=" + date.getTime());
+	xhr.open("POST", baseURL + "updateproject?timestamp=" + date.getTime());
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -1017,15 +1071,106 @@ function writeProject(project1, overwrite, cancel) {
 			var response = JSON.parse(xhr.responseText);
 			var succeeded = response.succeeded;
 			if (succeeded) {
-				// If succeeded, identify the next screen and process the response.
-				var nextModalID = newProject&&!cancel? 'folderPropertiesModal': null;
-				// Populate project properties on the page
-				handleResponse(response, nextModalID);
+				project = response['project'];
+				// Populate the folder select list
+				popFolderSelect();
+				goModal(nextModalID);
+			}
+			else
+				alert(response['errorMsg']);
+		} 
+		else
+			alert('Error updating project');
+
+	}
+
+	// Send the request.
+	var contentJSON = JSON.stringify(request);
+	xhr.send(contentJSON);
+	
+}
+
+// Captures project properties and writes the modified document to the service.
+function writeProject(project1, overwrite, cancel) {
+
+	// Identify the next screen.
+	var nextModalID = newProject&&!cancel? 'folderPropertiesModal': null;
+
+	// If no change, just go to the next screen
+	if (!changed)
+		goModal(nextModalID);
+
+	// Get the project name and check it.
+	var newProjectName = projectNameInput.value;
+
+	// Check the project name.
+	if (!checkName(newProjectName)) {
+		if (!cancel) {
+			alert('Project name must consist of lower case letters, numbers, and underscores, and be no more than 30 characters.');
+			return;
+		}
+		else if (newProject) {
+			onExitProject();
+			return;
+		}
+		else
+			switchModal(null);
+	}
+
+	// Prepare the project to write to the service.
+	var project2 = project1? JSON.parse(JSON.stringify(project1)): null;
+	if (!project2) {
+		project2 = {};
+		project2['projectName'] = newProjectName;
+	}
+	project2['projectTitle'] = projectTitleInput.value;
+	project2['projectDescription'] = projectDescriptionInput.value;
+	if (!project2['folders'])
+		project2['folders'] = {};
+	
+	// Check that the project has a name.  This should never happen.
+	if (!project2['projectName']) {
+		alert('Missing project name');
+		return;
+	}
+
+	// Record the project name
+	projectName = newProjectName;
+
+	// Define the request, including the project.
+	var request = {
+			'project': project2,
+			'overwrite': overwrite
+		};
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	if (newProject&&!folderName)
+		xhr.open("POST", baseURL + "createproject");
+	else
+		xhr.open("POST", baseURL + "updateproject");
+	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and check whether the request succeeded.
+			var response = JSON.parse(xhr.responseText);
+			var succeeded = response.succeeded;
+			if (succeeded) {
+
+				// Update project properties
+				project = response['project'];
+				popProjectProps();
+
+				// Populate folder properties on the page
+				goModal(nextModalID);
 				// Notify that project created.
-				if (newProject) {
+				if (newProject&&!folderName)
 					alert('Project created.');
-					newProject = !cancel;
-				}
 			}
 			else {
 				// Otherwise, handle the error.
@@ -1055,105 +1200,13 @@ function writeProject(project1, overwrite, cancel) {
 	
 }
 
-// Display folder properties.
-// folderName is the name of the folder, or null if a new folder.
-function onFolderProps(folderName) {
-	
-	if (project) {
-		
-		var projectName = project['projectName'];
-		folders = project['folders'];
-		if (folders) {
-
-			folder = project[folderName];
-			if (folder && projectName && folderName) {
-				
-				// Set subtitle to /projectname/foldername
-				titleFolderPath.innerHTML = '/' + projectName + '/' + folderName;
-
-				folderNameInput.value = folderName;
-				folderNameInput.disabled = true;
-
-				// Set subtitle to /projectname/foldername
-				var sourcePath = folder['sourcePath'];
-				if (sourcePath) {
-					sourcePathInput.innerHTML = sourcePath;
-					uploadRequired.innerHTML = '';
-				}
-				else {
-					sourcePathInput.innerHTML = '';
-					uploadRequired.innerHTML = '&nbsp;*';
-				}
-
-				// Set programming language
-				language = folder['language'];
-				languageR.checked = false;
-				languageP.checked = false;
-				if (language) {
-					if (language == 'R')
-						languageR.checked = true;
-					else
-						languageP.checked = true;
-				}
-
-				var workers = folder['workers'];
-				if (workers)
-					workersInput.value = workers;
-
-				var modules = folder['modules'];
-				deleteChildNodes(moduleSelect);
-				
-				// Load the modules into the pick list.
-				var keys = Object.keys(modules);
-				if (keys.length == 0) {
-					moduleSelect.style.visibility = "hidden";
-					goModuleButton.style.visibility = 'hidden';
-				}
-				else
-					keys.forEach( function (key, index) {
-	
-						// Create a new pick list item and add the project to it.
-						var option = document.createElement('option');
-						moduleSelect.appendChild(option);
-						var module = modules[key];
-						label = key
-						if (module['moduleTitle'])
-							key = key + ' - ' + module['moduleTitle'];
-						option.innerHTML = label;
-						option.setAttribute('value', key);
-	
-						// If only one project, select it by default.
-						if (keys.length==1) {
-							selectedModuleName = key;
-							option.selected = true;
-						}
-						
-					});
-				
-			}
-			else {
-				folderNameInput.disabled = false;
-			}
-		}
-
-		// If new project, hide module related buttons
-		if (newProject){
-			document.getElementById('modulesLabel').style.visibility = 'hidden';
-			moduleSelect.style.visibility = 'hidden';
-			goModuleButton.style.visibility = 'hidden';
-			newModule.style.visibility = 'hidden';
-		}
-
-		// Display the modal
-		switchModal('folderPropertiesModal');
-
-	}
-
-}
-
 // Keep new folder properties.
 // nextModalID - ID of modal to which to navigate.
 function onKeepFolderProps(nextModalID) {
+
+	// If no change, just go to the next screen
+	if (!changed)
+		goModal(nextModalID);
 
 	// Check if project exists
 	if (!project)
@@ -1193,7 +1246,7 @@ function onKeepFolderProps(nextModalID) {
 	var sourcePath = sourcePathInput.innerHTML;
 
 	// If no source path and list of filenames or files to be uploaded, stop.
-	if (!edit&&!files || edit&&!sourcePath) {
+	if (!edit&&!files.length || edit&&!sourcePath) {
 		failed = true;
 		uploadRequired.style.color = 'Red';
 	}
@@ -1250,7 +1303,7 @@ function onKeepFolderProps(nextModalID) {
 
 	// Prepare the request doc
 	var request = {'project': project};
-	
+
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", baseURL + "updateproject");
@@ -1270,6 +1323,9 @@ function onKeepFolderProps(nextModalID) {
 				// Get the updated project (should be the same)
 				project = response['project']
 
+				// Populate the folder select list
+				popFolderSelect();
+
 				// If files to upload, upload them.
 				if (files&&files.length>0) {
 
@@ -1277,7 +1333,7 @@ function onKeepFolderProps(nextModalID) {
 					var formData = new FormData();
 					for (var i = 0; i < files.length; i++)
 				    	formData.append('files', files[i]);			
-	
+
 					// Prepare the request
 					var xhr2 = new XMLHttpRequest();
 					xhr2.open("POST", baseURL + "uploadfolder?projectname=" + projectName + '&foldername=' + folderName);
@@ -1293,22 +1349,25 @@ function onKeepFolderProps(nextModalID) {
 							var response = JSON.parse(xhr2.responseText);
 							var succeeded = response.succeeded;
 							if (succeeded) {
-								// If succeeded, identify the next screen and process the response.
-								//var nextModalID = newProject&&forward? 'modulePropertiesModal': 'projectPropertiesModal';
-								// Populate project properties on the page
-								handleResponse(response, nextModalID);
+								// Populate properties on the page
+								project = response['project'];
+								// Update the project
+								//goModal(nextModalID);
+								updateProject(nextModalID);
 							}
-	
+
 						}
-	
+
 					}
 					xhr2.send(formData);
-	
+
 				}
-				else
-					// Populate project properties on the page
-					handleResponse(response, nextModalID);
-				
+				else {
+					// Go to the module properties page
+					project = response['project'];
+					goModal(nextModalID);
+				}
+
 			}
 			else
 				alert(response['errorMsg']);
@@ -1323,54 +1382,12 @@ function onKeepFolderProps(nextModalID) {
 	
 }
 
-// Display module properties.
-// moduleName is the name of the module, or null if a new module.
-// TODO: DELETE THIS!
-function onModuleProps(moduleName) {
-
-	// Get the folder
-	var folders = project['folders'];
-	var folder = folders[folderName];
-
-	// Populate the Source File pulldown
-	var fileNames = folder['fileNames']
-	deleteChildNodes(fileSelect);
-	for (var i=0; i<fileNames.length; i++) {
-
-		// Create a new pick list item and add the file name to it.
-		var option = document.createElement('option');
-		fileSelect.appendChild(option);
-		fileName = fileNames[i];
-		option.innerHTML = fileName;
-		option.setAttribute('value', fileName);
-
-		// If only one file, select it by default.
-		if (fileNames.length==1) {
-			selectedFileName = fileName;
-			option.selected = true;
-		}
-		
-	};
-
-	// Get the module, if any, and populate the form fields from it
-	var module = null;
-	if (moduleName) {
-		var modules = folder['modules'];
-		var module = modules[moduleName];
-		if (!module)
-			return;
-
-		// TODO: POPULATE THE REST OF THE FORM FIELDS
-	}
-
-	// Display the modal
-	var modal = document.getElementById('modulePropertiesModal');
-	modal.style.display = "block";
-
-}
-
 // Keep new module properties.
 function onKeepModuleProps(nextModalID) {
+
+	// If no change, just go to the next screen
+	if (!changed)
+		goModal(nextModalID);
 
 	// Check if project exists
 	if (!project)
@@ -1483,10 +1500,9 @@ function onKeepModuleProps(nextModalID) {
 			var response = JSON.parse(xhr.responseText);
 			var succeeded = response.succeeded;
 			if (succeeded) {
-				// If succeeded, identify the next screen and process the response.
-				var nextModalID = newProject? 'servicePropertiesModal': null;
 				// Populate project properties on the page
-				handleResponse(response, nextModalID);
+				project = response['project'];
+				goModal(nextModalID);
 			}
 			else
 				alert(response['errorMsg']);
@@ -1502,20 +1518,14 @@ function onKeepModuleProps(nextModalID) {
 	
 }
 
-// Display service properties.
-// serviceName is the name of the service, or null if a new service.
-function onServiceProps(serviceName) {
-
-	// Display the modal
-	var modal = document.getElementById('servicePropertiesModal');
-	modal.style.display = "block";
-
-}
-
 // Keep new service properties.
 // toProject is true if focus is to be returned to the main project page,
 // false to return to the module properties.
-function onKeepServiceProps(edit) {
+function onKeepServiceProps(nextModalID) {
+
+	// If no change, just go to the next screen
+	if (!changed)
+		goModal(nextModalID);
 
 	// Check if project exists
 	if (!project)
@@ -1627,37 +1637,8 @@ function onKeepServiceProps(edit) {
 	service['inputParseType'] = inputParseType;
 	service['outputParseType'] = outputParseType;
 
-	// Prepare the request doc
-	var request = {'project': project};
-	
-	// Prepare the XHR request.
-	var xhr = new XMLHttpRequest();
-	var date = new Date();
-	xhr.open("POST", baseURL + "updateproject?timestamp=" + date.getTime());
-	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
-
-	// Define the callback function.
-	xhr.onload = function () {
-
-		// Get the response, check HTTP status.
-		if (xhr.status == "200") {
-
-			// Retrieve the response and check whether the request succeeded.
-			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded)
-				handleResponse(response, null);
-			else
-				alert(response['errorMsg']);
-		} 
-		else
-			alert('Error updating project');
-
-	}
-
-	// Send the request.
-	var contentJSON = JSON.stringify(request);
-	xhr.send(contentJSON);
+	// Update the project
+	updateProject(nextModalID);
 	
 }
 
@@ -1691,10 +1672,13 @@ function getProject() {
 
 	// Get the project name query parameter
 	var params = new URLSearchParams(window.location.search);	
-	var projectName = params.get('projectname');
+	var paramProjectName = params.get('projectname');
 
+	// Assume a new project
+	newProject = true;
+	
 	// If project name specified, try to retrieve the project document
-	if (projectName) {
+	if (paramProjectName) {
 
 		// Not a new project
 		newProject = false;
@@ -1702,7 +1686,7 @@ function getProject() {
 		// Prepare the XHR request.
 		var xhr = new XMLHttpRequest();
 		var date = new Date();
-		xhr.open("GET", baseURL + "getproject" + "?projectname=" + projectName + "&timestamp=" + date.getTime());
+		xhr.open("GET", baseURL + "getproject" + "?projectname=" + paramProjectName + "&timestamp=" + date.getTime());
 
 		// Define the callback function.
 		xhr.onload = function () {
@@ -1712,11 +1696,17 @@ function getProject() {
 
 				// Retrieve the response and process it.
 				var response = JSON.parse(xhr.responseText);
-				handleResponse(response, null);
+				project = response['project'];
+				goModal(null);
+				projectName = paramProjectName;
+
+				// Populate the folder select list
+				popFolderSelect();
 
 			} else {
 				console.error(xhr.responseText);
 				alert("Error retrieving project");
+				// TODO:  RETURN TO THE MAIN PAGE
 			}
 
 		}
@@ -1738,18 +1728,6 @@ function getProject() {
 // Handler for the folder Go button
 function onGoFolder(newFolder) {
 
-	// Get the selected folder name
-	if (!newProject) {
-		// Next becomes Save, Back becomes Cancel.
-		folderNext.innerHTML = 'Save';
-		folderBack.innerHTML = 'Cancel';
-	}
-	else {
-		// Next becomes Next, Back becomes Back.
-		folderNext.innerHTML = 'Next';
-		folderBack.innerHTML = 'Back';
-	}
-	
 	// If new folder, no folder name yet.
 	if (newFolder)
 		folderName = null;
@@ -1761,8 +1739,9 @@ function onGoFolder(newFolder) {
 	}
 
 	// Populate the form and display the modal
-	popFolderProps();
-	switchModal('folderPropertiesModal');
+	//popFolderProps();
+	//switchModal('folderPropertiesModal');
+	goModal('folderPropertiesModal');
 
 }
 
@@ -1771,14 +1750,14 @@ function onFolderSelectChange() {
 
 	// Get the folder name if any.
 	folderName = getSelected(folderSelect);
-	
+
 	// Null out the module and service names.
 	moduleName = null;
 	serviceName = null;
-	
+
 	// Enable or disable the folder Go button.
 	disableButton(goFolderButton, !folderName);
-	
+
 }
 
 // Exit the project and return to the home screen
@@ -1797,27 +1776,15 @@ function onExitProject() {
 	
 }
 
-// Delete the project
-// TODO:  IMPLEMENT THIS!
-function onDelProject () {
-
-	alert('Feature not implemented!')
-	
-}
-
 // Check the project name on change
 function onChangeProjectName() {
 
 	// Get the project name and check it.
-	var projectName = projectNameInput.value;
-	if (!checkName(projectName))
+	var projectName2 = projectNameInput.value;
+	if (!checkName(projectName2))
 		document.getElementById('projectNameRules').style.color = 'Red';
 	else
 		document.getElementById('projectNameRules').style.color = 'Black';
-
-	// Enable the Next/Save button
-	//disableButton(projectNext, false);
-	//projectBack.innerHTML = 'Cancel';
 
 }
 
@@ -1825,31 +1792,31 @@ function onChangeProjectName() {
 function onChangeFolderName() {
 
 	// Get the folder name and check it.
-	var folderName = folderNameInput.value;
-	if (!checkName(folderName))
+	var folderName2 = folderNameInput.value;
+	if (!checkName(folderName2)) {
 		document.getElementById('folderNameRules').style.color = 'Red';
-	else
+		showFolderPath(null);
+	}
+	else {
 		document.getElementById('folderNameRules').style.color = 'Black';
+		showFolderPath(folderName2);
+	}
 	
-	// Enable the Next/Save button
-	//changed = true;
-	//disableButton(folderNext, false);
-	//folderBack.innerHTML = 'Cancel';
-
 }
 
 //Check the folder name on change
 function onChangeModuleName() {
 
 	// Get the folder name and check it.
-	var moduleName = moduleNameInput.value;
-	if (!checkName(moduleName))
+	var moduleName2 = moduleNameInput.value;
+	if (!checkName(moduleName2)) {
 		moduleNameRules.style.color = 'Red';
-	else
+		showModulePath(null, null);
+	}
+	else {
 		moduleNameRules.style.color = 'Black';
-	
-	//disableButton(moduleNext, false);
-	//changed = true;
+		showModulePath(folderName, moduleName2);
+	}
 	
 }
 
@@ -1857,32 +1824,21 @@ function onChangeModuleName() {
 function onChangeServiceName() {
 
 	// Get the folder name and check it.
-	var serviceName = serviceNameInput.value;
-	if (!checkName(serviceName))
+	var serviceName2 = serviceNameInput.value;
+	if (!checkName(serviceName2)) {
 		serviceNameRules.style.color = 'Red';
-	else
+		showServicePath(null, null, null);
+	}
+	else {
 		serviceNameRules.style.color = 'Black';
-	
-	//disableButton(serviceNext, false);
-	//changed = true;
+		showServicePath(folderName, moduleName, serviceName2);
+	}
 	
 }
 
 // Go to the selected module
 function onGoModule(newModule) {
 
-	// Get the selected module name
-	if (!newProject) {
-		// Next becomes Save, Back becomes Cancel.
-		moduleNext.innerHTML = 'Save';
-		moduleBack.innerHTML = 'Cancel';
-	}
-	else {
-		// Next becomes Next, Back becomes Back.
-		moduleNext.innerHTML = 'Next';
-		moduleBack.innerHTML = 'Back';
-	}
-	
 	// If new folder, no folder name yet.
 	if (newModule)
 		moduleName = null;
@@ -1894,25 +1850,15 @@ function onGoModule(newModule) {
 	}
 
 	// Populate the form and display the modal
-	popModuleProps();
-	switchModal('modulePropertiesModal');
+	//popModuleProps();
+	//switchModal('modulePropertiesModal');
+	//goModal('modulePropertiesModal');
+	onKeepFolderProps('modulePropertiesModal');
 
 }
 
 // Go to the selected service
 function onGoService(newService) {
-
-	// Get the selected service name
-	if (!newProject) {
-		// Next becomes Save, Back becomes Cancel.
-		serviceNext.innerHTML = 'Save';
-		serviceBack.innerHTML = 'Cancel';
-	}
-	else {
-		// Next becomes Next, Back becomes Back.
-		serviceNext.innerHTML = 'Next';
-		serviceBack.innerHTML = 'Back';
-	}
 
 	// If new folder, no folder name yet.
 	if (newService)
@@ -1925,8 +1871,10 @@ function onGoService(newService) {
 	}
 
 	// Populate the form and display the modal
-	popServiceProps();
-	switchModal('servicePropertiesModal');
+	//popServiceProps();
+	//switchModal('servicePropertiesModal');
+	//goModal('servicePropertiesModal');
+	onKeepModuleProps('servicePropertiesModal');
 
 }
 
@@ -2005,16 +1953,14 @@ function onSourceUploadChange() {
 
 }
 
-//Handle the Next/Save button in the Project Properties screen.
+// Handle the Next/Save button in the Project Properties screen.
 function onProjectNext() {
 
 	// Create or save the project
 	if (newProject)
-		writeProject(null, false, false);
-	else {
-		projectBack.innerHTML = 'Close';
+		writeProject(project, !!folderName, false);
+	else
 		writeProject(project, true, false);
-	}
 
 }
 
@@ -2022,10 +1968,9 @@ function onProjectNext() {
 function onProjectCancel() {
 
 	// Create the project
-	if (newProject) {
+	if (newProject)
 		writeProject(null, false, true);
-	}
-	else if ((projectBack.innerHTML=='Close')||confirm('Discard changes?'))
+	else if (!changed||confirm('Discard changes?'))
 		switchModal(null);
 
 }
@@ -2033,7 +1978,7 @@ function onProjectCancel() {
 //Handle the Next/Save button in the Project Properties screen.
 function onFolderNext() {
 
-	folderBack.innerHTML = 'Close';
+	//folderBack.innerHTML = 'Close';
 	var modalID = newProject? 'modulePropertiesModal': 'folderPropertiesModal';
 	onKeepFolderProps(modalID);
 
@@ -2043,23 +1988,21 @@ function onFolderNext() {
 function onFolderBack() {
 
 	var modalID = newProject? 'projectPropertiesModal': null;
-	if (!changed||confirm('Discard changes?'))
-		switchModal(modalID);
-
-}
-
-//Handles cancel button on Folder Properties screen.
-function onFolderCancel() {
-
-	if (!changed||confirm('Discard changes?'))
-		switchModal(null);
+	
+	if (newProject&&changed)
+		onKeepFolderProps(modalID);
+	else if (!changed||confirm('Discard changes?')) {
+		//popProjectProps();
+		//switchModal(modalID);
+		goModal(modalID);
+	}
 
 }
 
 //Handle the Next/Save button in the Module Properties screen.
 function onModuleNext() {
 
-	var modalID = newProject? 'servicePropertiesModal': null;
+	var modalID = newProject? 'servicePropertiesModal': 'modulePropertiesModal';
 	onKeepModuleProps(modalID);
 
 }
@@ -2067,17 +2010,15 @@ function onModuleNext() {
 // Handles back button on Module Properties screen.
 function onModuleBack() {
 
-	//var modalID = newProject? 'folderPropertiesModal': null;
-	if (!changed||confirm('Discard changes?'))
-		switchModal('folderPropertiesModal');
+	var modalID = 'folderPropertiesModal';
 
-}
-
-//Handles cancel button on Module Properties screen.
-function onModuleCancel() {
-
-	if (!changed||confirm('Discard changes?'))
-		switchModal(null);
+	if (newProject&&changed)
+		onKeepModuleProps(modalID);
+	else if (!changed||confirm('Discard changes?')) {
+		//switchModal(modalID);
+		//popFolderProps();
+		goModal(modalID);
+	}
 
 }
 
@@ -2085,21 +2026,28 @@ function onModuleCancel() {
 function onServiceNext() {
 
 	// TODO:  GO TO BUILD SCREEN FOR NEW PROJECTS.
-	onKeepServiceProps(null);
+	var modalID = newProject? null: 'servicePropertiesModal';
+	onKeepServiceProps(modalID);
 
 }
 
 // Handles back button on Service Properties screen.
 function onServiceBack() {
 
-	//var modalID = newProject? 'modulePropertiesModal': null;
-	if (!changed||confirm('Discard changes?'))
-		switchModal('modulePropertiesModal');
+	var modalID = 'modulePropertiesModal';
+
+	if (newProject&&changed)
+		onKeepServiceProps(modalID);
+	else if (!changed||confirm('Discard changes?')) {
+		//popModuleProps();
+		//switchModal(modalID);
+		goModal(modalID);
+	}
 
 }
 
-//Handles cancel button on Service Properties screen.
-function onServiceCancel() {
+//Handles cancel button on folder, module, and service properties screens.
+function onCancel() {
 
 	if (!changed||confirm('Discard changes?'))
 		switchModal(null);
@@ -2181,9 +2129,7 @@ function projectInput(event) {
 	
 	if (!changed) {	
 		changed = true;
-		disableButton(projectNext, false);
-		if (!newProject)
-			projectBack.innerHTML = 'Cancel';
+		setProjectButtons();
 	}
 	
 }
@@ -2193,9 +2139,7 @@ function folderInput(event) {
 	
 	if (!changed) {	
 		changed = true;
-		disableButton(folderNext, false);	
-		if (!newProject)
-			folderBack.innerHTML = 'Cancel';
+		setFolderButtons();
 	}
 	
 }
@@ -2205,9 +2149,7 @@ function moduleInput(event) {
 	
 	if (!changed) {	
 		changed = true;
-		disableButton(moduleNext, false);
-		if (!newProject)
-			moduleBack.innerHTML = 'Cancel';
+		setModuleButtons();
 	}
 	
 }
@@ -2217,9 +2159,7 @@ function serviceInput(event) {
 	
 	if (!changed) {	
 		changed = true;
-		disableButton(serviceNext, false);
-		if (!newProject)
-			serviceBack.innerHTML = 'Cancel';
+		setServiceButtons();
 	}
 	
 }
@@ -2229,22 +2169,18 @@ function onPackageInput(event) {
 	
 	if (!changed) {	
 		changed = true;
-		disableButton(moduleNext, false);
-		if (!newProject)
-			moduleBack.innerHTML = 'Cancel';
+		setModuleButtons();
 	}
 	packageAddButton.disabled = !packageInput.value;
 	
 }
 
-//Event handler for package name input
+//Event handler for path name input
 function onPathInput(event) {
 	
 	if (!changed) {	
 		changed = true;
-		disableButton(moduleNext, false);
-		if (!newProject)
-			moduleBack.innerHTML = 'Cancel';
+		setModuleButtons();
 	}
 	pathAddButton.disabled = !pathInput.value;
 	
@@ -2264,4 +2200,242 @@ function onPathSelectChange() {
 	changed = true;
 	pathDelButton.disabled = !pathSelect.value;
 	
+}
+
+//Enable/disable the folder select and buttons.
+function disableFolderSelect() {
+
+	if (folderSelect.length) {
+		folderSelect.disabled = false;
+		disableButton(goFolderButton, false);
+		disableButton(delFolderButton, false);
+		folderSelectLabel.style.color = enabledTextColor;
+	}
+	else {
+		folderSelect.disabled = true;
+		disableButton(goFolderButton, true);
+		disableButton(delFolderButton, true);
+		folderSelectLabel.style.color = disabledTextColor;
+	}
+
+}
+
+//Enable/disable the module select and buttons.
+function disableModuleSelect() {
+
+	if (!newProject&&moduleSelect.length) {
+		moduleSelect.disabled = false;
+		disableButton(goModuleButton, false);
+		disableButton(delModuleButton, false);
+	}
+	else {
+		moduleSelect.disabled = true;
+		disableButton(goModuleButton, true);
+		disableButton(delModuleButton, true);
+	}
+
+	disableButton(newModuleButton, newProject);
+
+}
+
+//Enable/disable the service select and buttons.
+function disableServiceSelect() {
+
+	if (!newProject&&serviceSelect.length) {
+		serviceSelect.disabled = false;
+		disableButton(goServiceButton, false);
+		disableButton(delServiceButton, false);
+	}
+	else {
+		serviceSelect.disabled = true;
+		disableButton(goServiceButton, true);
+		disableButton(delServiceButton, true);
+	}
+
+	disableButton(newServiceButton, newProject);
+
+}
+
+//Set labels and enables/disables bottom buttons on project properties screen.
+function setProjectButtons() {
+	
+	// Disable the Save button if the project screen has not been saved and it's not a new project with a folder specified
+	disableButton(projectNext, !changed&&!(newProject&&projectName));
+
+	// Change button labels appropriately
+	if (newProject) {
+		projectNext.innerHTML = 'Next';
+		projectBack.innerHTML = 'Back';
+	}
+	else {
+		projectNext.innerHTML = 'Save';
+		//projectBack.innerHTML = changed? 'Cancel': 'Back';
+	}
+
+}
+
+//Set labels and enables/disables bottom buttons on folder properties screen.
+function setFolderButtons() {
+
+	// Disable the Save button
+	disableButton(folderNext, !changed&&!(newProject&&folderName));
+
+	// Change button labels appropriately
+	if (newProject) {
+		folderNext.innerHTML = 'Next';
+		folderBack.innerHTML = 'Back';
+	}
+	else {
+		folderNext.innerHTML = 'Save';
+		//folderBack.innerHTML = changed? 'Cancel': 'Back';
+	}
+
+}
+
+//Set labels and enables/disables bottom buttons on project properties screen.
+function setModuleButtons() {
+	
+	// Disable the Save button
+	disableButton(moduleNext, !changed&&!(newProject&&moduleName));
+
+	// Change button labels appropriately
+	if (newProject) {
+		moduleNext.innerHTML = 'Next';
+		moduleBack.innerHTML = 'Back';
+	}
+	else {
+		moduleNext.innerHTML = 'Save';
+		//moduleBack.innerHTML = changed? 'Cancel': 'Back';
+	}
+
+}
+
+//Set labels and enables/disables bottom buttons on service properties screen.
+function setServiceButtons() {
+	
+	// Disable the Save button
+	disableButton(serviceNext, !changed&&!(newProject&&serviceName));
+
+	// Change button labels appropriately
+	if (newProject) {
+		serviceNext.innerHTML = 'Next';
+		serviceBack.innerHTML = 'Back';
+	}
+	else {
+		serviceNext.innerHTML = 'Save';
+		//serviceBack.innerHTML = changed? 'Cancel': 'Back';
+	}
+
+}
+
+// Handler for delFolderButton.
+function onDelFolder() {
+
+	folderName = getSelected(folderSelect);
+	// If no folder selected, do nothing.
+	if (!project||!folderName)
+		return;
+
+	// Check for folders collection
+	var folders = project['folders'];
+	if (!folders)
+		return;
+
+	// Confirm delete
+	if (confirm('Delete folder ' + folderName +
+		'?  This will delete any directories or files that have been uploaded for the folder.')) {
+		// Remove the folder from the pick list
+		delSelected(folderSelect);
+		// Delete the folder from the folders collection
+		delete folders[folderName];
+		// Disable the folder select as needed
+		disableFolderSelect();
+		// Update the project
+		updateProject(null);
+	}
+
+}
+
+// Handler for delModuleButton.
+function onDelModule() {
+
+	// If no module selected, do nothing.
+	moduleName = getSelected(moduleSelect);
+	if (!project||!folderName||!moduleName)
+		return;
+
+	// Check for folders collection
+	var folders = project['folders'];
+	if (!folders)
+		return;
+	
+	// Get the folder
+	folder = folders[folderName];
+	if (!folder)
+		return;
+
+	// Check for modules collection
+	var modules = folder['modules'];
+	if (!modules)
+		return;
+	
+	// Confirm delete
+	if (confirm('Delete module ' + moduleName + '?')) {
+		// Remove the module from the pick list
+		delSelected(moduleSelect);
+		// Delete the module from the modules collection
+		delete modules[moduleName];
+		// Disable the module select as needed
+		disableModuleSelect();
+		// Set the button labels and enable/disable appropriately
+		setFolderButtons();
+	}	
+
+}
+
+//Handler for delServiceButton.
+function onDelService() {
+
+	// If no module selected, do nothing.
+	serviceName = getSelected(serviceSelect);
+	if (!project||!folderName||!moduleName||!serviceName)
+		return;
+
+	// Check for folders collection
+	var folders = project['folders'];
+	if (!folders)
+		return;
+	
+	// Get the folder
+	folder = folders[folderName];
+	if (!folder)
+		return;
+
+	// Check for modules collection
+	var modules = folder['modules'];
+	if (!modules)
+		return;
+	
+	// Get the folder
+	module = modules[moduleName];
+	if (!module)
+		return;
+
+	// Check for services collection
+	var services = module['services'];
+	if (!services)
+		return;
+
+	// Confirm delete
+	if (confirm('Delete service ' + serviceName + '?')) {
+		// Remove the service from the pick list
+		delSelected(serviceSelect);
+		// Delete the service from the services collection
+		delete services[serviceName];
+		// Disable the service select as needed
+		disableServiceSelect();
+		// Set the button labels and enable/disable appropriately
+		setModuleButtons();
+	}	
+
 }

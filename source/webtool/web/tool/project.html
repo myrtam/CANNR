@@ -22,22 +22,22 @@ Maintainer Pat Tendick ptendick@gmail.com
 <body style="background-color:#F5F5F5;">
 
 <div class="top-margin">
-<h2 id='projectPageTitle'></h2>
+<h2 id='projectPageTitle'>&nbsp;</h2>
 <br>
 <div>
 <p>Add folders containing code and other files.</p>
-<button type="button" id="addFolder" class="enabled-button" onclick="onGoFolder(true)">New Folder...</button>
+<button type="button" id="newFolderButton" class="enabled-button" onclick="onGoFolder(true)">New Folder...</button>
 </div>
 <br>
 <span id='folderSelectLabel'>Folders:</span><br>
 <div class="input-group mb-3" id="folderSelectGroup">
 	<select class="custom-select" id="folderSelect">
-		<option selected>Select a folder...</option>
 	</select>
 </div>
 <br>
 <div>
-<button type="button" id="goFolderButton" class="enabled-button" onclick="onGoFolder(false)">Go</button>
+	<button type="button" id="goFolderButton" class="enabled-button" onclick="onGoFolder(false)">Go...</button>&nbsp;
+	<button type="button" id="delFolderButton" class="enabled-button" onclick="onDelFolder()">Delete</button>
 </div>
 <br>
 <br>
@@ -53,7 +53,6 @@ If no folders, display the following:
 <!-- Include this when object stores implemented
 <div class="input-group mb-3" id="objectStoreSelectGroup">
 	<select class="custom-select" id="projectSelect" onchange="onObjectStoreSelectChange()" onclick="onProjectSelect()">
-		<option selected>Select an object store...</option>
 	</select>
 </div>
 <div>
@@ -72,10 +71,9 @@ If no folders, display the following:
 <button id="buildButton" class="enabled-button" onclick='onBuildProject()'>Build...</button>
 <!--  
 <button id="exportButton" class="enabled-button" onclick='onExportProject()'>Export...</button>
-<button id="importButton" class="enabled-button" onclick='onImportProject()'>Export...</button>
+<button id="importButton" class="enabled-button" onclick='onImportProject()'>Import...</button>
 -->
 <button id="exitProjectButton" class="enabled-button" onclick='onExitProject()'>Exit</button>
-<button id="delProjectButton" class="enabled-button" onclick='onDelProject ()'>Delete</button>
 </div>
 <br>
 
@@ -111,7 +109,7 @@ If no folders, display the following:
     <div class="simple-modal-footer">
       <hr>
         <!-- If new project, this button returns to the main page, otherwise returns to the Project page -->
-        <button type="button" id="projectBack" class="enabled-button" onclick="onProjectCancel()">Cancel</button>
+        <button type="button" id="projectBack" class="enabled-button" onclick="onProjectCancel()">Back</button>
         <!-- If existing project, this button is labeled Save not Next, and returns to the Project page -->
         <button type="button" id="projectNext" class="enabled-button" onclick="onProjectNext()" style="float: right;">Next</button>
     </div>
@@ -123,9 +121,11 @@ If no folders, display the following:
   <!-- Modal content -->
   <div class="simple-modal-content">
     <div class="simple-modal-header">
-      <span class="simple-close" onclick="onFolderCancel()">&times;</span>
+      <span class="simple-close" onclick="onCancel()">&times;</span>
       <h5 id="folderPropertiesTitle">Folder Properties</h5>
-      <p id="titleFolderPath"></p>
+      <div id='titleFolderPath' style='visibility: hidden'>
+	      <span>/</span><span id="titleFolder"></span>
+      </div>
       <hr>
     </div>
     <div class="simple-modal-body">
@@ -167,19 +167,19 @@ If no folders, display the following:
 					<span id='workerRules'>&nbsp;*</span>
 					</td>
 				</tr>
-				<tr id='modulesRow' style='visibility:hidden;'>
+				<tr id='modulesRow'>
 					<td id='modulesLabel' style="border: none;">Modules:</td>
 					<td style="border: none;">
 						<select class="custom-select" id="moduleSelect">
-							<option selected>Select module...</option>
 						</select>
 						<br>
-						<button type="button" id="goModuleButton" class="enabled-button" onclick="onGoModule(false)">Go</button>
+						<button type="button" id="goModuleButton" class="enabled-button" onclick="onGoModule(false)">Go...</button>&nbsp;
+						<button type="button" id="delModuleButton" class="enabled-button" onclick="onDelModule()">Delete</button>
 					</td>
-				<tr id='newModulesRow' style='visibility:hidden;'>
+				<tr id='newModulesRow'>
 					<td style="border: none;"></td>
 					<td style="border: none;">
-						<button type="button" id="newModule" class="enabled-button" onclick="onGoModule(true)">New Module...</button>
+						<button type="button" id="newModuleButton" class="enabled-button" onclick="onGoModule(true)">New Module...</button>
 					</td>
 				</tr>
 			</tbody>
@@ -200,8 +200,11 @@ If no folders, display the following:
   <!-- Modal content -->
   <div class="simple-modal-content">
     <div class="simple-modal-header">
-      <span class="simple-close" onclick="onModuleCancel()">&times;</span>
+      <span class="simple-close" onclick="onCancel()">&times;</span>
       <h5 id="modulePropertiesTitle">Module Properties</h5>
+      <div id='titleModulePath' style='visibility: hidden'>
+	      <span>/</span><span id="titleModuleFolder"></span>/<span id="titleModuleModule"></span>
+      </div>
       <hr>
     </div>
     <div class="simple-modal-body">
@@ -225,24 +228,23 @@ If no folders, display the following:
 					<td style="border: none;">Source File:</td>
 					<td style="border: none;">
 						<select class="custom-select" id="fileSelect">
-							<option selected>Select file...</option>
 						</select>
 						<span id='fileSelectRules'>&nbsp;*</span>
 					</td>
 				</tr>
-				<tr id='servicesRow' style='visibility:hidden;'>
+				<tr id='servicesRow'>
 					<td style="border: none;">Services:</td>
 					<td style="border: none;">
 						<select class="custom-select" id="serviceSelect">
-							<option selected>Select service...</option>
 						</select>
 						<br>
-						<button type="button" id="goServiceButton" class="enabled-button" onclick="onGoService(false)">Go</button>
+						<button type="button" id="goServiceButton" class="enabled-button" onclick="onGoService(false)">Go...</button>&nbsp;
+						<button type="button" id="delServiceButton" class="enabled-button" onclick="onDelService()">Delete</button>
 					</td>
-				<tr id='newServicesRow' style='visibility:hidden;'>
+				<tr id='newServicesRow'>
 					<td style="border: none;"></td>
 					<td style="border: none;">
-						<button type="button" id="newService" class="enabled-button" onclick="onGoService(true)">New Service...</button>
+						<button type="button" id="newServiceButton" class="enabled-button" onclick="onGoService(true)">New Service...</button>
 					</td>
 				</tr>
 				<tr>
@@ -269,7 +271,6 @@ If no folders, display the following:
     <div class="simple-modal-footer">
       <hr>
         <button type="button" id="moduleBack" class="enabled-button" onclick="onModuleBack()">Back</button>
-        <!-- If existing project, this button is hidden -->
         <button type="button" id="moduleNext" class="enabled-button" onclick="onModuleNext()" style="float: right;">Next</button>
     </div>
   </div>
@@ -280,14 +281,14 @@ If no folders, display the following:
   <!-- Modal content -->
   <div class="simple-modal-content">
     <div class="simple-modal-header">
-      <span class="simple-close" onclick="onServiceCancel()">&times;</span>
+      <span class="simple-close" onclick="onCancel()">&times;</span>
       <h5 id="servicePropertiesTitle">Service Properties</h5>
       <!--
-      Use information entered to build sample URL, e.g.
+      Use information entered to build sample URL.
       -->
-      <p id="titleServicePath">
-      http://&lt;ip or domain&gt;:8080/services/folder/module/service
-      </p>
+      <div id='titleServicePath' style='visibility: hidden'>
+	      <span>http://&lt;domain or ip&gt;</span><span id="titleServicePort"></span>/services/<span id="titleServiceFolder"></span>/<span id="titleServiceModule"></span>/<span id="titleServiceService"></span>
+      </div>
       <hr>
     </div>
     <div class="simple-modal-body">
@@ -311,7 +312,6 @@ If no folders, display the following:
 					<td style="border: none;">Function:</td>
 					<td style="border: none;">
 						<select class="custom-select" id="functionSelect">
-							<option selected>Select function...</option>
 						</select>
 						<span id='functionSelectRules'>&nbsp;*</span>
 					</td>
@@ -372,7 +372,6 @@ If no folders, display the following:
     <div class="simple-modal-footer">
       <hr>
         <button type="button" id="serviceBack" class="enabled-button" onclick="onServiceBack()">Back</button>
-        <!-- If existing project, this button is hidden -->
         <!-- If new project, the user is next asked if they want to build the project -->
         <button type="button" id="serviceNext" class="enabled-button" onclick="onServiceNext()" style="float: right;">Next</button>
     </div>

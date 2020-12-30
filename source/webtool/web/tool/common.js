@@ -10,6 +10,8 @@ const baseURL = '/services/tool/services/';
 const nameRules = 'Lower case letters, numbers, and underscores, &le;30 characters.';
 const disabledButton = 'disabled-button';
 const enabledButton = 'enabled-button';
+const enabledTextColor = '#000000';
+const disabledTextColor = '#909090';
 
 
 //Remove all child nodes
@@ -58,13 +60,13 @@ function delSelected(selectList) {
 	
 }
 
-//Returns the first selected item from a select list
+// Selects the item with value
 function setSelected(selectList, value) {
 
 	// Find the first selected item.
 	for (var i=0; i<selectList.length; i++) {
 		var option = selectList[i];
-		option.selected = (option.value==value)
+		option.selected = (option.value==value);
 	}
 	
 }

@@ -34,13 +34,13 @@ If no project, display the following:
 <br>
 <span id='projectSelectLabel'>Projects:</span><br>
 <div class="input-group mb-3" id="projectSelectGroup">
-	<select class="custom-select" id="projectSelect" style='visibility:hidden;' onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
-		<option selected>Select a project...</option>
+	<select class="custom-select" id="projectSelect" onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
 	</select>
 </div>
 <br>
 <div>
-<button type="button" id="goButton" class="enabled-button" onclick='go()' style='visibility:hidden;'>Go</button>
+<button type="button" id="goProjectButton" class="enabled-button" onclick='onGoProject()'>Go...</button>&nbsp;
+<button type="button" id="delProjectButton" class="enabled-button" onclick='onDelProject()'>Delete</button>
 </div>
 <br>
 <br>
@@ -50,6 +50,8 @@ If no project, display the following:
 </div>
 </body>
 <script>
+
+initDOMObjects();
 
 // Populate select list of projects
 getProjects();
