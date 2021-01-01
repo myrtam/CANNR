@@ -194,7 +194,7 @@
       }
    },
    "content": {
-      "tool": {
+      "webtool": {
          "folderTitle": "Tool Web pages",
          "folderDescription": "Tool Web page",
          "sourcePath": "./web/tool"

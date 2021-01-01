@@ -452,18 +452,18 @@ def buildProject(project, basePath, context):
     os.makedirs(logPath)
     os.makedirs(logPath + os.path.sep + 'smp')
     os.makedirs(logPath + os.path.sep + 'smi')
-    
+
     cannrHome = '/usr/local/cannr'
-    
+
     # String for Dockerfile
     dockerText = getDockerfile()
-    
+
     # Main script for static startup
     mainText = buildCodeLine(0, ['# Startup script', '\n'])
     mainText += buildCodeLine(0, ['# Start workers'])
-    
+
     # Create container
-    
+
     # Import base runtime image
     baseImage = project.get("baseImage", context.get("baseImage", None))
     dockerText = dockerText.replace('<base image>', baseImage)
@@ -474,7 +474,7 @@ def buildProject(project, basePath, context):
         dockerText = dockerText.replace('#<maintainer>', 'LABEL maintainer="' + maintainerEmail + '"')
     else:
         dockerText = dockerText.replace('#<maintainer>', '# No maintainer information')
-    
+
     # R and Python packages to import, respectively.
     rPackageNames = []
     pPackageNames = []
@@ -483,7 +483,7 @@ def buildProject(project, basePath, context):
     portRange = getPortRange(project)
     port = portRange[0]
     pWorkers = project.get('workers', 2)
-    
+
     # Create the event calendar for the SMP and add events to start the SMI and NGINX.
     smiPath = project.get('smiPath', '/web/smi.py')
     nginxPath = project.get('nginxPath', '/etc/nginx')
@@ -492,20 +492,20 @@ def buildProject(project, basePath, context):
     #eventCalendar = EventCalendar()
     #eventCalendar.addEntry(None, "startSMI", {"path": smiPath, "port": smiPort}, 3)
     #eventCalendar.addEntry(None, "startNGINX", {"path": nginxPath, "port": nginxPort}, 1)
-    
+
     # NGINX config.
     ngnixHttpBlock = 'http {\n'
     ngnixHttpBlock += '\t' + 'include /etc/nginx/mime.types;\n'
-    
+
     #    include /etc/nginx/mime.types;
 
-    
+
     # NGINX servers
     nginxServerBlock =  '\t' + 'server {\n'
-    
+
     # Whether running locally or in a container.
     local = context.get('local', False)
-    
+
     # Loop through folders in the project, add to project.  Main loop!
     folderNames = cc.getFolderNames(project)
     for folderName in folderNames:
@@ -514,7 +514,7 @@ def buildProject(project, basePath, context):
         folder = cc.getFolder(folderName, project)
 
         # Check for source path
-        sourcePath = folder.get("sourcePath", None) if local else '/projects/' + projectName + '/' + folderName
+        sourcePath = folder.get("sourcePath", None) if local else '/external/projects/' + projectName + '/' + folderName
         if not sourcePath:
             raise cc.RTAMError(cc.noSourcePathMsg, cc.noSourcePathCode)
 
@@ -717,7 +717,7 @@ def buildProject(project, basePath, context):
         dockerText = dockerText.replace('#<Static Content>', dockerContentText)
     else:
         dockerText = dockerText.replace('#<Static Content>', '# No static content')
-    
+
     # Number the nodes in the project
     project = walkNumber(project)        
 

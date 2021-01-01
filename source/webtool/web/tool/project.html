@@ -68,7 +68,7 @@ If no folders, display the following:
 <!-- Don't save in this page.
 <button id="saveProjectButton" class="enabled-button" onclick='onSaveProject()'>Save</button>
 -->
-<button id="buildButton" class="enabled-button" onclick='onBuildProject()'>Build...</button>
+<button id="buildButton" class="enabled-button" onclick='onGoBuild()'>Build...</button>
 <!--  
 <button id="exportButton" class="enabled-button" onclick='onExportProject()'>Export...</button>
 <button id="importButton" class="enabled-button" onclick='onImportProject()'>Import...</button>
@@ -383,26 +383,26 @@ If no folders, display the following:
   <!-- Modal content -->
   <div class="simple-modal-content">
     <div class="simple-modal-header">
-      <span class="simple-close" onclick="cancelBuild()">&times;</span>
+      <span class="simple-close" onclick="onCancel()">&times;</span>
       <h5 id="projectBuildTitle">Build Project</h5>
       <hr>
     </div>
     <div class="simple-modal-body">
 		<input name="generateDockerfile" id="generateDockerfile" type="checkbox"/>&nbsp;
 		<label for="generateDockerfile">Generate Docker project?</label><br>
-		<input name="buildContainer" id="buildContainer" type="checkbox"/>&nbsp;
-		<label for="buildContainer">Build container?</label><br>
-		<input name="startLocalhost" id="startLocalhost" type="checkbox"/>&nbsp;
-		<label for="startLocalhost">Start container on localhost?</label><br>
+		<input name="buildContainer" id="buildContainer" type="checkbox" disabled=true style="visibility: hidden;"/>&nbsp;
+		<label for="buildContainer" style="visibility: hidden;">Build container?</label><br>
+		<input name="startLocalhost" id="startLocalhost" type="checkbox" disabled=true style="visibility: hidden;"/>&nbsp;
+		<label for="startLocalhost" style="visibility: hidden;">Start container on localhost?</label><br>
 		<h5>Status:</h5>
 		<div id="statusPane" class="build-list">
 		</div>
     </div>
     <div class="simple-modal-footer">
       <hr>
-        <button type="button" id="buildProject" class="enabled-button" onclick="buildProject()">Build</button>
-        <button type="button" id="cancelBuild" class="enabled-button" onclick="cancelBuild()">Cancel</button>
-        <button type="button" id="downloadDocker" class="enabled-button" onclick="downloadDocker()" style="visibility: hidden;">Download...</button>
+        <button type="button" id="buildProjectButton" class="enabled-button" onclick="onBuildProject()">Build</button>
+        <button type="button" id="cancelBuildButton" class="enabled-button" onclick="onCancelBuild()">Cancel</button>
+        <button type="button" id="downloadDockerButton" class="enabled-button" onclick="onDownloadDocker()" style="visibility: hidden;">Download...</button>
     </div>
   </div>
 </div>

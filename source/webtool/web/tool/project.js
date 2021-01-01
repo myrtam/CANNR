@@ -26,6 +26,7 @@ var modals = ['projectPropertiesModal', 'folderPropertiesModal', 'moduleProperti
 	'servicePropertiesModal', 'projectBuildModal'];
 
 // Global variables for HTML DOM elements
+var buildContainer = null;
 var fileSelect = null;
 var fileSelectRules = null;
 var folderBack = null;
@@ -36,6 +37,7 @@ var folderSelect = null;
 var folderSelectLabel = null;
 var functionSelect = null;
 var functionSelectRules = null;
+var generateDockerfile = null;
 var goFolderButton = null;
 var goModuleButton = null;
 var goServiceButton = null;
@@ -88,6 +90,8 @@ var servicesRow = null;
 var serviceTitleInput = null;
 var sourcePathInput = null;
 var	sourceUpload = null;
+var startLocalhost = null;
+var statusPane = null;
 var titleFolder = null;
 var titleFolderPath = null;
 var titleModuleFolder = null;
@@ -104,6 +108,7 @@ var workersInput = null;
 // Initialize DOM object variables
 function initDOMObjects() {
 
+	buildContainer = document.getElementById('buildContainer');
 	fileSelect = document.getElementById('fileSelect');
 	fileSelectRules = document.getElementById('fileSelectRules');
 	folderBack = document.getElementById('folderBack');
@@ -114,6 +119,7 @@ function initDOMObjects() {
 	folderSelectLabel = document.getElementById('folderSelectLabel');
 	functionSelect = document.getElementById('functionSelect');
 	functionSelectRules = document.getElementById('functionSelectRules');
+	generateDockerfile = document.getElementById('generateDockerfile');
 	goFolderButton = document.getElementById('goFolderButton');
 	goModuleButton = document.getElementById('goModuleButton');
 	goServiceButton = document.getElementById('goServiceButton');
@@ -166,6 +172,8 @@ function initDOMObjects() {
 	serviceTitleInput = document.getElementById('serviceTitleInput');
 	sourcePathInput = document.getElementById('sourcePathInput');
 	sourceUpload = document.getElementById('sourceUpload');
+	startLocalhost = document.getElementById('startLocalhost');
+	statusPane = document.getElementById('statusPane');
 	titleFolder = document.getElementById('titleFolder');
 	titleFolderPath = document.getElementById('titleFolderPath');
 	titleModuleFolder = document.getElementById('titleModuleFolder');
@@ -216,16 +224,7 @@ function initDOMObjects() {
 
 //Display project properties.
 function onProjectProps() {
-/*
-	// Populate the project modal
-	if (!popProjectProps()) {
-		alert('An error occurred while loading the project.');
-		onExitProject();
-	}
 
-	// Display the modal
-	switchModal('projectPropertiesModal');
-*/
 	changed = false;
 
 	goModal('projectPropertiesModal');
@@ -409,6 +408,22 @@ function showServicePath(folderName2, moduleName2, serviceName2) {
 	
 }
 
+// Adds a message to the build status pane
+function addStatusMessage(messageText) {
+
+	var p = document.createElement("p");
+	p.innerHTML = messageText;
+	statusPane.appendChild(p);
+	
+}
+
+// Clears the build status pane
+function clearStatus() {
+	
+	deleteChildNodes(statusPane);
+	
+}
+
 // Prepare the folder properties screen
 function prepFolderScreen() {
 
@@ -494,9 +509,7 @@ function popFolderProps() {
 
 		// Handle workers
 		var workers = folder['workers'];
-		if (workers) {
-			workersInput.value = workers;
-		}
+		workersInput.value = workers? workers: 2;
 
 		// Handle modules
 		var modules = folder['modules'];
@@ -545,13 +558,6 @@ function prepModuleScreen() {
 
 	// Initially list of services is hidden and button disabled
 	deleteChildNodes(serviceSelect);
-	/*
-	servicesRow.style.visibility = 'hidden';
-	goServiceButton.style.visibility = 'hidden';
-	disableButton(goServiceButton, true);
-	disableButton(newServiceButton, false);
-	newServiceButton.style.visibility = 'visible';
-	*/
 
 	// Prep the package input items
 	deleteChildNodes(packageSelect);
@@ -997,15 +1003,38 @@ function popServiceProps() {
 		setSelected(outputParseTypeInput, outputParseType);
 
 		checkServiceProperties();
-		
+	
 	}
 
 	return true;
-	
+
 }
 
+// Populates build screen
+function popBuildProps() {
 
-// Handle the results from backend project operations.
+	// Make sure the project exists
+	if (!project)
+		return false;
+
+	// Find build property values based on project and defaults
+	dockerfileValue = project['generateDockerfile'];
+	buildContainerValue = project['buildContainer'];
+	startLocalhostValue = project['startLocalhost'];
+	dockerfileValue = dockerfileValue==false? false: true;
+	buildContainerValue = buildContainerValue==false? false: true;
+	startLocalhostValue = startLocalhostValue? true: false;
+
+	// Populate build properties
+	generateDockerfile.checked = dockerfileValue;
+	buildContainer.checked = buildContainerValue;
+	startLocalhost.checked = startLocalhostValue;
+	
+	return true;
+
+}
+
+// Handle the results from back end project operations.
 function goModal(nextModalID) {
 
 	// Get the project.
@@ -1040,6 +1069,13 @@ function goModal(nextModalID) {
 	else if (nextModalID=='servicePropertiesModal') {
 		if (!popServiceProps()) {
 			alert('An error occurred while loading the service.');
+			onExitProject();
+		}
+	}
+	// Populate build screen.
+	else if (nextModalID=='projectBuildModal') {
+		if (!popBuildProps()) {
+			alert('An error occurred while building the project.');
 			onExitProject();
 		}
 	}
@@ -1264,7 +1300,8 @@ function onKeepFolderProps(nextModalID) {
 		document.getElementById('languageRules').style.color = 'Black';
 
 	// Check if workers populated
-	var workers = workersInput.value;
+	var workers = parseInt(workersInput.value);
+	workers = workers? workers: 2;
 	if (!workers||workers < 1 || workers > 1024) {
 		failed = true;
 		document.getElementById('workerRules').style.color = 'Red';
@@ -1651,14 +1688,6 @@ function onBuildProject() {
 
 }
 
-// Build the project.
-function buildProject() {
-
-	alert('Feature not implemented!')
-	cancelBuild();
-
-}
-
 // Cancel the build.
 function cancelBuild() {
 
@@ -2025,8 +2054,7 @@ function onModuleBack() {
 //Handle the Next/Save button in the Service Properties screen.
 function onServiceNext() {
 
-	// TODO:  GO TO BUILD SCREEN FOR NEW PROJECTS.
-	var modalID = newProject? null: 'servicePropertiesModal';
+	var modalID = newProject? 'projectBuildModal': 'servicePropertiesModal';
 	onKeepServiceProps(modalID);
 
 }
@@ -2437,5 +2465,103 @@ function onDelService() {
 		// Set the button labels and enable/disable appropriately
 		setModuleButtons();
 	}	
+
+}
+
+// Saves and builds an existing project
+function buildProject(nextModalID) {
+
+	// Check that project exists and has a name
+	if (!project)
+		return;
+
+	projectName = project['projectName'];
+	if (!projectName)
+		return;
+
+	// Save build options to the project
+	project['generateDockerfile'] = generateDockerfile.checked;
+	project['buildContainer'] = buildContainer.checked;
+	project['startLocalhost'] = startLocalhost.checked;
+
+	// Prepare the request doc
+	var request = {'project': project};
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", baseURL + "buildproject?timestamp=");
+	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and check whether the request succeeded.
+			var response = JSON.parse(xhr.responseText);
+			var succeeded = response.succeeded;
+			if (succeeded) {
+				project = response['project'];
+				// Populate the folder select list
+				popFolderSelect();
+				addStatusMessage('Project ' + projectName + ' built successfully!');
+				goModal(nextModalID);
+			}
+			else
+				alert(response['errorMsg']);
+		} 
+		else
+			alert('Error building project');
+
+	}
+
+	// Send the request.
+	var contentJSON = JSON.stringify(request);
+	xhr.send(contentJSON);
+	
+}
+
+//Checks whether the package input element is populated to enable/disable the add button.
+function onBuildInputChange() {
+
+	if (!changed)
+		changed = true;
+	
+}
+
+// Build the project
+function onBuildProject(){
+
+	// TODO:  LIST ITEMS TO BE INCLUDED IN BUILT PROJECT
+
+	buildProject('projectBuildModal');	
+
+}
+
+// Cancel the build
+function onCancelBuild() {
+
+	if (changed&&confirm('Save changes?')) {
+		
+		project['generateDockerfile'] = generateDockerfile.checked;
+		project['buildContainer'] = buildContainer.checked;
+		project['startLocalhost'] = startLocalhost.checked;
+		
+		updateProject(null);
+		
+	}
+	else
+		goModal(null);
+
+}
+
+// Go to the build screen for the project
+function onGoBuild() {
+
+	// Clear the status pane
+	clearStatus();
+
+	goModal('projectBuildModal');
 
 }

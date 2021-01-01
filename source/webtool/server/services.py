@@ -495,38 +495,45 @@ def renameFolder(input):
 
 # Builds the project.
 def buildProject(input):
-    
+
     try:
-    
-        # Convert input to dictionary
-        #inputObject = json.loads(input)
+
+        # Update the project, return status if not successful
+        status = updateProject(input);
+        if not status.get('succeeded', False):
+            return status
+
+        # Get the project
+        project = status.get('project', None)
         
-        # Get the overwrite flag and project name, check project name
-        overwrite = input.get('overwrite', False)
+        '''
+        # Get the project name
         projectName = input.get('projectName', None)
         if not projectName:
             return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name'}
-        
+
         context = cc.readJSONFile('/config/context.json')
-        
+
         configPath = context.get('configPath', None)
         if configPath:
             context = cc.readJSONFile(configPath)
-        
+
         projectPath = projectsPath + '/' + projectName + '/project.json'
         project = cc.readJSONFile(projectPath)
-        
+        '''
+
         cb.buildProject(project, '', context)
 
         return {
-            'succeeded': True
+            'succeeded': True,
+            'project': project
             }
-    
+
     except Exception as err:
         return {
             'succeeded': False, 
-            'error': 'errorUpdatingProject',
-            'errorMsg': 'Error updating project',
+            'error': 'errorBuildingProject',
+            'errorMsg': 'Error building project',
             'detail': str(err)
             }
 

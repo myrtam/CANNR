@@ -86,6 +86,9 @@ errorCopyingContentCode = 1020
 errorRetrievingProjectMsg = "Error retrieving project"
 errorRetrievingProjectCode = 1021
 
+errorBuildingProjectMsg = "Error building project"
+errorBuildingProjectCode = 1022
+
 # Base class for exceptions
 class Error(Exception):
     pass
