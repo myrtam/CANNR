@@ -27,7 +27,7 @@
 						"sum": {
 							"serviceTitle": "Sum numbers",
 							"serviceDescription": "Service that sums an array of numbers",
-							"function": "calcSum",
+							"functionName": "calcSum",
 							"method": "POST",
 							"includeParams": false,
 							"parseInput": true,
@@ -49,7 +49,7 @@
 					"packages": ["random","time"],
 					"services": {
 						"rand": {
-							"function": "rand",
+							"functionName": "rand",
 							"method": "GET",
 							"includeParams": false,
 							"parseOutput": true,
@@ -75,7 +75,7 @@
 					"packages": [],
 					"services": {
 						"predplengthslength": {
-							"function": "predPLengthSLength",
+							"functionName": "predPLengthSLength",
 							"method": "GET",
 							"includeParams": true,
 							"parseInput": true,
@@ -97,7 +97,7 @@
 					"moduleHelp": "Help!",
 					"services": {
 						"sum": {
-							"function": "sumX",
+							"functionName": "sumX",
 							"method": "POST",
 							"includeParams": false,
 							"parseInput": true,

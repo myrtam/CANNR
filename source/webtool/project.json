@@ -33,7 +33,7 @@
                "services": {
                   "createproject": {
                      "serviceDescription": "Creates a new project folder in the container's work area.",
-                     "function": "createProject",
+                     "functionName": "createProject",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -42,7 +42,7 @@
                   },
                   "deleteproject": {
                      "serviceDescription": "Deletes the project from the container's work area.",
-                     "function": "deleteProject",
+                     "functionName": "deleteProject",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -51,7 +51,7 @@
                   },
                   "getproject": {
                      "serviceDescription": "Returns a project document given its name.",
-                     "function": "getProject",
+                     "functionName": "getProject",
                      "method": "GET",
 					 "includeParams": true,
                      "includeRequest": false,
@@ -61,7 +61,7 @@
                   },
                   "getprojects": {
                      "serviceDescription": "Returns a list of all project documents.",
-                     "function": "getProjects",
+                     "functionName": "getProjects",
                      "method": "GET",
 					 "includeParams": false,
                      "includeRequest": false,
@@ -71,7 +71,7 @@
                   },
                   "uploadfolder": {
                      "serviceDescription": "Uploads a folder to a project.",
-                     "function": "uploadFolder",
+                     "functionName": "uploadFolder",
                      "method": "POST",
 					 "includeParams": true,
                      "includeRequest": true,
@@ -81,7 +81,7 @@
                   },
                   "deletefolder": {
                      "serviceDescription": "Deletes a folder from a project.",
-                     "function": "deleteFolder",
+                     "functionName": "deleteFolder",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -90,7 +90,7 @@
                   },
                   "updateproject": {
                      "serviceDescription": "Updates project data, excluding folders",
-                     "function": "updateProject",
+                     "functionName": "updateProject",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -99,7 +99,7 @@
                   },
                   "updatemodule": {
 					"serviceDescription": "Updates a project and returns the project file for the project with function names populated for a particular module.",
-					"function": "updateModule", 
+					"functionName": "updateModule", 
 					"method": "POST", 
 					"includeParams": true,
 					"parseInput": true, 
@@ -108,7 +108,7 @@
 					"outputParseType": "dictionary"},
                   "buildproject": {
                      "serviceDescription": "Builds the project.",
-                     "function": "buildProject",
+                     "functionName": "buildProject",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -117,7 +117,7 @@
                   },
                   "buildimage": {
                      "serviceDescription": "Builds the image for the project.",
-                     "function": "buildImage",
+                     "functionName": "buildImage",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -126,7 +126,7 @@
                   },
                   "exportproject": {
                      "serviceDescription": "Exports the project.  This is the project as specified by the user, not the built project, which can be used to build the image.",
-                     "function": "exportProject",
+                     "functionName": "exportProject",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -135,7 +135,7 @@
                   },
                   "importproject": {
                      "serviceDescription": "Imports a previously exported project.  This is the project as specified by the user, not the built project, which can be used to build the image.",
-                     "function": "importProject",
+                     "functionName": "importProject",
                      "method": "POST",
 					 "includeParams": true,
                      "includeRequest": true,
@@ -145,7 +145,7 @@
                   },
                   "exportbuild": {
                      "serviceDescription": "Exports the built project.  This can then be used to build an image in another environment.",
-                     "function": "exportBuild",
+                     "functionName": "exportBuild",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -154,7 +154,7 @@
                   },
                   "runcontainer": {
                      "serviceDescription": "Runs a project image in a container.",
-                     "function": "runContainer",
+                     "functionName": "runContainer",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -163,7 +163,7 @@
                   },
                   "stopcontainer": {
                      "serviceDescription": "Stops the container running a project image.",
-                     "function": "stopContainer",
+                     "functionName": "stopContainer",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -172,7 +172,7 @@
                   },
                   "renameproject": {
                      "serviceDescription": "Renames the project.",
-                     "function": "renameProject",
+                     "functionName": "renameProject",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",
@@ -181,7 +181,7 @@
                   },
                   "renamefolder": {
                      "serviceDescription": "Renames a folder.",
-                     "function": "renameFolder",
+                     "functionName": "renameFolder",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "dictionary",

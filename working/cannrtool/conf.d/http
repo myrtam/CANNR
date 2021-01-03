@@ -1,0 +1,14 @@
+http {
+	include /etc/nginx/mime.types;
+	upstream tool {
+		server localhost:5001 max_conns=1;
+	}
+	server {
+		location /services/tool {
+			proxy_pass http://tool;
+		}
+		location /web/webtool {
+			root /content;
+		}
+	}
+}

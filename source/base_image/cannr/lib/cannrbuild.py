@@ -87,15 +87,16 @@ def buildPyFolder(folderName, project):
     # Add paths to search for dependent modules.
     # Loop through paths, add.
     folderPath = '/folders/' + folderName
-    relativePath = cc.getRelativePath(folder['sourcePath'].replace(os.path.sep, '/'))
+    #relativePath = cc.getRelativePath(folder['sourcePath'].replace(os.path.sep, '/'))
     paths = folder.get('paths', None)
     if paths:
         for path in paths:
-            moduleText += buildCodeLine(0, ['sys.path.append("',  folderPath, '/', relativePath, '/', path, '")'])
+            moduleText += buildCodeLine(0, ['sys.path.append("',  folderPath, '/', folderName, '/', path, '")'])
 
     # Change to the folder home.
     moduleText += '\n'
-    moduleText += buildCodeLine(0, ['os.chdir("', cc.getHome(folderName, folder), '")'])
+    #moduleText += buildCodeLine(0, ['os.chdir("', cc.getHome(folderName, folder), '")'])
+    moduleText += buildCodeLine(0, ['os.chdir("', folderPath + '/' + folderName, '")'])
     
     # Build imports of modules. 
     # Add the imports.
@@ -105,7 +106,7 @@ def buildPyFolder(folderName, project):
     for moduleName in moduleNames:
         module = cc.getModule(moduleName, folder)
         fileName = module.get('sourceFile', None)
-        moduleFileName = folderPath + '/' + relativePath + '/' + fileName
+        moduleFileName = folderPath + '/' + folderName + '/' + fileName
         moduleShortName = 'm_' + str(moduleNum)
         moduleText += buildCodeLine(0, [moduleShortName, ' = ','cnr.importPackage("', moduleShortName, '", "', moduleFileName, '")'])
         moduleShortNames[moduleName] = moduleShortName
@@ -140,7 +141,8 @@ def buildPyFolder(folderName, project):
         for serviceName in serviceNames:
             service = cc.getService(serviceName, module)
             method = service.get('method', 'POST')
-            function = service.get('function', 'POST')
+            # TODO: CHECK TO MAKE SURE functionName EXISTS!
+            functionName = service.get('functionName', 'ERROR')
             moduleText += buildCodeLine(0, ['# Service ', serviceName, ' in module ', moduleName])
             moduleText += buildCodeLine(0, ['@app.route("/services/', folderName, '/', moduleName, '/', serviceName, '", methods=["', method , '"])'])
             moduleText += buildCodeLine(0, ['def s_', str(functionNumber), '():'])
@@ -152,7 +154,7 @@ def buildPyFolder(folderName, project):
             # TODO: json PACKAGE DOESN'T PARSE NUMPY DATA TYPES.  NEED TO SPECIFY NUMPY TO JSON TYPE CONVERTER AS default PARAMETER OF json.dumps.
             # SEE https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable/50916741
             # AND https://docs.python.org/3/library/json.html
-            functionText = moduleShortNames[moduleName] + '.' + function
+            functionText = moduleShortNames[moduleName] + '.' + functionName
             # NOTE:  request.get_json() RETURNS A DICTIONARY.
             
             codeComponents = ['output = ', functionText, '(']
@@ -169,9 +171,9 @@ def buildPyFolder(folderName, project):
                 functionArgs.append('request.get_json()')
             codeComponents.extend(functionArgs)
             codeComponents.append(')')
-            
+
             moduleText += buildCodeLine(1, codeComponents)
-            moduleText += buildCodeLine(1, ['parsedOutput = json.dumps(output)'])
+            moduleText += buildCodeLine(1, ['parsedOutput = json.dumps(output, indent=2)'])
             moduleText += buildCodeLine(1, ['return(parsedOutput)'])
 
         # Stub for refreshing objects in the module
@@ -262,7 +264,7 @@ def buildRModuleEpilogue(folderName, moduleName, project):
     for serviceName in serviceNames:
         service = cc.getService(serviceName, module)
         method = service.get('method', 'POST')
-        function = service.get('function', 'ERROR')
+        functionName = service.get('functionName', 'ERROR')
         moduleText += buildCodeLine(0, ['# Service ', serviceName, ' in module ', moduleName, ' in folder ', folderName])
         moduleText += buildCodeLine(0, ["#' @", method.lower(), " /services/", folderName, "/", moduleName, "/", serviceName])
         moduleText += buildCodeLine(0, ['function(req) {'])
@@ -281,7 +283,7 @@ def buildRModuleEpilogue(folderName, moduleName, project):
                 moduleText += buildCodeLine(1, ['}'])
 
 
-        codeComponents = ['output <- ', function, '(']
+        codeComponents = ['output <- ', functionName, '(']
         functionArgs = []
         if service.get('includeParams', False):
             moduleText += buildCodeLine(1, ['queryParams <- param_get(paste0("http://x.com/x", req$QUERY_STRING))'])
@@ -374,10 +376,12 @@ def copySourceFromPath(sourcePath, foldersPath, folderName):
     # Copy the source tree
     try:
         sourcePath = os.path.abspath(sourcePath)
+        # TODO:  SIMPLIFY THIS!
         os.mkdir(foldersPath + os.path.sep + folderName)
         folderPath = getFolderPath(foldersPath, folderName)
-        baseName = os.path.basename(sourcePath)
-        shutil.copytree(sourcePath, folderPath + os.path.sep + baseName)
+        #baseName = os.path.basename(sourcePath)
+        #shutil.copytree(sourcePath, folderPath + os.path.sep + baseName)
+        shutil.copytree(sourcePath, folderPath + os.path.sep + folderName)
     except:
         raise cc.RTAMError(cc.errorCopyingSourceMsg, cc.errorCopyingSourceCode)
     
@@ -549,7 +553,9 @@ def buildProject(project, basePath, context):
 
                 # Change to the working directory in the script.                
                 sourceText = '# Change to the source directory\n'
-                sourceText += buildCodeLine(0, ['setwd("', cc.getHome(folderName, folder), '")\n'])
+                folderPath = '/folders/' + folderName
+                #sourceText += buildCodeLine(0, ['setwd("', cc.getHome(folderName, folder), '")\n'])
+                sourceText += buildCodeLine(0, ['setwd("', folderPath + '/' + folderName, '")\n'])
                 
                 # Read the source file and append it.
                 with open(sourcePath + os.path.sep + sourceFileName, "r") as sourceFile:
@@ -723,7 +729,7 @@ def buildProject(project, basePath, context):
 
     # Copy project file to project directory
     with open(projectPath + os.path.sep + 'project.json', "w") as projectFile:
-        projectFile.write(json.dumps(project))    
+        projectFile.write(json.dumps(project, indent=2))    
 
     # Add command to start NGINX
     mainText += buildCodeLine(0, [])

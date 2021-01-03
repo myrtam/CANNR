@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+CANNR TM analytics container building tool main page.
+Copyright 2020 Pat Tendick ptendick@gmail.com
+All rights reserved
+Maintainer Pat Tendick ptendick@gmail.com
+-->
+<html>
+<head>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel='stylesheet' href='css/cnr.css'>
+<link rel='stylesheet' href='css/all.css'>
+<script src="jquery-2.0.1.min.js"></script>
+<script src="bootstrap.min.js"></script>
+<script src="common.js"></script>
+<script src="index.js"></script>
+<meta charset="UTF-8">
+<title>CANNR Tool</title>
+</head>
+
+<body style="background-color:#F5F5F5;">
+
+<div class="top-margin">
+<h2>CANNR<sup>TM</sup> Analytics Container Building Tool</h2>
+<br>
+<div>
+<p>Create a project to produce a container for your services.</p>
+<!--
+If no project, display the following:
+<h3>You currently have no projects.  Would you like to add one?<h3>
+-->
+<button type="button" id="addProject" class="enabled-button" onclick="addProject()">New Project...</button>
+</div>
+<br>
+<span id='projectSelectLabel'>Projects:</span><br>
+<div class="input-group mb-3" id="projectSelectGroup">
+	<select class="custom-select" id="projectSelect" onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
+	</select>
+</div>
+<br>
+<div>
+<button type="button" id="goProjectButton" class="enabled-button" onclick='onGoProject()'>Go...</button>&nbsp;
+<button type="button" id="delProjectButton" class="enabled-button" onclick='onDelProject()'>Delete</button>
+</div>
+<br>
+<br>
+<div>
+<button type="button" id="configure" class="enabled-button" onclick="configure()">Configure...</button>
+</div>
+</div>
+</body>
+<script>
+
+initDOMObjects();
+
+// Populate select list of projects
+getProjects();
+
+</script>
+</html>
