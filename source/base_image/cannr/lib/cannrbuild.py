@@ -518,7 +518,11 @@ def buildProject(project, basePath, context):
         folder = cc.getFolder(folderName, project)
 
         # Check for source path
+        # TODO:  CHANGE TO USE sourcePath IF local ELSE /external/projects/ ONLY IF projectsPath UNDEFINED IN context.
         sourcePath = folder.get("sourcePath", None) if local else '/external/projects/' + projectName + '/' + folderName
+        #projectsPath = context.get('projectsPath', None)
+        #projectsPath = projectsPath if projectsPath else '/external/projects'
+        #sourcePath = folder.get("sourcePath", None) if local else os.path.join(projectsPath, projectName, folderName)
         if not sourcePath:
             raise cc.RTAMError(cc.noSourcePathMsg, cc.noSourcePathCode)
 

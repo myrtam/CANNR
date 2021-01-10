@@ -23,8 +23,8 @@ context = None
 projectsPath = None
 if os.path.exists('/config/context.json'):
     context = cc.readJSONFile('/config/context.json')
-elif os.path.exists('/external/context.json'):
-    context = cc.readJSONFile('/external/context.json')
+elif os.path.exists('/external/config/context.json'):
+    context = cc.readJSONFile('/external/config/context.json')
 
 # Try to define the projects folder
 if context:

@@ -7,7 +7,8 @@ Maintainer Pat Tendick ptendick@gmail.com
 
 // Global variables related to the current project
 const baseURL = '/services/tool/services/';
-const nameRules = 'Lower case letters, numbers, and underscores, &le;30 characters.';
+const nameRules = 'Lower case letters, numbers, dashes, and underscores, &le;30 characters.';
+const asterisk = '&nbsp;*';
 const disabledButton = 'disabled-button';
 const enabledButton = 'enabled-button';
 const enabledTextColor = '#000000';
@@ -77,7 +78,7 @@ function checkName(name) {
 	if (name.length == 0 || name.length > 30)
 		return false;
 
-    if (name.search(/[^a-z0-9_]/) >= 0)
+    if (name.search(/[^a-z0-9_-]/) >= 0)
         return false;
     
     return true
@@ -96,3 +97,12 @@ function disableButton(button, disable) {
 	button.className = disable? disabledButton: enabledButton;	
 	
 }
+/*
+// Handler that executes the appropriate function when the user presses Enter.
+function submit(event){
+	var keyEvent = event||window.event;
+	var keyCode = (keyEvent.keyCode||keyEvent.which);
+	if (submitFunction && (keyCode==13||keyCode==3))
+		submitFunction();
+}
+*/

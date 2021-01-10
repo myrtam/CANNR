@@ -17,6 +17,7 @@ var moduleName = null;
 var serviceName = null;
 var newProject = true;
 var language = null;
+var built = false;
 
 // Flag indicating whether current screen has been changed
 var changed = false;
@@ -27,14 +28,20 @@ var modals = ['projectPropertiesModal', 'folderPropertiesModal', 'moduleProperti
 
 // Global variables for HTML DOM elements
 var buildContainer = null;
+var buildProjectButton = null;
+var cancelBuildButton = null;
 var fileSelect = null;
 var fileSelectRules = null;
 var folderBack = null;
+var folderDescriptionInput = null;
+var folderNameAst = null;
 var folderNameInput = null;
 var folderNext = null;
+var folderRequired = null;
 var folderSelectGroup = null;
 var folderSelect = null;
 var folderSelectLabel = null;
+var folderTitleInput = null;
 var functionSelect = null;
 var functionSelectRules = null;
 var generateDockerfile = null;
@@ -47,13 +54,17 @@ var includeRequestInput = null;
 var inputParseTypeInput = null;
 var languageP = null;
 var languageR = null;
+var languageRules = null;
 var methodGETInput = null;
 var methodPOSTInput = null;
+var methodRules = null;
 var moduleBack = null;
 var moduleDescriptionInput = null;
+var moduleNameAst = null;
 var moduleNameInput = null;
 var moduleNameRules = null;
 var moduleNext = null;
+var moduleRequired = null;
 var moduleSelect = null;
 var modulesRow = null;
 var moduleTitleInput = null;
@@ -68,23 +79,24 @@ var packageDelButton = null;
 var packageInput = null;
 var packageSelect = null;
 var paramsToDFInput = null;
-var pathAddButton = null;
-var pathDelButton = null;
-var pathInput = null;
-var pathSelect = null;
 var projectBack = null;
 var projectDescriptionInput = null;
+var projectNameAst = null;
 var projectNameInput = null;
+var projectNameRules = null;
 var projectNext = null;
 var projectPageTitle = null;
 var projectPropertiesTitle = null;
+var projectRequired = null;
 var projectTitleInput = null;
 var serviceBack = null;
 var serviceDescriptionInput = null;
+var serviceNameAst = null;
 var serviceNameInput = null;
 var serviceNameRules = null;
 var serviceNext = null;
 var servicePropertiesTitle = null;
+var serviceRequired = null;
 var serviceSelect = null;
 var servicesRow = null;
 var serviceTitleInput = null;
@@ -104,19 +116,26 @@ var titleServicePort = null;
 var titleServiceService = null;
 var uploadRequired = null;
 var workersInput = null;
+var workerRules = null;
 
 // Initialize DOM object variables
 function initDOMObjects() {
 
 	buildContainer = document.getElementById('buildContainer');
+	buildProjectButton = document.getElementById('buildProjectButton');
+	cancelBuildButton = document.getElementById('cancelBuildButton');
 	fileSelect = document.getElementById('fileSelect');
 	fileSelectRules = document.getElementById('fileSelectRules');
 	folderBack = document.getElementById('folderBack');
+	folderDescriptionInput = document.getElementById('folderDescriptionInput');
+	folderNameAst = document.getElementById('folderNameAst');
 	folderNameInput = document.getElementById('folderNameInput');
 	folderNext = document.getElementById('folderNext');
+	folderRequired = document.getElementById('folderRequired');
 	folderSelect = document.getElementById('folderSelect');
 	folderSelectGroup = document.getElementById('folderSelectGroup');
 	folderSelectLabel = document.getElementById('folderSelectLabel');
+	folderTitleInput = document.getElementById('folderTitleInput');
 	functionSelect = document.getElementById('functionSelect');
 	functionSelectRules = document.getElementById('functionSelectRules');
 	generateDockerfile = document.getElementById('generateDockerfile');
@@ -129,13 +148,17 @@ function initDOMObjects() {
 	inputParseTypeInput = document.getElementById('inputParseTypeInput');
 	languageP = document.getElementById('languageP');
 	languageR = document.getElementById('languageR');
+	languageRules = document.getElementById('languageRules');
 	methodGETInput = document.getElementById('methodGETInput');
 	methodPOSTInput = document.getElementById('methodPOSTInput');
+	methodRules = document.getElementById('methodRules');
 	moduleBack = document.getElementById('moduleBack');
 	moduleDescriptionInput = document.getElementById('moduleDescriptionInput');
+	moduleNameAst = document.getElementById('moduleNameAst');
 	moduleNameInput = document.getElementById('moduleNameInput');
 	moduleNameRules = document.getElementById('moduleNameRules');
 	moduleNext = document.getElementById('moduleNext');
+	moduleRequired = document.getElementById('moduleRequired');
 	moduleSelect = document.getElementById('moduleSelect');
 	modulesRow = document.getElementById('modulesRow');
 	moduleTitleInput = document.getElementById('moduleTitleInput');
@@ -150,23 +173,24 @@ function initDOMObjects() {
 	packageInput = document.getElementById('packageInput');
 	packageSelect = document.getElementById('packageSelect');
 	paramsToDFInput = document.getElementById('paramsToDFInput');
-	pathAddButton = document.getElementById('pathAddButton');
-	pathDelButton = document.getElementById('pathDelButton');
-	pathInput = document.getElementById('pathInput');
-	pathSelect = document.getElementById('pathSelect');
 	projectBack = document.getElementById('projectBack');
 	projectDescriptionInput = document.getElementById('projectDescriptionInput');
+	projectNameAst = document.getElementById('projectNameAst');
 	projectNameInput = document.getElementById('projectNameInput');
+	projectNameRules = document.getElementById('projectNameRules');
 	projectNext = document.getElementById('projectNext');
 	projectPageTitle = document.getElementById('projectPageTitle');
 	projectPropertiesTitle = document.getElementById('projectPropertiesTitle');
+	projectRequired = document.getElementById('projectRequired');
 	projectTitleInput = document.getElementById('projectTitleInput');
 	serviceBack = document.getElementById('serviceBack');
 	serviceDescriptionInput = document.getElementById('serviceDescriptionInput');
+	serviceNameAst = document.getElementById('serviceNameAst');
 	serviceNameInput = document.getElementById('serviceNameInput');
 	serviceNameRules = document.getElementById('serviceNameRules');
 	serviceNext = document.getElementById('serviceNext');
 	servicePropertiesTitle = document.getElementById('servicePropertiesTitle');
+	serviceRequired = document.getElementById('serviceRequired');
 	serviceSelect = document.getElementById('serviceSelect');
 	servicesRow = document.getElementById('servicesRow');
 	serviceTitleInput = document.getElementById('serviceTitleInput');
@@ -186,12 +210,15 @@ function initDOMObjects() {
 	titleServiceService = document.getElementById('titleServiceService');
 	uploadRequired = document.getElementById('uploadRequired');
 	workersInput = document.getElementById('workersInput');
+	workerRules = document.getElementById('workerRules');
 
 	// Set input event handlers
 	projectDescriptionInput.addEventListener('input', projectInput);
 	projectNameInput.addEventListener('input', projectInput);
 	projectTitleInput.addEventListener('input', projectInput);
+	folderDescriptionInput.addEventListener('input', folderInput);
 	folderNameInput.addEventListener('input', folderInput);
+	folderTitleInput.addEventListener('input', folderInput);
 	languageP.addEventListener('input', folderInput);
 	languageR.addEventListener('input', folderInput);
 	workersInput.addEventListener('input', folderInput);
@@ -203,7 +230,6 @@ function initDOMObjects() {
 	moduleTitleInput.addEventListener('input', moduleInput);
 
 	packageInput.addEventListener('input', onPackageInput);
-	pathInput.addEventListener('input', onPathInput);
 
 	functionSelect.addEventListener('input', serviceInput);
 	functionSelectRules.addEventListener('input', serviceInput);
@@ -219,6 +245,10 @@ function initDOMObjects() {
 	serviceNameInput.addEventListener('input', serviceInput);
 	serviceNameRules.addEventListener('input', serviceInput);
 	serviceTitleInput.addEventListener('input', serviceInput);
+
+	// Set the handler for submitting the data when Enter is pressed.
+	//submitFunction = null;
+	//document.onkeypress = submit;
 
 }
 
@@ -255,7 +285,7 @@ function switchModal(nextModalID) {
 	else {
 		var params = new URLSearchParams(window.location.search);
 		if (!params.has('projectname')&&project&&project['projectName'])
-			window.location.assign("project.html?projectname=" + project['projectName'] + "&timestamp=" + Date.now());
+			window.location.search += (window.location.search ? '&': '?') + 'projectname=' + project['projectName'];
 	}
 
 }
@@ -321,6 +351,12 @@ function popProjectProps() {
 	projectPropertiesTitle.innerHTML = 'Project Properties';
 	projectNameInput.value = '';
 	projectNameInput.disabled = false;
+	projectNameInput.focus();
+	projectNameRules.innerHTML = nameRules;
+	projectNameRules.style.color = 'black';
+	projectNameAst.innerHTML = asterisk;
+	projectNameAst.style.color = 'black';
+	projectRequired.style.color = 'black';
 	projectTitleInput.value = '';
 	projectDescriptionInput.value = '';
 
@@ -344,8 +380,11 @@ function popProjectProps() {
 		// Populate project properties
 		projectPageTitle.innerHTML = 'Project ' + projectName;
 		projectPropertiesTitle.innerHTML = 'Project Properties';
+		projectNameRules.innerHTML = '';
 		projectNameInput.value = projectName;
 		projectNameInput.disabled = true;
+		projectNameAst.innerHTML = '';
+		projectTitleInput.focus();
 		var projectTitle = project['projectTitle'];
 		var projectDescription = project['projectDescription'];
 		if (projectTitle)
@@ -414,7 +453,8 @@ function addStatusMessage(messageText) {
 	var p = document.createElement("p");
 	p.innerHTML = messageText;
 	statusPane.appendChild(p);
-	
+	//$("#statusPane").load(window.location.href + "#statusPane");
+
 }
 
 // Clears the build status pane
@@ -431,8 +471,17 @@ function prepFolderScreen() {
 	showFolderPath(null);
 	folderNameInput.value = '';
 	folderNameInput.disabled = false;
-	folderNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
+	folderNameInput.focus();
+	folderTitleInput.value = '';
+	folderDescriptionInput.value = '';
+	folderNameRules.innerHTML = nameRules;
 	folderNameRules.style.color = 'Black';
+	folderNameAst.innerHTML = asterisk;
+	folderNameAst.style.color = 'Black';
+	languageRules.style.color = 'Black';
+	uploadRequired.style.color = 'Black';
+	workerRules.style.color = 'Black';
+	folderRequired.style.color = 'Black';
 	languageR.checked = false;
 	languageP.checked = false;
 	sourcePathInput.innerHTML = '';
@@ -486,6 +535,11 @@ function popFolderProps() {
 		// Populate the folder name
 		folderNameInput.value = folderName;
 		folderNameInput.disabled = true;
+		folderNameRules.innerHTML = '';
+		folderNameAst.innerHTML = '';
+		folderTitleInput.focus();
+		folderTitleInput.value = folder['folderTitle'];
+		folderDescriptionInput.value = folder['folderDescription'];
 
 		// Set subtitle to /projectname/foldername
 		var sourcePath = folder['sourcePath'];
@@ -546,13 +600,18 @@ function popFolderProps() {
 
 // Prep the module properties screen
 function prepModuleScreen() {
-	
+
 	// Prep the module name, title, and description inputs
 	showModulePath(null, null);
 	moduleNameInput.value = '';
 	moduleNameInput.disabled = false;
-	moduleNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
+	moduleNameInput.focus();
+	moduleNameRules.innerHTML = nameRules;
 	moduleNameRules.style.color = 'Black';
+	moduleNameAst.innerHTML = asterisk;
+	moduleNameAst.style.color = 'Black';
+	fileSelectRules.style.color = 'Black';
+	moduleRequired.style.color = 'Black';
 	moduleTitleInput.value = '';
 	moduleDescriptionInput.value = '';
 
@@ -565,11 +624,13 @@ function prepModuleScreen() {
 	packageAddButton.disabled = true;
 	packageDelButton.disabled = true;
 
+	/*
 	// Prep the path input items
 	deleteChildNodes(pathSelect);
 	pathInput.value = '';
 	pathAddButton.disabled = true;
 	pathDelButton.disabled = true;
+	*/
 
 	deleteChildNodes(fileSelect);
 
@@ -645,11 +706,13 @@ function popModuleProps() {
 		moduleNameInput.value = moduleName;
 		moduleNameInput.disabled = true;
 		moduleNameRules.innerHTML = '';
+		moduleNameAst.innerHTML = '';
 
 		// Populate module title
 		var moduleTitle = module['moduleTitle'];
 		moduleTitle = moduleTitle? moduleTitle: '';
 		moduleTitleInput.value = moduleTitle;
+		moduleTitleInput.focus();
 
 		// Populate module description
 		var moduleDescription = module['moduleDescription'];
@@ -719,8 +782,10 @@ function popModuleProps() {
 		// Enable the package delete button
 		packageDelButton.disabled = !packageSelect.length;		
 
-		// Add paths (Python only)
 		language = folder['language'];
+
+		/*
+		// Add paths (Python only)
 		if (language=='Python') {
 
 			// Make sure paths exist in the module
@@ -752,6 +817,7 @@ function popModuleProps() {
 			pathDelButton.disabled = !pathSelect.length;
 
 		}
+		*/
 
 	}
 
@@ -763,13 +829,19 @@ function popModuleProps() {
 
 // Prep the service properties screen
 function prepServiceScreen() {
-	
+
 	// Prep the module name, title, and description inputs
 	showServicePath(null, null, null);
 	serviceNameInput.value = '';
 	serviceNameInput.disabled = false;
-	serviceNameRules.innerHTML = '&nbsp;*<br>' + nameRules;
+	serviceNameInput.focus();
+	serviceNameRules.innerHTML = nameRules;
 	serviceNameRules.style.color = 'Black';
+	serviceNameAst.innerHTML = asterisk;
+	serviceNameAst.style.color = 'Black';
+	serviceNameRules.style.color = 'Black';
+	functionSelectRules.style.color = 'Black';
+	serviceRequired.style.color = 'Black';
 	serviceTitleInput.value = '';
 	serviceDescriptionInput.value = '';
 	methodPOSTInput.checked = true;
@@ -779,7 +851,7 @@ function prepServiceScreen() {
 	paramsToDFInput.checked = false;
 	paramsToDFInput.disabled = true;
 	includeRequestInput.checked = false;
-	
+
 	deleteChildNodes(functionSelect);
 
 	// Disable the Save button
@@ -968,10 +1040,12 @@ function popServiceProps() {
 		serviceNameInput.value = serviceName;
 		serviceNameInput.disabled = true;
 		serviceNameRules.innerHTML = '';
+		serviceNameAst.innerHTML = '';
 
 		// Populate service title
 		var serviceTitle = service['serviceTitle'];
 		serviceTitle = serviceTitle? serviceTitle: '';
+		serviceTitleInput.focus();
 		serviceTitleInput.value = serviceTitle;
 
 		// Populate service description
@@ -1017,6 +1091,9 @@ function popBuildProps() {
 	if (!project)
 		return false;
 
+	// Set the state of the buttons.
+	setBuildButtons();
+
 	// Find build property values based on project and defaults
 	dockerfileValue = project['generateDockerfile'];
 	buildContainerValue = project['buildContainer'];
@@ -1027,9 +1104,12 @@ function popBuildProps() {
 
 	// Populate build properties
 	generateDockerfile.checked = dockerfileValue;
+	generateDockerfile.focus();
 	buildContainer.checked = buildContainerValue;
 	startLocalhost.checked = startLocalhostValue;
 	
+	built = false;
+
 	return true;
 
 }
@@ -1043,6 +1123,9 @@ function goModal(nextModalID) {
 	// If no modal and the current project exists, not a new project.
 	if (!nextModalID && project)
 		newProject = false;
+
+	// Switch to the next modal.
+	switchModal(nextModalID);
 
 	// Populate project properties screen.
 	if (!nextModalID||nextModalID=='projectPropertiesModal') {
@@ -1081,7 +1164,7 @@ function goModal(nextModalID) {
 	}
 
 	// Switch to the next modal.
-	switchModal(nextModalID);
+	//switchModal(nextModalID);
 
 }
 
@@ -1129,28 +1212,40 @@ function updateProject(nextModalID) {
 // Captures project properties and writes the modified document to the service.
 function writeProject(project1, overwrite, cancel) {
 
+	// Handle cancel for new project (go back to main screen)
+	if (newProject&&cancel) {
+		onExitProject();
+		return;
+	}
+
 	// Identify the next screen.
-	var nextModalID = newProject&&!cancel? 'folderPropertiesModal': null;
+	var nextModalID = newProject? 'folderPropertiesModal': null;
 
 	// If no change, just go to the next screen
 	if (!changed)
 		goModal(nextModalID);
 
+	projectRequired.style.color = 'Black';
+
 	// Get the project name and check it.
 	var newProjectName = projectNameInput.value;
 
 	// Check the project name.
-	if (!checkName(newProjectName)) {
+	if (!newProjectName) {
+		projectNameAst.style.color = 'Red';
+		projectRequired.style.color = 'Red';
+	}
+	else if (!checkName(newProjectName)) {
 		if (!cancel) {
-			alert('Project name must consist of lower case letters, numbers, and underscores, and be no more than 30 characters.');
-			return;
-		}
-		else if (newProject) {
-			onExitProject();
+			projectNameRules.style.color = 'Red';
 			return;
 		}
 		else
 			switchModal(null);
+	}
+	else {
+		projectNameAst.style.color = 'Black';
+		projectNameRules.style.color = 'Black';
 	}
 
 	// Prepare the project to write to the service.
@@ -1165,10 +1260,8 @@ function writeProject(project1, overwrite, cancel) {
 		project2['folders'] = {};
 	
 	// Check that the project has a name.  This should never happen.
-	if (!project2['projectName']) {
-		alert('Missing project name');
+	if (!project2['projectName'])
 		return;
-	}
 
 	// Record the project name
 	projectName = newProjectName;
@@ -1257,18 +1350,26 @@ function onKeepFolderProps(nextModalID) {
 
 	var failed = false;
 	var edit = folderName? true: false;
+	folderRequired.style.color = 'Black';
 
 	// Check if name populated, try to get the folder
 	var folder = null;
 	var newFolderName = null;
 	if (!edit) {
 		newFolderName = folderNameInput.value;
-		if (!newFolderName||!checkName(newFolderName)) {
+		if (!newFolderName) {
+			folderNameAst.style.color = 'Red';
+			folderRequired.style.color = 'Red';
 			failed = true;
-			document.getElementById('folderNameRules').style.color = 'Red';
 		}
-		else
-			document.getElementById('folderNameRules').style.color = 'Black';
+		else if (!checkName(newFolderName)) {
+			folderNameRules.style.color = 'Red';
+			failed = true;
+		}
+		else {
+			folderNameAst.style.color = 'Black';
+			folderNameRules.style.color = 'Black';
+		}
 		folder = folders[newFolderName];
 	}
 	else {
@@ -1285,6 +1386,7 @@ function onKeepFolderProps(nextModalID) {
 	if (!edit&&!files.length || edit&&!sourcePath) {
 		failed = true;
 		uploadRequired.style.color = 'Red';
+		folderRequired.style.color = 'Red';
 	}
 	else
 		uploadRequired.style.color = 'Black';
@@ -1294,20 +1396,22 @@ function onKeepFolderProps(nextModalID) {
 		languageP.checked? 'Python': null;
 	if (!language) {
 		failed = true;
-		document.getElementById('languageRules').style.color = 'Red';
+		languageRules.style.color = 'Red';
+		folderRequired.style.color = 'Red';
 	}
 	else
-		document.getElementById('languageRules').style.color = 'Black';
+		languageRules.style.color = 'Black';
 
 	// Check if workers populated
 	var workers = parseInt(workersInput.value);
 	workers = workers? workers: 2;
 	if (!workers||workers < 1 || workers > 1024) {
 		failed = true;
-		document.getElementById('workerRules').style.color = 'Red';
+		workerRules.style.color = 'Red';
+		folderRequired.style.color = 'Red';
 	}
 	else
-		document.getElementById('workerRules').style.color = 'Black';
+		workerRules.style.color = 'Black';
 
 	// If data validation failure, don't do anything.
 	if (failed)
@@ -1317,19 +1421,16 @@ function onKeepFolderProps(nextModalID) {
 	if (!edit&&folder&&!confirm('Folder exists.  Overwrite?'))
 		return;
 
-	// Hide import paths if not Python
-	// TODO:  HAVE SEPARATE EVENT HANDLER THAT CHANGES THIS WHEN LANGUAGE CHANGES
-	if (language == 'Python')
-		document.getElementById('importPathsRow').disabled = false;
-	else
-		document.getElementById('importPathsRow').disabled = true;
-
 	// Create the folder if needed
 	if (!edit&&newFolderName) {
 		folderName = newFolderName;
 		folder = {}
 		folders[folderName] = folder;
 	}		
+
+	// Handle folder title and description
+	folder['folderTitle'] = folderTitleInput.value;
+	folder['folderDescription'] = folderDescriptionInput.value;
 
 	// Populate folder attributes
 	folder['language'] = language;
@@ -1439,6 +1540,8 @@ function onKeepModuleProps(nextModalID) {
 	if (!folder)
 		return false;
 
+	moduleRequired.style.color = 'Black';
+
 	// Check if modules exist
 	var modules = folder['modules'];
 	if (!modules) {
@@ -1454,7 +1557,12 @@ function onKeepModuleProps(nextModalID) {
 	var newModuleName = null;
 	if (!edit) {
 		newModuleName = moduleNameInput.value;
-		if (!newModuleName||!checkName(newModuleName)) {
+		if (!newModuleName) {
+			failed = true;
+			moduleNameAst.style.color = 'Red';
+			moduleRequired.style.color = 'Red';
+		}
+		else if (!checkName(newModuleName)) {
 			failed = true;
 			moduleNameRules.style.color = 'Red';
 		}
@@ -1476,6 +1584,7 @@ function onKeepModuleProps(nextModalID) {
 	var sourceFile = getSelected(fileSelect);
 	if (!sourceFile) {
 		failed = true;
+		moduleRequired.style.color = 'Red';
 		fileSelectRules.style.color = 'Red';
 	}
 	else
@@ -1486,14 +1595,6 @@ function onKeepModuleProps(nextModalID) {
 	for (var i=0; i<packageSelect.length; i++)
 		packages.push(packageSelect[i].value);
 
-	// Find the specified import paths (Python only).
-	if (language == 'Python') {
-		// TODO:  FIX THIS.  CURRENTLY, SCOPE OF importPaths IS if BLOCK, DOESN'T WORK.
-		var importPaths = [];
-		for (var i=0; i<importPaths.length; i++)
-			importPaths.push(pathSelect[i].value);
-	}
-	
 	// If data validation failure, don't do anything.
 	if (failed)
 		return;
@@ -1515,7 +1616,6 @@ function onKeepModuleProps(nextModalID) {
 	module['moduleDescription'] = moduleDescription;
 	module['sourceFile'] = sourceFile;
 	module['packages'] = packages;
-	module['importPaths'] = importPaths;
 	if (!module['services'])
 		module['services'] = {};
 
@@ -1586,6 +1686,8 @@ function onKeepServiceProps(nextModalID) {
 	if (!module)
 		return false;
 
+	serviceRequired.style.color = 'Black';
+
 	// Check if services exist
 	var services = module['services'];
 	if (!services) {
@@ -1601,7 +1703,12 @@ function onKeepServiceProps(nextModalID) {
 	var newServiceName = null;
 	if (!edit) {
 		newServiceName = serviceNameInput.value;
-		if (!newServiceName||!checkName(newServiceName)) {
+		if (!newServiceName) {
+			failed = true;
+			serviceNameAst.style.color = 'Red';
+			serviceRequired.style.color = 'Red';
+		}
+		else if (!checkName(newServiceName)) {
 			failed = true;
 			serviceNameRules.style.color = 'Red';
 		}
@@ -1801,10 +1908,12 @@ function onChangeProjectName() {
 
 	// Get the project name and check it.
 	var projectName2 = projectNameInput.value;
-	if (!checkName(projectName2))
-		document.getElementById('projectNameRules').style.color = 'Red';
-	else
-		document.getElementById('projectNameRules').style.color = 'Black';
+	if (!checkName(projectName2)) {
+		projectNameRules.style.color = 'Red';
+	}
+	else {
+		projectNameRules.style.color = 'Black';
+	}
 
 }
 
@@ -1950,7 +2059,7 @@ function checkServiceProperties() {
 	}
 	document.getElementById('inputComments').innerHTML = desc;
 
-	changed = true;
+	//changed = true;
 
 }
 
@@ -2074,6 +2183,7 @@ function onCancel() {
 }
 
 // Checks whether the package input element is populated to enable/disable the add button.
+// TODO:  DELETE - NOT USED!
 function onPackageInputChange() {
 
 	// Package add button disabled iff no text to input
@@ -2091,6 +2201,7 @@ function onPackageAdd() {
 		packageInput.value = '';
 		changed = true;
 		packageDelButton.disabled = false;
+		setModuleButtons();
 	}
 	packageAddButton.disabled = true;
 
@@ -2103,6 +2214,7 @@ function onPackageDel() {
 	if (packageSelect.selectedIndex >= 0) {
 		delSelected(packageSelect);
 		changed = true;
+		setModuleButtons();
 	}
 	packageDelButton.disabled = !packageSelect.length;
 
@@ -2186,10 +2298,12 @@ function serviceInput(event) {
 // Event handler for package name input
 function onPackageInput(event) {
 	
+	/*
 	if (!changed) {	
 		changed = true;
 		setModuleButtons();
 	}
+	*/
 	packageAddButton.disabled = !packageInput.value;
 	
 }
@@ -2347,6 +2461,21 @@ function setServiceButtons() {
 
 }
 
+//Set labels and enables/disables bottom buttons on build screen.
+function setBuildButtons() {
+
+	// Change button labels appropriately
+	if (newProject) {
+		cancelBuildButton.innerHTML = 'Back';
+		buildProjectButton.innerHTML = built? 'Finish': 'Build';
+	}
+	else {
+		cancelBuildButton.innerHTML = 'Cancel';
+		buildProjectButton.innerHTML = 'Build';
+	}
+
+}
+
 // Handler for delFolderButton.
 function onDelFolder() {
 
@@ -2497,7 +2626,9 @@ function buildProject(nextModalID) {
 				// Populate the folder select list
 				popFolderSelect();
 				addStatusMessage('Project ' + projectName + ' built successfully!');
-				goModal(nextModalID);
+				built = true;
+				setBuildButtons();
+				//goModal(nextModalID);
 			}
 			else
 				alert(response['errorMsg']);
@@ -2525,15 +2656,45 @@ function onBuildInputChange() {
 function onBuildProject(){
 
 	// TODO:  LIST ITEMS TO BE INCLUDED IN BUILT PROJECT
+	/*
+	 * New project:
+	 * - If not built, build
+	 * - Else, go to null 
+	 * Existing project:
+	 * - If confirm, build project and stay on projectBuildModal
+	 * - Else, show cancelled status message
+	 */
+	
+	var nextModalID = 'projectBuildModal';
+	
+	if (newProject) {
+		if (built)
+			goModal(null);
+		else
+			buildProject(nextModalID);			
+	}
+	else {
+		if (confirm('Any previous build of project ' + projectName + ' will be deleted or overwritten.  Proceed?'))
+			buildProject(nextModalID);
+		else
+			addStatusMessage('Project build cancelled.');
+	}
 
-	buildProject('projectBuildModal');	
+	/*
+	if (newProject||confirm('Any previous build of project ' + projectName + ' will be deleted or overwritten.  Proceed?'))
+		buildProject(nextModalID);
+	else
+		addStatusMessage('Project build cancelled.');
+	*/
 
 }
 
 // Cancel the build
 function onCancelBuild() {
 
-	if (changed&&confirm('Save changes?')) {
+	var modalID = newProject? 'servicePropertiesModal': null;
+
+	if (newProject&&changed) {
 		
 		project['generateDockerfile'] = generateDockerfile.checked;
 		project['buildContainer'] = buildContainer.checked;
@@ -2542,8 +2703,9 @@ function onCancelBuild() {
 		updateProject(null);
 		
 	}
-	else
-		goModal(null);
+	else if (!changed||confirm('Discard changes?')) {
+		goModal(modalID);
+	}
 
 }
 

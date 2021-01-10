@@ -1,5 +1,5 @@
 {
-	"configPath": "/external/config.json",
+	"configPath": "/external/config/config.json",
 	"workingDirectory": "/external/working",
 	"projectsPath": "/external/projects",
 	"baseImage": "cannr-base",

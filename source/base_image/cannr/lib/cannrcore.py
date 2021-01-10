@@ -392,14 +392,16 @@ def getProjectPath(project, context):
 
     # Flag telling whether local
     local = context.get('local', False)
-    
+
     # Check whether the tool has a working directory
     workingDirectory = context.get("workingDirectory", None)
     if local and not workingDirectory:
         raise RTAMError(noDirectoryMsg, noDirectoryCode)
-    
+
     # /external/config would contain configuration information
+    # TODO:  CHANGE THIS SO IT ONLY USES /external/working IF NOT local AND workingDirectory NOT DEFINED
     path = workingDirectory if local else '/external/working'
+    #path = '/external/working' if not local and not workingDirectory else workingDirectory
     if not existsDirectory(path):
         raise RTAMError(noDirectoryMsg, noDirectoryCode)
 
@@ -418,7 +420,7 @@ def legalName(nameString):
     if len(nameString)==0 or len(nameString)>30:
         return False
     
-    if re.search('[^a-z0-9_]', nameString):
+    if re.search('[^a-z0-9_-]', nameString):
         return False
     
     return True

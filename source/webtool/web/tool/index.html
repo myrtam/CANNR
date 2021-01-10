@@ -9,7 +9,9 @@ Maintainer Pat Tendick ptendick@gmail.com
 <head>
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <link rel='stylesheet' href='css/cnr.css'>
+<!--
 <link rel='stylesheet' href='css/all.css'>
+-->
 <script src="jquery-2.0.1.min.js"></script>
 <script src="bootstrap.min.js"></script>
 <script src="common.js"></script>
@@ -29,14 +31,18 @@ Maintainer Pat Tendick ptendick@gmail.com
 If no project, display the following:
 <h3>You currently have no projects.  Would you like to add one?<h3>
 -->
-<button type="button" id="addProject" class="enabled-button" onclick="addProject()">New Project...</button>
+<button type="button" id="addProject" class="enabled-button" onclick="addProject()" autofocus>New Project...</button>
 </div>
 <br>
 <span id='projectSelectLabel'>Projects:</span><br>
-<div class="input-group mb-3" id="projectSelectGroup">
-	<select class="custom-select" id="projectSelect" onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
+<!--
+<div id="projectSelectGroup">
+	<select class="form-control" id="projectSelect" onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
 	</select>
 </div>
+-->
+<select class="form-control" id="projectSelect" onchange="onProjectSelectChange()" onclick="onProjectSelectChange()">
+</select>
 <br>
 <div>
 <button type="button" id="goProjectButton" class="enabled-button" onclick='onGoProject()'>Go...</button>&nbsp;

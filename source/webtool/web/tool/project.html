@@ -21,7 +21,15 @@ Maintainer Pat Tendick ptendick@gmail.com
 <title>CANNR Tool</title>
 </head>
 
-<body style="background-color:#F5F5F5;">
+<body style="background-color:#F5F5F5;" onbeforeunload="return unloadWarning()">
+
+<script>
+
+function unloadWarning() {
+  return "Do you really want to leave the page?";
+}
+
+</script>
 
 <div class="top-margin">
 <h2 id='projectPageTitle'>&nbsp;</h2>
@@ -32,10 +40,14 @@ Maintainer Pat Tendick ptendick@gmail.com
 </div>
 <br>
 <span id='folderSelectLabel'>Folders:</span><br>
+<!--
 <div class="input-group mb-3" id="folderSelectGroup">
 	<select class="custom-select" id="folderSelect">
 	</select>
 </div>
+-->
+<select id="folderSelect" class="form-control">
+</select>
 <br>
 <div>
 	<button type="button" id="goFolderButton" class="enabled-button" onclick="onGoFolder(false)">Go...</button>&nbsp;
@@ -92,18 +104,22 @@ If no folders, display the following:
 		<table id="projectTable" class="table" style="border-collapse: collapse;">
 			<tbody id="projectBody">
 				<tr>
-					<td style="border: none;">Project Name:</td>
+					<td style="border: none;">Project Name<span id='projectNameAst'>&nbsp;*</span></td>
 					<td style="border: none;"><textarea name="projectNameInput" id="projectNameInput"  rows="1" cols="50" onchange="onChangeProjectName()"/></textarea>
-					<span id='projectNameRules'>&nbsp;*<br>Lower case letters, numbers, and underscores, &le;30 characters.</span>
+					<br><span id='projectNameRules'><br>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Title:</td>
+					<td style="border: none;">Title</td>
 					<td style="border: none;"><textarea name="projectTitleInput" id="projectTitleInput" rows="1" cols="50"/></textarea></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Description:</td>
+					<td style="border: none;">Description</td>
 					<td style="border: none;"><textarea name="projectDescriptionInput" id="projectDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
+				</tr>
+				<tr>
+					<td style="border: none;"><span id='projectRequired'>*&nbsp;Required</span></td>
+					<td style="border: none;"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -134,45 +150,52 @@ If no folders, display the following:
 		<table id="folderTable" class="table" style="border-collapse: collapse;">
 			<tbody id="folderBody">
 				<tr>
-					<td style="border: none;">Folder Name:</td>
+					<td style="border: none;">Folder Name<span id='folderNameAst'>&nbsp;*</span></td>
 					<td style="border: none;"><textarea name="folderNameInput" id="folderNameInput" rows="1" cols="50" onchange="onChangeFolderName()"/></textarea>
-					<span id='folderNameRules'>&nbsp;*<br>Lower case letters, numbers, and underscores, &le;30 characters.</span>
+					<br><span id='folderNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Language:</td>
+					<td style="border: none;">Title</td>
+					<td style="border: none;"><textarea name="folderTitleInput" id="folderTitleInput" rows="1" cols="50"/></textarea></td>
+				</tr>
+				<tr>
+					<td style="border: none;">Description</td>
+					<td style="border: none;"><textarea name="folderDescriptionInput" id="folderDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
+				</tr>
+				<tr>
+					<td style="border: none;">Language<span id='languageRules'>&nbsp;*</span></td>
 					<td style="border: none;">
 					<input name="language" id="languageR" type="radio"/>
 					<label for="languageR">R</label>&nbsp;&nbsp;&nbsp;
 					<input name="language" id="languageP" type="radio"/>
-					<label for="languageP">Python</label><span id='languageRules'>*</span>
+					<label for="languageP">Python</label>
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Upload Source Directory:</td>
+					<td style="border: none;">Upload Source Directory<span id='uploadRequired'>&nbsp;*</span></td>
 					<td id='sourceUploadCell' style="border: none;">
 						<input name="sourceUpload" type="file" id="sourceUpload" webkitdirectory mozdirectory 
 							onchange='onSourceUploadChange()'/>
-						<!--  
-						<input name="sourceUpload" type="file" id="sourceUpload" onchange='onSourceUploadChange()'/>
-						-->
-						<span id='uploadRequired'>&nbsp;*</span>
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Source Directory:</td>
+					<td style="border: none;">Source Directory</td>
 					<td id="sourcePathInput" style="border: none;"></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Workers:</td>
-					<td style="border: none;"><input name="workersInput" id="workersInput" type="number" value=2 min=1 max=1024/>
-					<span id='workerRules'>&nbsp;*</span>
+					<td style="border: none;">Workers<span id='workerRules'>&nbsp;*</span></td>
+					<td style="border: none;"><input name="workersInput" id="workersInput" type="number" value=2 min=1 max=1024/>					
 					</td>
 				</tr>
 				<tr id='modulesRow'>
 					<td id='modulesLabel' style="border: none;">Modules:</td>
 					<td style="border: none;">
+						<!--
 						<select class="custom-select" id="moduleSelect">
+						</select>
+						-->
+						<select id="moduleSelect" class="form-control">
 						</select>
 						<br>
 						<button type="button" id="goModuleButton" class="enabled-button" onclick="onGoModule(false)">Go...</button>&nbsp;
@@ -183,6 +206,10 @@ If no folders, display the following:
 					<td style="border: none;">
 						<button type="button" id="newModuleButton" class="enabled-button" onclick="onGoModule(true)">New Module...</button>
 					</td>
+				</tr>
+				<tr>
+					<td style="border: none;"><span id='folderRequired'>*&nbsp;Required</span></td>
+					<td style="border: none;"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -213,31 +240,38 @@ If no folders, display the following:
 		<table id="moduleTable" class="table" style="border-collapse: collapse;">
 			<tbody id="moduleBody">
 				<tr>
-					<td style="border: none;">Module Name:</td>
+					<td style="border: none;">Module Name<span id='moduleNameAst'>&nbsp;*</span></td>
 					<td style="border: none;"><input name="moduleNameInput" id="moduleNameInput" type="text" maxlength="30" style="width: 30em;" onchange="onChangeModuleName()"/>
-					<span id='moduleNameRules'>&nbsp;*<br>Lower case letters, numbers, and underscores, &le;30 characters.</span>
+					<br><span id='moduleNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Title:</td>
+					<td style="border: none;">Title</td>
 					<td style="border: none;"><input name="moduleTitleInput" id="moduleTitleInput" type="text" maxlength="50" style="width: 30em;"/></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Description:</td>
+					<td style="border: none;">Description</td>
 					<td style="border: none;"><textarea name="moduleDescriptionInput" id="moduleDescriptionInput" maxlength="500" rows="2" cols="60"/></textarea></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Source File:</td>
+					<td style="border: none;">Source File<span id='fileSelectRules'>&nbsp;*</span></td>
 					<td style="border: none;">
+						<!--
 						<select class="custom-select" id="fileSelect">
 						</select>
-						<span id='fileSelectRules'>&nbsp;*</span>
+						-->
+						<select id="fileSelect" class="form-control">
+						</select>
 					</td>
 				</tr>
 				<tr id='servicesRow'>
-					<td style="border: none;">Services:</td>
+					<td style="border: none;">Services</td>
 					<td style="border: none;">
+						<!--
 						<select class="custom-select" id="serviceSelect">
+						</select>
+						-->
+						<select id="serviceSelect" class="form-control">
 						</select>
 						<br>
 						<button type="button" id="goServiceButton" class="enabled-button" onclick="onGoService(false)">Go...</button>&nbsp;
@@ -250,29 +284,17 @@ If no folders, display the following:
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Required Packages:</td>
+					<td style="border: none;">Required Packages</td>
 					<td style="border: none;">
 						<input name="packageInput" id="packageInput" type="text" style="width: 15em;"/>
 						<button id="packageAddButton" onclick="onPackageAdd()" style="padding: 0px"><img src="gt.png" style="width:75%; height:75%;"></button>
-						<!--  
-						<button id="packageAddButton" onclick="onPackageAdd()">&gt;</button>
-						-->
 						<select name="packageSelect" id="packageSelect" style="width: 15em;" onChange='onPackageSelectChange()'></select>
-						<!--  
-						<button id="packageDelButton" onclick="onPackageDel()" class="far fa-trash-alt"></button>
-						<button id="packageDelButton" onclick="onPackageDel()">&times;</button>
-						-->
 						<button id="packageDelButton" onclick="onPackageDel()" style="padding: 0px"><img src="compost.png" style="width:75%; height:75%;"></button>
 					</td>
 				</tr>
-				<tr id='importPathsRow'>
-					<td style="border: none;">Python Import Paths:</td>
-					<td style="border: none;">
-						<input name="pathInput" id="pathInput" type="text" style="width: 15em;"/>
-						<button id="pathAddButton" onclick="onPathAdd()" style="padding: 0px"><img src="gt.png" style="width:75%; height:75%;"></button>
-						<select name="pathSelect" id="pathSelect" style="width: 15em;" onChange='onPathSelectChange()'></select>
-						<button id="pathDelButton" onclick="onPathDel()" style="padding: 0px"><img src="compost.png" style="width:75%; height:75%;"></button>
-					</td>
+				<tr>
+					<td style="border: none;"><span id='moduleRequired'>*&nbsp;Required</span></td>
+					<td style="border: none;"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -304,25 +326,28 @@ If no folders, display the following:
 		<table id="serviceTable" class="table" style="border-collapse: collapse;">
 			<tbody id="serviceBody">
 				<tr>
-					<td style="border: none;">Service Name:</td>
+					<td style="border: none;">Service Name<span id='serviceNameAst'>&nbsp;*</span></td>
 					<td style="border: none;"><input name="serviceNameInput" id="serviceNameInput" type="text" maxlength="30" style="width: 30em;" onchange="onChangeServiceName()"/>
-					<span id='serviceNameRules'>&nbsp;*<br>Lower case letters, numbers, and underscores, &le;30 characters.</span>
+					<br><span id='serviceNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Title:</td>
+					<td style="border: none;">Title</td>
 					<td style="border: none;"><input name="serviceTitleInput" id="serviceTitleInput" type="text" maxlength="50" style="width: 30em;"/></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Description:</td>
+					<td style="border: none;">Description</td>
 					<td style="border: none;"><textarea name="serviceDescriptionInput" id="serviceDescriptionInput" maxlength="500" rows="2" cols="60"/></textarea></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Function:</td>
+					<td style="border: none;">Function<span id='functionSelectRules'>&nbsp;*</span></td>
 					<td style="border: none;">
+						<!--
 						<select class="custom-select" id="functionSelect">
 						</select>
-						<span id='functionSelectRules'>&nbsp;*</span>
+						-->
+						<select id="functionSelect" class="form-control">
+						</select>
 					</td>
 				</tr>
 				<tr>
@@ -330,16 +355,16 @@ If no folders, display the following:
 					<td id='inputComments' style="border: none;">The function should have 1 argument:  The request body as a JSON string.</td>
 				</tr>
 				<tr>
-					<td style="border: none;">HTTP Method:</td>
+					<td style="border: none;">HTTP Method<span id='methodRules'>&nbsp;*</span></td>
 					<td style="border: none;">
 					<input name="method" id="methodPOSTInput" type="radio" value="POST" checked="checked" onchange='checkServiceProperties()'/>
 					<label for="methodPOSTInput">POST</label>&nbsp;&nbsp;&nbsp;
 					<input name="method" id="methodGETInput" type="radio" value="GET" onchange='checkServiceProperties()'/>
 					<label for="methodGETInput">GET</label>
-					*</td>
+					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Include Parameters:</td>
+					<td style="border: none;">Include Parameters</td>
 					<td style="border: none;">
 						<input name="includeBodyInput" id="includeBodyInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
 						<label for="includeBodyInput">Include HTTP request body?</label><br>
@@ -352,9 +377,9 @@ If no folders, display the following:
 					</td>
 				</tr>
 				<tr id='parseInputRow'>
-					<td style="border: none;">Parse Input (Body) As:</td>
+					<td style="border: none;">Parse Input (Body) As</td>
 					<td style="border: none;">
-					<select name="inputParseTypeInput" id="inputParseTypeInput" style="width: 15em;">
+					<select name="inputParseTypeInput" id="inputParseTypeInput" class="form-control" style="width: 15em;">
 						<option value="none">Do not parse</option>
 						<option value="dataFrame">Data frame</option>
 						<option value="list">List</option>
@@ -364,9 +389,9 @@ If no folders, display the following:
 					</td>
 				</tr>
 				<tr>
-					<td style="border: none;">Convert Output From:</td>
+					<td style="border: none;">Convert Output From</td>
 					<td style="border: none;">
-					<select name="outputParseTypeInput" id="outputParseTypeInput" style="width: 15em;">
+					<select name="outputParseTypeInput" id="outputParseTypeInput" class="form-control" style="width: 15em;">
 						<option value="none">Do not convert</option>
 						<option value="dataFrame">Data frame</option>
 						<option value="list">List</option>
@@ -374,6 +399,10 @@ If no folders, display the following:
 						<option value="matrix">Matrix</option>
 					</select>
 					</td>
+				</tr>
+				<tr>
+					<td style="border: none;"><span id='serviceRequired'>*&nbsp;Required</span></td>
+					<td style="border: none;"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -399,9 +428,9 @@ If no folders, display the following:
     <div class="simple-modal-body">
 		<input name="generateDockerfile" id="generateDockerfile" type="checkbox"/>&nbsp;
 		<label for="generateDockerfile">Generate Docker project?</label><br>
-		<input name="buildContainer" id="buildContainer" type="checkbox" disabled=true style="visibility: hidden;"/>&nbsp;
+		<input name="buildContainer" id="buildContainer" type="checkbox" style="visibility: hidden;"/>&nbsp;
 		<label for="buildContainer" style="visibility: hidden;">Build container?</label><br>
-		<input name="startLocalhost" id="startLocalhost" type="checkbox" disabled=true style="visibility: hidden;"/>&nbsp;
+		<input name="startLocalhost" id="startLocalhost" type="checkbox" style="visibility: hidden;"/>&nbsp;
 		<label for="startLocalhost" style="visibility: hidden;">Start container on localhost?</label><br>
 		<h5>Status:</h5>
 		<div id="statusPane" class="build-list">
@@ -409,9 +438,11 @@ If no folders, display the following:
     </div>
     <div class="simple-modal-footer">
       <hr>
-        <button type="button" id="buildProjectButton" class="enabled-button" onclick="onBuildProject()">Build</button>
-        <button type="button" id="cancelBuildButton" class="enabled-button" onclick="onCancelBuild()">Cancel</button>
+        <button type="button" id="cancelBuildButton" class="enabled-button" onclick="onCancelBuild()">Back</button>
+        <button type="button" id="buildProjectButton" class="enabled-button" onclick="onBuildProject()" style="float: right;">Finish</button>
+        <!--
         <button type="button" id="downloadDockerButton" class="enabled-button" onclick="onDownloadDocker()" style="visibility: hidden;">Download...</button>
+        -->
     </div>
   </div>
 </div>
