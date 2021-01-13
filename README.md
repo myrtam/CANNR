@@ -6,7 +6,7 @@ applications.
 
 NOTE:  THIS IS A PRE-RELEASE.  WATCH THIS PROJECT FOR UPCOMING RELEASES!
 
-% The CANNR Tool
+NEW!  Web Tool Available!  See Web UI below.
 
 Requirements
 ------------
@@ -73,7 +73,9 @@ http://127.0.0.1/services/pyfolder/rand/rand
 
 http://127.0.0.1/services/rfolder/iris/predplengthslength?x=6.5
 
-NEW!  Web Tool Available!
+
+Web UI
+------
 
 To use the Web-based version of the CANNR tool, you must first build it.  To build the tool,
 navigate to the working directory and use the command
@@ -93,6 +95,3 @@ When you access this URL, you should see, among other things, a list of projects
 If you go to this project and then click the Build button, you will be prompted to build the project.  Once the project
 has been built, you can find the built Docker project in the external/working/project1 folder.  To build the image
 and run the container, follow the instructions for building and running project1 above.
-
-
-external/
