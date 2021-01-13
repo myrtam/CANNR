@@ -511,7 +511,8 @@ def buildProject(project, basePath, context):
     local = context.get('local', False)
 
     # Loop through folders in the project, add to project.  Main loop!
-    folderNames = cc.getFolderNames(project)
+    #folderNames = cc.getFolderNames(project)
+    folderNames = cc.getCodeFolderNames(project)
     for folderName in folderNames:
         
         # Get the folder and copy the source files to the new folder
@@ -660,15 +661,21 @@ def buildProject(project, basePath, context):
     #    os.makedirs(contentPath)
     #except:
     #    pass
-    content = project.get('content', {})
-    for folderName in content:
+    #content = project.get('content', {})
+    contentFolderNames = cc.getContentFolderNames(project)
+    for folderName in contentFolderNames:
         # Add location for the content to the NGINX server block.
         nginxServerBlock += 2*'\t' + 'location /web/' + folderName + ' {\n'
         nginxServerBlock += 3*'\t' + 'root /content;\n'
         nginxServerBlock += 2*'\t' + '}\n'
         # Copy the content into the project
-        folder = content.get(folderName)
-        sourcePath = folder.get('sourcePath', None)
+        #folder = content.get(folderName)
+
+         # Get the folder and copy the source files to the new folder
+        folder = cc.getFolder(folderName, project)
+
+        #sourcePath = folder.get('sourcePath', None)
+        sourcePath = folder.get("sourcePath", None) if local else '/external/projects/' + projectName + '/' + folderName
         if sourcePath:
             sp = Path(sourcePath)
             if not sp.is_absolute():
@@ -721,7 +728,7 @@ def buildProject(project, basePath, context):
 
     # Copy static content into container
     dockerContentText = ''
-    for folderName in content:
+    for folderName in contentFolderNames:
         dockerContentText += 'COPY ./content/web/' + folderName + ' /content\n'
     if dockerContentText:
         dockerText = dockerText.replace('#<Static Content>', dockerContentText)

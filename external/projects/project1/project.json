@@ -1,0 +1,151 @@
+{
+  "projectName": "project1",
+  "projectTitle": "Example project 1",
+  "projectDescription": "Example showing both Python and R, and both GET and POST services.",
+  "folders": {
+    "pyfolder": {
+      "folderTitle": "Example Python Folder",
+      "folderDescription": "Example Python folder with 2 modules.",
+      "folderType": "code",
+      "language": "Python",
+      "sourcePath": "folder1",
+      "workers": 1,
+      "modules": {
+        "rand": {
+          "moduleName": "rand",
+          "moduleTitle": "Random Number Module",
+          "moduleDescription": "Module with one service that generates a random (0,1) deviate and exposes it as a GET service.",
+          "sourceFile": "rand.py",
+          "packages": [],
+          "services": {
+            "rand": {
+              "serviceName": "rand",
+              "serviceTitle": "Random Number Service",
+              "serviceDescription": "Returns a random (0,1) deviate.",
+              "functionName": "rand",
+              "method": "GET",
+              "includeBody": true,
+              "includeParams": false,
+              "paramsToDF": false,
+              "includeRequest": false,
+              "inputParseType": "dictionary",
+              "outputParseType": "dictionary"
+            }
+          },
+          "functionNames": [
+            "rand"
+          ]
+        },
+        "sum": {
+          "moduleName": "sum",
+          "moduleTitle": "Sum of List/Array Elements",
+          "moduleDescription": "Sums the elements of a Python list/array.",
+          "sourceFile": "rand.py",
+          "packages": [],
+          "services": {
+            "sum": {
+              "serviceName": "sum",
+              "serviceTitle": "Sum List/Array",
+              "serviceDescription": "Sums the elements in a list.",
+              "functionName": "rand",
+              "method": "POST",
+              "includeBody": true,
+              "includeParams": false,
+              "paramsToDF": false,
+              "includeRequest": false,
+              "inputParseType": "dictionary",
+              "outputParseType": "dictionary"
+            }
+          },
+          "functionNames": [
+            "rand"
+          ]
+        }
+      },
+      "fileNames": [
+        "rand.py",
+        "sum.py"
+      ]
+    },
+    "rfolder": {
+      "folderTitle": "Example R Folder",
+      "folderDescription": "Contains 2 modules, one that generates a random number and one that returns a fitted regression value.",
+      "folderType": "code",
+      "language": "R",
+      "sourcePath": "folder2",
+      "workers": 1,
+      "modules": {
+        "iris": {
+          "moduleName": "iris",
+          "moduleTitle": "Fisher's Iris Regression",
+          "moduleDescription": "Module that does a prediction based on Fisher's iris data.",
+          "sourceFile": "iris.R",
+          "packages": [],
+          "services": {
+            "predplengthslength": {
+              "serviceName": "predplengthslength",
+              "serviceTitle": "Predict Petal Length",
+              "serviceDescription": "Predict petal length from sepal length for species Virginica.  Need to add query parameter x=<sepal length>, e.g., ?x=6.5.",
+              "functionName": "predPLengthSLength",
+              "method": "GET",
+              "includeBody": true,
+              "includeParams": true,
+              "paramsToDF": true,
+              "includeRequest": false,
+              "inputParseType": "rlist",
+              "outputParseType": "dataframe"
+            }
+          },
+          "functionNames": [
+            "predPLengthSLength"
+          ]
+        },
+        "sum": {
+          "moduleName": "sum",
+          "moduleTitle": "Sum of Variable Values",
+          "moduleDescription": "Module that provides one service that sums the values of variable X in an R data frame.",
+          "sourceFile": "sum.R",
+          "packages": [],
+          "services": {
+            "sum": {
+              "serviceName": "sum",
+              "serviceTitle": "",
+              "serviceDescription": "",
+              "functionName": "sumX",
+              "method": "POST",
+              "includeBody": true,
+              "includeParams": false,
+              "paramsToDF": false,
+              "includeRequest": false,
+              "inputParseType": "dataframe",
+              "outputParseType": "dataframe"
+            }
+          },
+          "functionNames": [
+            "sumX"
+          ]
+        }
+      },
+      "fileNames": [
+        "iris.R",
+        "irisFit.R",
+        "sum.R"
+      ]
+    },
+    "mystatic": {
+      "folderTitle": "Example Content Folder",
+      "folderDescription": "Example of a folder containing static content.",
+      "folderType": "content",
+      "language": null,
+      "sourcePath": "mystatic",
+      "workers": 2,
+      "modules": {},
+      "fileNames": [
+        "static.html"
+      ]
+    }
+  },
+  "generateDockerfile": true,
+  "buildContainer": true,
+  "startLocalhost": false
+}

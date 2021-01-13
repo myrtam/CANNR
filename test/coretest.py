@@ -22,6 +22,8 @@ class TestCannrCore(unittest.TestCase):
             self.project = cnc.readJSONFile('../examples/project1/winproject.json')
         else:
             self.project = cnc.readJSONFile('../examples/project1/project.json')
+        
+        self.webProject = cnc.readJSONFile('../source/webtool/project.json')
             
         with open('testfiles/upload.dat','rb') as uploadFile:
             self.uploadData = uploadFile.read()
@@ -126,7 +128,18 @@ class TestCannrCore(unittest.TestCase):
     
         folderNames = cnc.getFolderNames(self.project)
         self.assertTrue('rfolder' in folderNames)
+
+
+    def test_getContentFolderNames(self):
     
+        folderNames = cnc.getContentFolderNames(self.webProject)
+        self.assertTrue('webtool' in folderNames)
+
+    def test_getCodeFolderNames(self):
+    
+        folderNames = cnc.getCodeFolderNames(self.webProject)
+        self.assertTrue('tool' in folderNames)
+
     # Completed
     def test_getModules(self):
     
@@ -148,7 +161,7 @@ class TestCannrCore(unittest.TestCase):
         folder = cnc.getFolder('rfolder', self.project)
         moduleNames = cnc.getModuleNames(folder)
         self.assertTrue('iris' in moduleNames)
-    
+
     # Completed
     def test_getServices(self):
     
@@ -156,7 +169,7 @@ class TestCannrCore(unittest.TestCase):
         folder = cnc.getFolder('rfolder', self.project)
         module = cnc.getModule('iris', folder)
         self.assertTrue(cnc.getServices(module))
-    
+
     # Completed
     def test_getServiceNames(self):
     

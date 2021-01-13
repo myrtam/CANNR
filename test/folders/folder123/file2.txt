@@ -1,16 +1,1 @@
-------WebKitFormBoundary7mqeUsPtFGhYEsuU
-Content-Disposition: form-data; name="files"; filename="uploadTest/file2.txt"
-Content-Type: text/plain
-
 Second file.
-------WebKitFormBoundary7mqeUsPtFGhYEsuU
-Content-Disposition: form-data; name="files"; filename="uploadTest/file1.txt"
-Content-Type: text/plain
-
-This is the first file.
-------WebKitFormBoundary7mqeUsPtFGhYEsuU
-Content-Disposition: form-data; name="files"; filename="uploadTest/subdirectory/file3.txt"
-Content-Type: text/plain
-
-Third file.
-------WebKitFormBoundary7mqeUsPtFGhYEsuU--

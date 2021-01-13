@@ -164,15 +164,6 @@ If no folders, display the following:
 					<td style="border: none;"><textarea name="folderDescriptionInput" id="folderDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
 				</tr>
 				<tr>
-					<td style="border: none;">Language<span id='languageRules'>&nbsp;*</span></td>
-					<td style="border: none;">
-					<input name="language" id="languageR" type="radio"/>
-					<label for="languageR">R</label>&nbsp;&nbsp;&nbsp;
-					<input name="language" id="languageP" type="radio"/>
-					<label for="languageP">Python</label>
-					</td>
-				</tr>
-				<tr>
 					<td style="border: none;">Upload Source Directory<span id='uploadRequired'>&nbsp;*</span></td>
 					<td id='sourceUploadCell' style="border: none;">
 						<input name="sourceUpload" type="file" id="sourceUpload" webkitdirectory mozdirectory 
@@ -183,7 +174,25 @@ If no folders, display the following:
 					<td style="border: none;">Source Directory</td>
 					<td id="sourcePathInput" style="border: none;"></td>
 				</tr>
-				<tr>
+				<tr id='folderTypeRow'>
+					<td style="border: none;">Folder Type</td>
+					<td style="border: none;">
+					<input name="folderType" id="codeFolder" type="radio" onchange='checkFolderType()'/>
+					<label for="codeFolder">Code</label>&nbsp;&nbsp;&nbsp;
+					<input name="folderType" id="contentFolder" type="radio" onchange='checkFolderType()'/>
+					<label for="contentFolder">Content</label>
+					</td>
+				</tr>
+				<tr id='languageRow'>
+					<td style="border: none;">Language<span id='languageRules'>&nbsp;*</span></td>
+					<td style="border: none;">
+					<input name="language" id="languageR" type="radio"/>
+					<label for="languageR">R</label>&nbsp;&nbsp;&nbsp;
+					<input name="language" id="languageP" type="radio"/>
+					<label for="languageP">Python</label>
+					</td>
+				</tr>
+				<tr id='workersRow'>
 					<td style="border: none;">Workers<span id='workerRules'>&nbsp;*</span></td>
 					<td style="border: none;"><input name="workersInput" id="workersInput" type="number" value=2 min=1 max=1024/>					
 					</td>

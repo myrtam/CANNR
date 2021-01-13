@@ -30,6 +30,8 @@ var modals = ['projectPropertiesModal', 'folderPropertiesModal', 'moduleProperti
 var buildContainer = null;
 var buildProjectButton = null;
 var cancelBuildButton = null;
+var codeFolder = null;
+var contentFolder = null;
 var fileSelect = null;
 var fileSelectRules = null;
 var folderBack = null;
@@ -42,6 +44,7 @@ var folderSelectGroup = null;
 var folderSelect = null;
 var folderSelectLabel = null;
 var folderTitleInput = null;
+var folderTypeRow = null;
 var functionSelect = null;
 var functionSelectRules = null;
 var generateDockerfile = null;
@@ -117,6 +120,8 @@ var titleServiceService = null;
 var uploadRequired = null;
 var workersInput = null;
 var workerRules = null;
+var languageRow = null;
+var workersRow = null;
 
 // Initialize DOM object variables
 function initDOMObjects() {
@@ -124,6 +129,8 @@ function initDOMObjects() {
 	buildContainer = document.getElementById('buildContainer');
 	buildProjectButton = document.getElementById('buildProjectButton');
 	cancelBuildButton = document.getElementById('cancelBuildButton');
+	codeFolder = document.getElementById('codeFolder');
+	contentFolder = document.getElementById('contentFolder');
 	fileSelect = document.getElementById('fileSelect');
 	fileSelectRules = document.getElementById('fileSelectRules');
 	folderBack = document.getElementById('folderBack');
@@ -136,6 +143,7 @@ function initDOMObjects() {
 	folderSelectGroup = document.getElementById('folderSelectGroup');
 	folderSelectLabel = document.getElementById('folderSelectLabel');
 	folderTitleInput = document.getElementById('folderTitleInput');
+	folderTypeRow = document.getElementById('folderTypeRow');
 	functionSelect = document.getElementById('functionSelect');
 	functionSelectRules = document.getElementById('functionSelectRules');
 	generateDockerfile = document.getElementById('generateDockerfile');
@@ -148,6 +156,7 @@ function initDOMObjects() {
 	inputParseTypeInput = document.getElementById('inputParseTypeInput');
 	languageP = document.getElementById('languageP');
 	languageR = document.getElementById('languageR');
+	languageRow = document.getElementById('languageRow');
 	languageRules = document.getElementById('languageRules');
 	methodGETInput = document.getElementById('methodGETInput');
 	methodPOSTInput = document.getElementById('methodPOSTInput');
@@ -209,8 +218,9 @@ function initDOMObjects() {
 	titleServicePort = document.getElementById('titleServicePort');
 	titleServiceService = document.getElementById('titleServiceService');
 	uploadRequired = document.getElementById('uploadRequired');
-	workersInput = document.getElementById('workersInput');
 	workerRules = document.getElementById('workerRules');
+	workersInput = document.getElementById('workersInput');
+	workersRow = document.getElementById('workersRow');
 
 	// Set input event handlers
 	projectDescriptionInput.addEventListener('input', projectInput);
@@ -482,21 +492,16 @@ function prepFolderScreen() {
 	uploadRequired.style.color = 'Black';
 	workerRules.style.color = 'Black';
 	folderRequired.style.color = 'Black';
+	codeFolder.checked = true;
+	contentFolder.checked = false;
 	languageR.checked = false;
 	languageP.checked = false;
 	sourcePathInput.innerHTML = '';
 	sourceUpload.value = '';
 	uploadRequired.innerHTML = '&nbsp;*';
 	workersInput.value = 2;
-	//modulesRow.style.visibility = 'hidden';
-	//goModuleButton.style.visibility = 'hidden';
-	//disableButton(goModuleButton, true);
-	//disableButton(newModuleButton, false);
-	//newModuleButton.style.visibility = 'visible';
-	deleteChildNodes(moduleSelect);
 
-	// Disable the Save button
-	//disableButton(folderNext, true);
+	deleteChildNodes(moduleSelect);
 
 }
 
@@ -520,6 +525,9 @@ function popFolderProps() {
 	prepFolderScreen();
 
 	setFolderButtons();
+
+	var folderType = null;
+	folderTypeRow.style.visibility = newProject? 'hidden': 'visible';
 
 	// If folder name doesn't exist, we're done
 	if (folderName) {
@@ -551,6 +559,15 @@ function popFolderProps() {
 			sourcePathInput.innerHTML = '';
 			uploadRequired.innerHTML = '&nbsp;*';
 		}
+
+		// Handle folder type
+		folderType = folder['folderType'];
+		folderType = !folderType? 'code': folderType;
+		if (folderType=='content') {
+			codeFolder.checked = false;
+			contentFolder.checked = true;
+		}
+		folderTypeRow.disabled = true;
 
 		// Set programming language
 		language = folder['language'];
@@ -592,7 +609,8 @@ function popFolderProps() {
 
 	}
 
-	disableModuleSelect();
+	enableCodeFolderProps(!folderType||folderType&&folderType!='content');
+	//disableModuleSelect();
 
 	return true;
 	
@@ -1394,7 +1412,7 @@ function onKeepFolderProps(nextModalID) {
 	// Check if language populated
 	language = languageR.checked? 'R':
 		languageP.checked? 'Python': null;
-	if (!language) {
+	if (!language&&!contentFolder.checked) {
 		failed = true;
 		languageRules.style.color = 'Red';
 		folderRequired.style.color = 'Red';
@@ -1431,6 +1449,8 @@ function onKeepFolderProps(nextModalID) {
 	// Handle folder title and description
 	folder['folderTitle'] = folderTitleInput.value;
 	folder['folderDescription'] = folderDescriptionInput.value;
+
+	folder['folderType'] = !contentFolder.checked? 'code': 'content';
 
 	// Populate folder attributes
 	folder['language'] = language;
@@ -2718,3 +2738,38 @@ function onGoBuild() {
 	goModal('projectBuildModal');
 
 }
+
+// Enables or disables folder properties for code.
+function enableCodeFolderProps(isCodeFolder) {
+
+	if (!isCodeFolder) {
+		languageR.disabled = true;
+		languageP.disabled = true;
+		workersInput.disabled = true;
+		languageRules.style.visibility = 'hidden';
+		workerRules.style.visibility = 'hidden';
+		moduleSelect.disabled = true;
+		disableButton(goModuleButton, true);
+		disableButton(delModuleButton, true);
+		disableButton(newModuleButton, true);
+	}
+	else {
+		languageR.disabled = false;
+		languageP.disabled = false;
+		workersInput.disabled = false;
+		languageRules.style.visibility = 'visible';
+		workerRules.style.visibility = 'visible';
+		disableModuleSelect();
+	}
+
+}
+
+// Responds to changes of folder type.
+function checkFolderType() {
+
+	enableCodeFolderProps(!contentFolder.checked);
+	
+	return;
+
+}
+

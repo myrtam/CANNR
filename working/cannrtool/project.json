@@ -20,6 +20,7 @@
       "folderDescription": "Backend services for the tool",
       "language": "Python",
       "sourcePath": "./server",
+      "folderType": "code",
       "workers": 1,
       "modules": {
         "services": {
@@ -194,13 +195,13 @@
         }
       },
       "nodeNumber": 2
-    }
-  },
-  "content": {
+    },
     "webtool": {
       "folderTitle": "Tool Web pages",
       "folderDescription": "Tool Web page",
-      "sourcePath": "./web/tool"
+      "folderType": "content",
+      "sourcePath": "./web/tool",
+      "nodeNumber": 4
     }
   },
   "nodeNumber": 1

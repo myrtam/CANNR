@@ -308,21 +308,45 @@ def readJSONFile(filePath):
 
 # Returns the folders in the project.
 def getFolders(project):
-    return project.get("folders", None)
+    return project.get("folders", {})
 
 # Returns the folder with name folderName.
 def getFolder(folderName, project):
     folders = getFolders(project);
-    if not folders:
-        return None
+    #if not folders:
+    #    return None
     return (folders.get(folderName, None))
 
 # Returns the folder names (keys) of the folders in a project.
 def getFolderNames(project):
     folders = getFolders(project);
-    if not folders:
-        return None
+    #if not folders:
+    #    return None
     return folders.keys()
+
+# Returns a list of the names of code folders
+def getCodeFolderNames(project):
+
+    folders = getFolders(project);
+    folderNames = getFolderNames(project)
+    codeFolderNames = []
+    for folderName in folderNames:
+        folder = folders.get(folderName, {})
+        folderType = folder.get('folderType', None)
+        if not folderType or folderType!='content':
+            codeFolderNames.append(folderName)
+    
+    return codeFolderNames
+
+# Returns a list of the names of content folders
+def getContentFolderNames(project):
+
+    # Get the folder and code folder names
+    folders = getFolders(project)
+    codeFolderNames = getCodeFolderNames(project)
+
+    # Return the difference between all folder names and code folder names
+    return list(set(folders).difference(set(codeFolderNames)))
 
 # Returns the modules in a folder.
 def getModules(folder):
