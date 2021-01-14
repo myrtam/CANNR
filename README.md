@@ -19,6 +19,9 @@ pip3 install stdlib_list
 Future versions will probably run in a container and only require having Docker
 installed.
 
+Installation of the Command Line Tool
+-------------------------------------
+
 To install the tool, clone the CANNR project or download and copy the
 directories to your computer.
 
@@ -33,7 +36,10 @@ microservices from your R or Python code.
 If you have R code, it must be compatible with R 4.0.  If you have Python code,
 it needs to be compatible with Python 3.8.
 
-There is currently one example project in the directory examples/project1.
+Example
+-------
+
+There is an example project in the directory examples/project1.
 The example consists of two Python scripts and two R scripts.  The Python
 scripts are in subdirectory folder1 and the R scripts are in folder2.
 Each script contains one function to be exposed as a service.  The scripts
