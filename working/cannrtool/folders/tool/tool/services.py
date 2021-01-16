@@ -13,6 +13,7 @@ import sys
 import traceback
 import re
 import shutil
+import docker
 from flask import request
 from werkzeug.utils import secure_filename
 #from werkzeug.datastructures import ImmutableMultiDict
@@ -29,9 +30,11 @@ elif os.path.exists('/external/config/context.json'):
 # Try to define the projects folder
 if context:
     projectsPath = context.get('projectsPath', None)
+    workingDirectory = context.get('workingDirectory', None)
     
-# Define the projects folder
+# Define the projects and working folders
 projectsPath = projectsPath if projectsPath else ('/external/projects' if os.path.exists('/external/projects') else None)
+workingDirectory = workingDirectory if workingDirectory else ('/external/working' if os.path.exists('/external/working') else None)
 
       
 # Set the context for testing purposes
@@ -506,22 +509,7 @@ def buildProject(input):
         # Get the project
         project = status.get('project', None)
         
-        '''
-        # Get the project name
-        projectName = input.get('projectName', None)
-        if not projectName:
-            return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name'}
-
-        context = cc.readJSONFile('/config/context.json')
-
-        configPath = context.get('configPath', None)
-        if configPath:
-            context = cc.readJSONFile(configPath)
-
-        projectPath = projectsPath + '/' + projectName + '/project.json'
-        project = cc.readJSONFile(projectPath)
-        '''
-
+        # Build the project
         cb.buildProject(project, '', context)
 
         return {
@@ -541,7 +529,55 @@ def buildProject(input):
 
 # Builds the image for the project.
 def buildImage(input):
-    return {}
+
+    try:
+
+        # Get the project from the input, return error if no project
+        projectName = input.get('projectName', None)
+        tag = input.get('tag', None)
+        # TODO:  CHECK FOR VALID TAG
+        if not projectName:
+            return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
+
+        # Create the docker client
+        client = docker.from_env()
+
+        # Get the built project path and check that it exists
+        builtProjectPath = os.path.join(workingDirectory, projectName)
+        builtDockerPath = os.path.join(builtProjectPath, 'Dockerfile')
+        if not os.path.isfile(builtDockerPath):
+            return {
+                'succeeded': False, 
+                'error': 'errorBuildingImage',
+                'errorMsg': 'Error building image',
+                'detail': 'No built project exists'
+                }
+
+        # Build the project and get the result.
+        result = client.images.build(path = builtProjectPath, tag = (tag if tag else projectName))
+
+        # Return the result
+        if len(result) > 0:
+            return {
+                'succeeded': True, 
+                'id': result[0].id,
+                'tags': result[0].tags
+                }
+        else:
+            return {
+                'succeeded': False, 
+                'error': 'errorBuildingImage',
+                'errorMsg': 'Error building image',
+                'detail': 'Image build returned no result'
+                }
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorBuildingImage',
+            'errorMsg': 'Error building image',
+            'detail': str(err)
+            }
 
 
 # Exports the project.  This is the project as specified by the user, not the built project, which can be used to build the image.

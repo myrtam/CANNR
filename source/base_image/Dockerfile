@@ -7,29 +7,30 @@
 FROM r-base
 
 # Install required libraries
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get -y install libcurl4-openssl-dev
 RUN apt-get -y install libsodium-dev
 RUN apt-get -y install libsodium23
 
-# Install Python 3.8
+# Install Python 3.9
 RUN apt update --fix-missing
 RUN apt install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt install -y python3.8
+RUN apt install -y python3.9
 
 # Create symlink and modify path
-RUN ln -s /usr/bin/python3.8 python
+RUN ln -s /usr/bin/python3.9 python
 ENV PATH=$PATH:/
 
 # Install pip3
 RUN apt-get -y install python3-pip
 
 # Install Python packages and set PYTHONPATH
+RUN pip3 install docker
 RUN pip3 install stdlib_list
 RUN pip3 install flask
 RUN pip3 install pandas
-ENV PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.8/dist-packages/
+ENV PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.9/dist-packages/
 
 # Install NGINX community edition and create log directories
 RUN apt install -y nginx
@@ -55,3 +56,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy project contents and set PYTHONPATH
 COPY cannr /usr/local/cannr
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/cannr/lib
+
+# Set DOCKER_HOST so tool can access Docker on the host machine
+ENV DOCKER_HOST=host.docker.internal
