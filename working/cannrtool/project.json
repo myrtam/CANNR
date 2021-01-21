@@ -164,8 +164,17 @@
               "outputParseType": "dictionary"
             },
             "stopcontainer": {
-              "serviceDescription": "Stops the container running a project image.",
+              "serviceDescription": "Stops a container.",
               "functionName": "stopContainer",
+              "method": "POST",
+              "parseInput": true,
+              "inputParseType": "dictionary",
+              "parseOutput": true,
+              "outputParseType": "dictionary"
+            },
+            "getstatus": {
+              "serviceDescription": "Gets the status of a container.",
+              "functionName": "getStatus",
               "method": "POST",
               "parseInput": true,
               "inputParseType": "dictionary",

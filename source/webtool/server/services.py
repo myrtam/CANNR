@@ -597,11 +597,102 @@ def exportBuild(input):
 
 # Runs a project image in a container.
 def runContainer(input):
-    return {}
+
+    try:
+
+        # Get the image from the input, return error if no image
+        image = input.get('image', None)
+        name = input.get('name', None)
+        if not image:
+            return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image specified'}
+
+        # Create the docker client
+        client = docker.from_env()
+
+        # Run the container and get the result.
+        container = client.containers.run(image, name = (name if name else None), detach=True)
+        return {
+            'succeeded': True, 
+            'id': container.id,
+            'short_id': container.short_id,
+            'image': container.image,
+            'labels': container.labels,
+            'name': container.name,
+            'status': container.status
+            }
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorRunningContainer',
+            'errorMsg': 'Error running container',
+            'detail': str(err)
+            }
 
 
 # Stops the container running a project image.
 def stopContainer(input):
-    return {}
+
+    try:
+
+        # Get the container id from the input, return error if no id.
+        id = input.get('id', None)
+        if not id:
+            return {'succeeded': False, 'error': 'noContainerID', 'errorMsg': 'No container id specified'}
+
+        # Create the docker client
+        client = docker.from_env()
+
+        # Get the container and check its status.
+        container = client.containers.get(id)
+        if container.status == 'running':
+            container.stop();
+
+        # Return the container status.
+        return {
+        'succeeded': True, 
+        'status': container.status
+        }
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorStoppingContainer',
+            'errorMsg': 'Error stopping container',
+            'detail': str(err)
+            }
+
+
+# Stops the container running a project image.
+def getStatus(input):
+
+    try:
+
+        # Get the container id from the input, return error if no id.
+        id = input.get('id', None)
+        if not id:
+            return {'succeeded': False, 'error': 'noContainerID', 'errorMsg': 'No container id specified'}
+
+        # Create the docker client
+        client = docker.from_env()
+
+        # Get the container.
+        container = client.containers.get(id)
+
+        # Return the container status.
+        return {
+        'succeeded': True, 
+        'status': container.status
+        }
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorGettingContainerStatus',
+            'errorMsg': 'Error getting container status',
+            'detail': str(err)
+            }
+
+
 
 

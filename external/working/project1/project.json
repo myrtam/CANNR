@@ -155,5 +155,7 @@
   "generateDockerfile": true,
   "buildContainer": true,
   "startLocalhost": false,
+  "buildProject": true,
+  "buildImage": true,
   "nodeNumber": 1
 }

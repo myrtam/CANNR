@@ -117,20 +117,13 @@
 					}
 				}
 			}
-		}
-	},
-	"content": {
+		},
 		"static": {
+			"folderType": "content",
 			"folderTitle": "Static content test folder",
 			"folderDescription": "<description here>",
 			"sourcePath": "./mystatic"
-			},
-		"tools": {
-			"folderTitle": "Tools content test project",
-			"folderDescription": "<description here>",
-			"sourcePath": "./mytools"
 		}
-	},
-	"note": "The above content entry copys the diretory ./tool to /web/pages/tool and maps /tool to /web/pages/tool"
+	}
 }
 

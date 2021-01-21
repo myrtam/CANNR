@@ -58,4 +58,4 @@ COPY cannr /usr/local/cannr
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/cannr/lib
 
 # Set DOCKER_HOST so tool can access Docker on the host machine
-ENV DOCKER_HOST=host.docker.internal
+#ENV DOCKER_HOST=host.docker.internal

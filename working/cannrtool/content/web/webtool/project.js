@@ -27,7 +27,7 @@ var modals = ['projectPropertiesModal', 'folderPropertiesModal', 'moduleProperti
 	'servicePropertiesModal', 'projectBuildModal'];
 
 // Global variables for HTML DOM elements
-var buildContainer = null;
+var buildImageCheckBox = null;
 var buildProjectButton = null;
 var cancelBuildButton = null;
 var codeFolder = null;
@@ -47,7 +47,7 @@ var folderTitleInput = null;
 var folderTypeRow = null;
 var functionSelect = null;
 var functionSelectRules = null;
-var generateDockerfile = null;
+var buildProjectCheckBox = null;
 var goFolderButton = null;
 var goModuleButton = null;
 var goServiceButton = null;
@@ -105,7 +105,7 @@ var servicesRow = null;
 var serviceTitleInput = null;
 var sourcePathInput = null;
 var	sourceUpload = null;
-var startLocalhost = null;
+var startLocalhostCheckBox = null;
 var statusPane = null;
 var titleFolder = null;
 var titleFolderPath = null;
@@ -126,7 +126,7 @@ var workersRow = null;
 // Initialize DOM object variables
 function initDOMObjects() {
 
-	buildContainer = document.getElementById('buildContainer');
+	buildImageCheckBox = document.getElementById('buildImageCheckBox');
 	buildProjectButton = document.getElementById('buildProjectButton');
 	cancelBuildButton = document.getElementById('cancelBuildButton');
 	codeFolder = document.getElementById('codeFolder');
@@ -146,7 +146,7 @@ function initDOMObjects() {
 	folderTypeRow = document.getElementById('folderTypeRow');
 	functionSelect = document.getElementById('functionSelect');
 	functionSelectRules = document.getElementById('functionSelectRules');
-	generateDockerfile = document.getElementById('generateDockerfile');
+	buildProjectCheckBox = document.getElementById('buildProjectCheckBox');
 	goFolderButton = document.getElementById('goFolderButton');
 	goModuleButton = document.getElementById('goModuleButton');
 	goServiceButton = document.getElementById('goServiceButton');
@@ -205,7 +205,7 @@ function initDOMObjects() {
 	serviceTitleInput = document.getElementById('serviceTitleInput');
 	sourcePathInput = document.getElementById('sourcePathInput');
 	sourceUpload = document.getElementById('sourceUpload');
-	startLocalhost = document.getElementById('startLocalhost');
+	startLocalhostCheckBox = document.getElementById('startLocalhostCheckBox');
 	statusPane = document.getElementById('statusPane');
 	titleFolder = document.getElementById('titleFolder');
 	titleFolderPath = document.getElementById('titleFolderPath');
@@ -440,6 +440,19 @@ function showModulePath(folderName2, moduleName2) {
 	
 }
 
+// Returns the service URL
+function buildServicePath(folderName2, moduleName2, serviceName2) {
+
+	if (!(folderName2&&moduleName2&&serviceName2))
+		return;
+
+	var port = project['nginxPort'];
+	port = port? (port=='80'? '': ':' + port): '';
+
+	return 'http://&ltdomain or ip&gt' + folderName2 + '/' + moduleName2 + '/' + serviceName2 + '/';
+	
+}
+
 //Shows or hides the folder path on the folder properties screen
 function showServicePath(folderName2, moduleName2, serviceName2) {
 	
@@ -458,13 +471,21 @@ function showServicePath(folderName2, moduleName2, serviceName2) {
 }
 
 // Adds a message to the build status pane
-function addStatusMessage(messageText) {
+function addStatusMessage(messageText, indent) {
 
-	var p = document.createElement("p");
-	p.innerHTML = messageText;
-	statusPane.appendChild(p);
-	//$("#statusPane").load(window.location.href + "#statusPane");
+	var span = document.createElement('span');
+	span.innerHTML = messageText + '<br>';
+	if (indent)
+		span.style.marginLeft = indent;
+	statusPane.appendChild(span);
 
+}
+
+// Scrolls the build status pane to the bottom.
+function statusScrollBottom() {
+	
+	statusPane.scrollTop = statusPane.scrollHeight;	
+	
 }
 
 // Clears the build status pane
@@ -1109,22 +1130,89 @@ function popBuildProps() {
 	if (!project)
 		return false;
 
+	// Get the project name and folders
+	projectName = project['projectName'];
+	var folders = project['folders'];
+	if (!projectName||!folders)
+		return false;
+
+	// Display the project name and title, if any.
+	var projectTitle = project['projectTitle'];
+	addStatusMessage('Project to be built:  ' + projectName + (projectTitle? ' - ' + projectTitle: ''), null);
+	addStatusMessage('Folders:', null);
+
+	// Loop through the folders
+	var folderKeys = Object.keys(folders);
+	folderKeys.forEach(function(folderKey, index) {
+
+		// Get the folder
+		var folder = folders[folderKey];
+		if (!folder)
+			return false;
+
+		var folderTitle = folder['folderTitle'];
+		addStatusMessage(folderKey + (folderTitle? ' - ' + folderTitle: ''), '20px');
+
+		var folderType = folder['folderType'];
+		var sourcePath = folder['sourcePath'];
+		if (folderType&&folderType=='content') {
+			addStatusMessage('Static content', '40px');
+			if (sourcePath)
+				addStatusMessage('Source=' + sourcePath, '40px');
+			return;
+		}
+
+		var modules = folder['modules'];
+		var moduleKeys = Object.keys(modules);
+		if (moduleKeys.length > 0)
+			addStatusMessage('Services:', '40px');
+		moduleKeys.forEach(function(moduleKey, index) {
+
+			// Get the folder
+			var module = modules[moduleKey];
+			if (!module)
+				return false;
+
+			var moduleTitle = project['moduleTitle'];
+			//addStatusMessage('<span class="tab2">Module ' + moduleKey + (moduleTitle? ' - ' + moduleTitle: '') + ' services:</span>');
+
+			var services = module['services'];
+			var serviceKeys = Object.keys(services);
+			serviceKeys.forEach(function(serviceKey, index) {
+
+				// Get the folder
+				var service = services[serviceKey];
+				if (!service)
+					return false;
+
+				var serviceTitle = project['serviceTitle'];
+				addStatusMessage(serviceKey + (serviceTitle? ' - ' + serviceTitle: '') + ':', '60px');
+				addStatusMessage(buildServicePath(folderKey, moduleKey, serviceKey), '80px');
+
+			});
+
+		});
+
+	});
+
+	addStatusMessage('', null);
+
 	// Set the state of the buttons.
 	setBuildButtons();
 
 	// Find build property values based on project and defaults
-	dockerfileValue = project['generateDockerfile'];
-	buildContainerValue = project['buildContainer'];
-	startLocalhostValue = project['startLocalhost'];
-	dockerfileValue = dockerfileValue==false? false: true;
-	buildContainerValue = buildContainerValue==false? false: true;
+	buildProjectValue = project['buildProjectCheckBox'];
+	buildImageValue = project['buildImage'];
+	startLocalhostValue = project['startLocalhostCheckBox'];
+	buildProjectValue = buildProjectValue==false? false: true;
+	buildImageValue = buildImageValue==false? false: true;
 	startLocalhostValue = startLocalhostValue? true: false;
 
 	// Populate build properties
-	generateDockerfile.checked = dockerfileValue;
-	generateDockerfile.focus();
-	buildContainer.checked = buildContainerValue;
-	startLocalhost.checked = startLocalhostValue;
+	buildProjectCheckBox.checked = buildProjectValue;
+	buildProjectCheckBox.focus();
+	buildImageCheckBox.checked = buildImageValue;
+	startLocalhostCheckBox.checked = startLocalhostValue;
 	
 	built = false;
 
@@ -2608,8 +2696,145 @@ function onDelService() {
 
 }
 
+//Builds the image.
+function runContainer() {
+
+	// Check that project exists and has a name
+	if (!project)
+		return;
+
+	// Get the project name
+	projectName = project['projectName'];
+	if (!projectName)
+		return;
+
+	// Check that the image exists.
+	var imageID = project['imageID'];
+	if (!imageID) {
+		alert('No image available.');
+		return;
+	}
+
+	// Save build options to the project
+	project['buildProject'] = buildProjectCheckBox.checked;
+	project['buildImage'] = buildImageCheckBox.checked;
+	project['startLocalhost'] = startLocalhostCheckBox.checked;
+
+	// Prepare the request doc
+	var request = {'image': imageID, 'name': projectName}
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", baseURL + "runcontainer");
+	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and check whether the request succeeded.
+			var response = JSON.parse(xhr.responseText);
+			var succeeded = response.succeeded;
+			if (succeeded) {
+
+				// Get the container information
+				var containerID = response['id'];
+				var containerShortID = response['short_id'];
+				project['containerID'] = containerID;
+				project['image'] = response['image'];
+				project['labels'] = response['labels'];
+				project['containerName'] = response['name'];
+				project['containerShortID'] = containerShortID;
+				project['containerStatus'] = response['status'];
+
+				// Add the status message
+				if (containerShortID)
+					addStatusMessage('Container ' + containerShortID + 'started', null);
+					statusScrollBottom();
+				writeProject(project, true, false);
+
+			}
+			else
+				alert(response['errorMsg']);
+		} 
+		else
+			alert('Error starting container');
+
+	}
+
+	// Send the request.
+	var contentJSON = JSON.stringify(request);
+	xhr.send(contentJSON);
+	
+}
+
+// Builds the image.
+function buildImage() {
+	
+	// Check that project exists and has a name
+	if (!project)
+		return;
+
+	// Get the project name
+	projectName = project['projectName'];
+	if (!projectName)
+		return;
+
+	// Save build options to the project
+	project['buildProject'] = buildProjectCheckBox.checked;
+	project['buildImage'] = buildImageCheckBox.checked;
+	project['startLocalhost'] = startLocalhostCheckBox.checked;
+
+	// Prepare the request doc
+	var request = {'projectName': projectName, 'tag': projectName}
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", baseURL + "buildimage");
+	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and check whether the request succeeded.
+			var response = JSON.parse(xhr.responseText);
+			var succeeded = response.succeeded;
+			if (succeeded) {
+				id = response['id'];
+				project['imageID'] = id;
+				tag = response['tag'];
+				project['tag'] = tag;
+				if (id)
+					addStatusMessage('Successfully built ' + id, null);
+				if (tag)
+					addStatusMessage('Successfully tagged ' + tag, null);
+				statusScrollBottom();
+				if (project['startLocalhost']&&project['imageID'])
+					runContainer();
+				else
+					writeProject(project, true, false);
+			}
+			else
+				alert(response['errorMsg']);
+		} 
+		else
+			alert('Error building image');
+
+	}
+
+	// Send the request.
+	var contentJSON = JSON.stringify(request);
+	xhr.send(contentJSON);
+	
+}
+
 // Saves and builds an existing project
-function buildProject(nextModalID) {
+function buildProject() {
 
 	// Check that project exists and has a name
 	if (!project)
@@ -2620,9 +2845,9 @@ function buildProject(nextModalID) {
 		return;
 
 	// Save build options to the project
-	project['generateDockerfile'] = generateDockerfile.checked;
-	project['buildContainer'] = buildContainer.checked;
-	project['startLocalhost'] = startLocalhost.checked;
+	project['buildProject'] = buildProjectCheckBox.checked;
+	project['buildImage'] = buildImageCheckBox.checked;
+	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
 	var request = {'project': project};
@@ -2645,10 +2870,16 @@ function buildProject(nextModalID) {
 				project = response['project'];
 				// Populate the folder select list
 				popFolderSelect();
-				addStatusMessage('Project ' + projectName + ' built successfully!');
+				addStatusMessage('Project ' + projectName + ' built successfully!', null);
+				statusScrollBottom();
 				built = true;
 				setBuildButtons();
-				//goModal(nextModalID);
+				/*
+				if (project['buildImage'])
+					buildImage();
+				else if (project['startLocalhost']&&project['imageID'])
+					runContainer();
+				*/
 			}
 			else
 				alert(response['errorMsg']);
@@ -2676,6 +2907,9 @@ function onBuildInputChange() {
 function onBuildProject(){
 
 	// TODO:  LIST ITEMS TO BE INCLUDED IN BUILT PROJECT
+	if (!project)
+		return;
+
 	/*
 	 * New project:
 	 * - If not built, build
@@ -2691,21 +2925,15 @@ function onBuildProject(){
 		if (built)
 			goModal(null);
 		else
-			buildProject(nextModalID);			
+			buildProject();			
 	}
 	else {
 		if (confirm('Any previous build of project ' + projectName + ' will be deleted or overwritten.  Proceed?'))
-			buildProject(nextModalID);
+			buildProject();
 		else
-			addStatusMessage('Project build cancelled.');
+			addStatusMessage('Project build cancelled.', null);
+			statusScrollBottom();
 	}
-
-	/*
-	if (newProject||confirm('Any previous build of project ' + projectName + ' will be deleted or overwritten.  Proceed?'))
-		buildProject(nextModalID);
-	else
-		addStatusMessage('Project build cancelled.');
-	*/
 
 }
 
@@ -2716,9 +2944,9 @@ function onCancelBuild() {
 
 	if (newProject&&changed) {
 		
-		project['generateDockerfile'] = generateDockerfile.checked;
-		project['buildContainer'] = buildContainer.checked;
-		project['startLocalhost'] = startLocalhost.checked;
+		project['buildProject'] = buildProjectCheckBox.checked;
+		project['buildImage'] = buildImageCheckBox.checked;
+		project['startLocalhost'] = startLocalhostCheckBox.checked;
 		
 		updateProject(null);
 		

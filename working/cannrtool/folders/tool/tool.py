@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-01-16 11:44:06
+Generated 2021-01-19 21:11:04
 """
 import json
 import os
@@ -123,15 +123,21 @@ def s_15():
 	output = m_1.stopContainer(request.get_json())
 	parsedOutput = json.dumps(output, indent=2)
 	return(parsedOutput)
+# Service getstatus in module services
+@app.route("/services/tool/services/getstatus", methods=["POST"])
+def s_16():
+	output = m_1.getStatus(request.get_json())
+	parsedOutput = json.dumps(output, indent=2)
+	return(parsedOutput)
 # Service renameproject in module services
 @app.route("/services/tool/services/renameproject", methods=["POST"])
-def s_16():
+def s_17():
 	output = m_1.renameProject(request.get_json())
 	parsedOutput = json.dumps(output, indent=2)
 	return(parsedOutput)
 # Service renamefolder in module services
 @app.route("/services/tool/services/renamefolder", methods=["POST"])
-def s_17():
+def s_18():
 	output = m_1.renameFolder(request.get_json())
 	parsedOutput = json.dumps(output, indent=2)
 	return(parsedOutput)

@@ -34,7 +34,8 @@
           },
           "functionNames": [
             "rand"
-          ]
+          ],
+          "nodeNumber": 3
         },
         "sum": {
           "moduleName": "sum",
@@ -59,13 +60,15 @@
           },
           "functionNames": [
             "rand"
-          ]
+          ],
+          "nodeNumber": 4
         }
       },
       "fileNames": [
         "rand.py",
         "sum.py"
-      ]
+      ],
+      "nodeNumber": 2
     },
     "rfolder": {
       "folderTitle": "Example R Folder",
@@ -98,7 +101,8 @@
           },
           "functionNames": [
             "predPLengthSLength"
-          ]
+          ],
+          "nodeNumber": 6
         },
         "sum": {
           "moduleName": "sum",
@@ -123,14 +127,16 @@
           },
           "functionNames": [
             "sumX"
-          ]
+          ],
+          "nodeNumber": 7
         }
       },
       "fileNames": [
         "iris.R",
         "irisFit.R",
         "sum.R"
-      ]
+      ],
+      "nodeNumber": 5
     },
     "mystatic": {
       "folderTitle": "Example Content Folder",
@@ -142,10 +148,14 @@
       "modules": {},
       "fileNames": [
         "static.html"
-      ]
+      ],
+      "nodeNumber": 8
     }
   },
   "generateDockerfile": true,
   "buildContainer": true,
-  "startLocalhost": false
+  "startLocalhost": false,
+  "buildProject": true,
+  "buildImage": true,
+  "nodeNumber": 1
 }

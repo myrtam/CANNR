@@ -66,5 +66,22 @@ button {
   height: 400px;
   padding: 5px;
   background-color: #F5F5F5;
+  overflow: scroll;
 }
 
+.tab1 {
+  margin-left: 40px;
+ }
+
+.tab2 {
+  margin-left: 80px;
+ }
+ 
+.tab3 {
+  margin-left: 120px;
+ }
+ 
+.tab4 {
+  margin-left: 160px;
+ }
+  
