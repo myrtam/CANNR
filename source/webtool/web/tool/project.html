@@ -7,14 +7,13 @@ Maintainer Pat Tendick ptendick@gmail.com
 -->
 <html>
 <head>
-<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <link rel='stylesheet' href='css/cnr.css'>
-<link rel='stylesheet' href='css/modal.css'>
-<!--  
-<link rel='stylesheet' href='fontawesome/css/all.css'>
--->
-<script src="jquery-2.0.1.min.js"></script>
-<script src="bootstrap.min.js"></script>
 <script src="common.js"></script>
 <script src="project.js"></script>
 <meta charset="UTF-8">
@@ -91,369 +90,366 @@ If no folders, display the following:
 </div>
 <br>
 
-<!-- Modal for project properties -->
-<div id="projectPropertiesModal" class="simple-modal">
-  <!-- Modal content -->
-  <div class="simple-modal-content">
-    <div class="simple-modal-header">
-      <span class="simple-close" onclick="onProjectCancel()">&times;</span>
-      <h5 id="projectPropertiesTitle">Project Properties</h5>
-      <hr>
-    </div>
-    <div class="simple-modal-body">
-		<table id="projectTable" class="table" style="border-collapse: collapse;">
-			<tbody id="projectBody">
-				<tr>
-					<td style="border: none;">Project Name<span id='projectNameAst'>&nbsp;*</span></td>
-					<td style="border: none;"><textarea name="projectNameInput" id="projectNameInput"  rows="1" cols="50" onchange="onChangeProjectName()"/></textarea>
-					<br><span id='projectNameRules'><br>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Title</td>
-					<td style="border: none;"><textarea name="projectTitleInput" id="projectTitleInput" rows="1" cols="50"/></textarea></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Description</td>
-					<td style="border: none;"><textarea name="projectDescriptionInput" id="projectDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
-				</tr>
-				<tr>
-					<td style="border: none;"><span id='projectRequired'>*&nbsp;Required</span></td>
-					<td style="border: none;"></td>
-				</tr>
-			</tbody>
-		</table>
-    </div>
-    <div class="simple-modal-footer">
-      <hr>
-        <!-- If new project, this button returns to the main page, otherwise returns to the Project page -->
-        <button type="button" id="projectBack" class="enabled-button" onclick="onProjectCancel()">Back</button>
-        <!-- If existing project, this button is labeled Save not Next, and returns to the Project page -->
-        <button type="button" id="projectNext" class="enabled-button" onclick="onProjectNext()" style="float: right;">Next</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for folder properties -->
-<div id="folderPropertiesModal" class="simple-modal">
-  <!-- Modal content -->
-  <div class="simple-modal-content">
-    <div class="simple-modal-header">
-      <span class="simple-close" onclick="onCancel()">&times;</span>
-      <h5 id="folderPropertiesTitle">Folder Properties</h5>
-      <div id='titleFolderPath' style='visibility: hidden'>
-	      <span>/</span><span id="titleFolder"></span>
-      </div>
-      <hr>
-    </div>
-    <div class="simple-modal-body">
-		<table id="folderTable" class="table" style="border-collapse: collapse;">
-			<tbody id="folderBody">
-				<tr>
-					<td style="border: none;">Folder Name<span id='folderNameAst'>&nbsp;*</span></td>
-					<td style="border: none;"><textarea name="folderNameInput" id="folderNameInput" rows="1" cols="50" onchange="onChangeFolderName()"/></textarea>
-					<br><span id='folderNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Title</td>
-					<td style="border: none;"><textarea name="folderTitleInput" id="folderTitleInput" rows="1" cols="50"/></textarea></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Description</td>
-					<td style="border: none;"><textarea name="folderDescriptionInput" id="folderDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Upload Source Directory<span id='uploadRequired'>&nbsp;*</span></td>
-					<td id='sourceUploadCell' style="border: none;">
-						<input name="sourceUpload" type="file" id="sourceUpload" webkitdirectory mozdirectory 
-							onchange='onSourceUploadChange()'/>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Source Directory</td>
-					<td id="sourcePathInput" style="border: none;"></td>
-				</tr>
-				<tr id='folderTypeRow'>
-					<td style="border: none;">Folder Type</td>
-					<td style="border: none;">
-					<input name="folderType" id="codeFolder" type="radio" onchange='checkFolderType()'/>
-					<label for="codeFolder">Code</label>&nbsp;&nbsp;&nbsp;
-					<input name="folderType" id="contentFolder" type="radio" onchange='checkFolderType()'/>
-					<label for="contentFolder">Content</label>
-					</td>
-				</tr>
-				<tr id='languageRow'>
-					<td style="border: none;">Language<span id='languageRules'>&nbsp;*</span></td>
-					<td style="border: none;">
-					<input name="language" id="languageR" type="radio"/>
-					<label for="languageR">R</label>&nbsp;&nbsp;&nbsp;
-					<input name="language" id="languageP" type="radio"/>
-					<label for="languageP">Python</label>
-					</td>
-				</tr>
-				<tr id='workersRow'>
-					<td style="border: none;">Workers<span id='workerRules'>&nbsp;*</span></td>
-					<td style="border: none;"><input name="workersInput" id="workersInput" type="number" value=2 min=1 max=1024/>					
-					</td>
-				</tr>
-				<tr id='modulesRow'>
-					<td id='modulesLabel' style="border: none;">Modules:</td>
-					<td style="border: none;">
-						<!--
-						<select class="custom-select" id="moduleSelect">
-						</select>
-						-->
-						<select id="moduleSelect" class="form-control">
-						</select>
-						<br>
-						<button type="button" id="goModuleButton" class="enabled-button" onclick="onGoModule(false)">Go...</button>&nbsp;
-						<button type="button" id="delModuleButton" class="enabled-button" onclick="onDelModule()">Delete</button>
-					</td>
-				<tr id='newModulesRow'>
-					<td style="border: none;"></td>
-					<td style="border: none;">
-						<button type="button" id="newModuleButton" class="enabled-button" onclick="onGoModule(true)">New Module...</button>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;"><span id='folderRequired'>*&nbsp;Required</span></td>
-					<td style="border: none;"></td>
-				</tr>
-			</tbody>
-		</table>
-    </div>
-    <div class="simple-modal-footer">
-      <hr>
-        <!-- If existing project, this button is labeled Cancel, and returns to the Project Properties screen -->
-        <button type="button" id="folderBack" class="enabled-button" onclick="onFolderBack()">Back</button>
-        <!-- If existing project, this button is labeled Save not Next, and returns to the Project Properties screen -->
-        <button type="button" id="folderNext" class="enabled-button" onclick="onFolderNext()" style="float: right;">Next</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for module properties -->
-<div id="modulePropertiesModal" class="simple-modal">
-  <!-- Modal content -->
-  <div class="simple-modal-content">
-    <div class="simple-modal-header">
-      <span class="simple-close" onclick="onCancel()">&times;</span>
-      <h5 id="modulePropertiesTitle">Module Properties</h5>
-      <div id='titleModulePath' style='visibility: hidden'>
-	      <span>/</span><span id="titleModuleFolder"></span>/<span id="titleModuleModule"></span>
-      </div>
-      <hr>
-    </div>
-    <div class="simple-modal-body">
-		<table id="moduleTable" class="table" style="border-collapse: collapse;">
-			<tbody id="moduleBody">
-				<tr>
-					<td style="border: none;">Module Name<span id='moduleNameAst'>&nbsp;*</span></td>
-					<td style="border: none;"><input name="moduleNameInput" id="moduleNameInput" type="text" maxlength="30" style="width: 30em;" onchange="onChangeModuleName()"/>
-					<br><span id='moduleNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Title</td>
-					<td style="border: none;"><input name="moduleTitleInput" id="moduleTitleInput" type="text" maxlength="50" style="width: 30em;"/></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Description</td>
-					<td style="border: none;"><textarea name="moduleDescriptionInput" id="moduleDescriptionInput" maxlength="500" rows="2" cols="60"/></textarea></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Source File<span id='fileSelectRules'>&nbsp;*</span></td>
-					<td style="border: none;">
-						<!--
-						<select class="custom-select" id="fileSelect">
-						</select>
-						-->
-						<select id="fileSelect" class="form-control">
-						</select>
-					</td>
-				</tr>
-				<tr id='servicesRow'>
-					<td style="border: none;">Services</td>
-					<td style="border: none;">
-						<!--
-						<select class="custom-select" id="serviceSelect">
-						</select>
-						-->
-						<select id="serviceSelect" class="form-control">
-						</select>
-						<br>
-						<button type="button" id="goServiceButton" class="enabled-button" onclick="onGoService(false)">Go...</button>&nbsp;
-						<button type="button" id="delServiceButton" class="enabled-button" onclick="onDelService()">Delete</button>
-					</td>
-				<tr id='newServicesRow'>
-					<td style="border: none;"></td>
-					<td style="border: none;">
-						<button type="button" id="newServiceButton" class="enabled-button" onclick="onGoService(true)">New Service...</button>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Required Packages</td>
-					<td style="border: none;">
-						<input name="packageInput" id="packageInput" type="text" style="width: 15em;"/>
-						<button id="packageAddButton" onclick="onPackageAdd()" style="padding: 0px"><img src="gt.png" style="width:75%; height:75%;"></button>
-						<select name="packageSelect" id="packageSelect" style="width: 15em;" onChange='onPackageSelectChange()'></select>
-						<button id="packageDelButton" onclick="onPackageDel()" style="padding: 0px"><img src="compost.png" style="width:75%; height:75%;"></button>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;"><span id='moduleRequired'>*&nbsp;Required</span></td>
-					<td style="border: none;"></td>
-				</tr>
-			</tbody>
-		</table>
-    </div>
-    <div class="simple-modal-footer">
-      <hr>
-        <button type="button" id="moduleBack" class="enabled-button" onclick="onModuleBack()">Back</button>
-        <button type="button" id="moduleNext" class="enabled-button" onclick="onModuleNext()" style="float: right;">Next</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for service properties -->
-<div id="servicePropertiesModal" class="simple-modal">
-  <!-- Modal content -->
-  <div class="simple-modal-content">
-    <div class="simple-modal-header">
-      <span class="simple-close" onclick="onCancel()">&times;</span>
-      <h5 id="servicePropertiesTitle">Service Properties</h5>
-      <!--
-      Use information entered to build sample URL.
-      -->
-      <div id='titleServicePath' style='visibility: hidden'>
-	      <span>http://&lt;domain or ip&gt;</span><span id="titleServicePort"></span>/services/<span id="titleServiceFolder"></span>/<span id="titleServiceModule"></span>/<span id="titleServiceService"></span>
-      </div>
-      <hr>
-    </div>
-    <div class="simple-modal-body">
-		<table id="serviceTable" class="table" style="border-collapse: collapse;">
-			<tbody id="serviceBody">
-				<tr>
-					<td style="border: none;">Service Name<span id='serviceNameAst'>&nbsp;*</span></td>
-					<td style="border: none;"><input name="serviceNameInput" id="serviceNameInput" type="text" maxlength="30" style="width: 30em;" onchange="onChangeServiceName()"/>
-					<br><span id='serviceNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Title</td>
-					<td style="border: none;"><input name="serviceTitleInput" id="serviceTitleInput" type="text" maxlength="50" style="width: 30em;"/></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Description</td>
-					<td style="border: none;"><textarea name="serviceDescriptionInput" id="serviceDescriptionInput" maxlength="500" rows="2" cols="60"/></textarea></td>
-				</tr>
-				<tr>
-					<td style="border: none;">Function<span id='functionSelectRules'>&nbsp;*</span></td>
-					<td style="border: none;">
-						<!--
-						<select class="custom-select" id="functionSelect">
-						</select>
-						-->
-						<select id="functionSelect" class="form-control">
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;"></td>
-					<td id='inputComments' style="border: none;">The function should have 1 argument:  The request body as a JSON string.</td>
-				</tr>
-				<tr>
-					<td style="border: none;">HTTP Method<span id='methodRules'>&nbsp;*</span></td>
-					<td style="border: none;">
-					<input name="method" id="methodPOSTInput" type="radio" value="POST" checked="checked" onchange='checkServiceProperties()'/>
-					<label for="methodPOSTInput">POST</label>&nbsp;&nbsp;&nbsp;
-					<input name="method" id="methodGETInput" type="radio" value="GET" onchange='checkServiceProperties()'/>
-					<label for="methodGETInput">GET</label>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Include Parameters</td>
-					<td style="border: none;">
-						<input name="includeBodyInput" id="includeBodyInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
-						<label for="includeBodyInput">Include HTTP request body?</label><br>
-						<input name="includeParamsInput" id="includeParamsInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
-						<label for="includeParamsInput">Include HTTP query parameters?</label><br>
-						<input name="paramsToDFInput" id="paramsToDFInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
-						<label for="paramsToDFInput">Parse the parameters into a data frame?</label><br>
-						<input name="includeRequestInput" id="includeRequestInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
-						<label for="includeRequestInput">Include HTTP request object?</label><br>
-					</td>
-				</tr>
-				<tr id='parseInputRow'>
-					<td style="border: none;">Parse Input (Body) As</td>
-					<td style="border: none;">
-					<select name="inputParseTypeInput" id="inputParseTypeInput" class="form-control" style="width: 15em;">
-						<option value="none">Do not parse</option>
-						<option value="dataFrame">Data frame</option>
-						<option value="list">List</option>
-						<option value="vector">Vector</option>
-						<option value="matrix">Matrix</option>
-					</select>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;">Convert Output From</td>
-					<td style="border: none;">
-					<select name="outputParseTypeInput" id="outputParseTypeInput" class="form-control" style="width: 15em;">
-						<option value="none">Do not convert</option>
-						<option value="dataFrame">Data frame</option>
-						<option value="list">List</option>
-						<option value="vector">Vector</option>
-						<option value="matrix">Matrix</option>
-					</select>
-					</td>
-				</tr>
-				<tr>
-					<td style="border: none;"><span id='serviceRequired'>*&nbsp;Required</span></td>
-					<td style="border: none;"></td>
-				</tr>
-			</tbody>
-		</table>
-    </div>
-    <div class="simple-modal-footer">
-      <hr>
-        <button type="button" id="serviceBack" class="enabled-button" onclick="onServiceBack()">Back</button>
-        <!-- If new project, the user is next asked if they want to build the project -->
-        <button type="button" id="serviceNext" class="enabled-button" onclick="onServiceNext()" style="float: right;">Next</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for project build -->
-<div id="projectBuildModal" class="simple-modal">
-  <!-- Modal content -->
-  <div class="simple-modal-content">
-    <div class="simple-modal-header">
-      <span class="simple-close" onclick="onCancel()">&times;</span>
-      <h5 id="projectBuildTitle">Build Project</h5>
-      <hr>
-    </div>
-    <div class="simple-modal-body">
-		<input name="buildProjectCheckBox" id="buildProjectCheckBox" type="checkbox"/>&nbsp;
-		<label for="buildProjectCheckBox">Build Docker project</label><br>
-		<input name="buildImageCheckBox" id="buildImageCheckBox" type="checkbox" style="visibility: hidden;" disabled/>&nbsp;
-		<label for="buildImageCheckBox" style="visibility: hidden;">Build image</label><br>
-		<input name="startLocalhostCheckBox" id="startLocalhostCheckBox" type="checkbox" style="visibility: hidden;" disabled/>&nbsp;
-		<label for="startLocalhostCheckBox" style="visibility: hidden;">Start container on localhost</label><br>
-		<h5>Status:</h5>
-		<div id="statusPane" class="build-list">
+<div class="modal fade" id="projectPropertiesModal" tabindex="-1" role="dialog" aria-labelledby="projectPropertiesTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title" id="projectPropertiesTitle">Project Properties</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="onProjectCancel()">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+				<table id="projectTable" class="table" style="border-collapse: collapse;">
+					<tbody id="projectBody">
+						<tr>
+							<td style="border: none;">Project Name<span id='projectNameAst'>&nbsp;*</span></td>
+							<td style="border: none;"><textarea name="projectNameInput" id="projectNameInput"  rows="1" cols="50" onchange="onChangeProjectName()"/></textarea>
+							<br><span id='projectNameRules'><br>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Title</td>
+							<td style="border: none;"><textarea name="projectTitleInput" id="projectTitleInput" rows="1" cols="50"/></textarea></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Description</td>
+							<td style="border: none;"><textarea name="projectDescriptionInput" id="projectDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
+						</tr>
+						<tr>
+							<td style="border: none;"><span id='projectRequired'>*&nbsp;Required</span></td>
+							<td style="border: none;"></td>
+						</tr>
+					</tbody>
+				</table>
+		    </div>
+			<div class="modal-footer">
+		        <!-- If new project, this button returns to the main page, otherwise returns to the Project page -->
+		        <button type="button" id="projectBack" class="enabled-button" onclick="onProjectCancel()">Back</button>
+		        <!-- If existing project, this button is labeled Save not Next, and returns to the Project page -->
+		        <button type="button" id="projectNext" class="enabled-button" onclick="onProjectNext()">Next</button>
+		    </div>
 		</div>
-    </div>
-    <div class="simple-modal-footer">
-      <hr>
-        <button type="button" id="cancelBuildButton" class="enabled-button" onclick="onCancelBuild()">Back</button>
-        <button type="button" id="buildProjectButton" class="enabled-button" onclick="onBuildProject()" style="float: right;">Finish</button>
-        <!--
-        <button type="button" id="downloadDockerButton" class="enabled-button" onclick="onDownloadDocker()" style="visibility: hidden;">Download...</button>
-        -->
-    </div>
-  </div>
+	</div>
+</div>
+
+<div class="modal" id="folderPropertiesModal" tabindex="-1" role="dialog" aria-labelledby="folderPropertiesTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="folderPropertiesTitle">Folder Properties</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="onCancel()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id='titleFolderPath' style='visibility: hidden'>
+					<span>/</span><span id="titleFolder"></span>
+				</div>
+				<table id="folderTable" class="table" style="border-collapse: collapse;">
+					<tbody id="folderBody">
+						<tr>
+							<td style="border: none;">Folder Name<span id='folderNameAst'>&nbsp;*</span></td>
+							<td style="border: none;"><textarea name="folderNameInput" id="folderNameInput" rows="1" cols="50" onchange="onChangeFolderName()"/></textarea>
+							<br><span id='folderNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Title</td>
+							<td style="border: none;"><textarea name="folderTitleInput" id="folderTitleInput" rows="1" cols="50"/></textarea></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Description</td>
+							<td style="border: none;"><textarea name="folderDescriptionInput" id="folderDescriptionInput" maxlength="500"  rows="4" cols="50"/></textarea></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Upload Source Directory<span id='uploadRequired'>&nbsp;*</span></td>
+							<td id='sourceUploadCell' style="border: none;">
+								<input name="sourceUpload" type="file" id="sourceUpload" webkitdirectory mozdirectory 
+									onchange='onSourceUploadChange()'/>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Source Directory</td>
+							<td id="sourcePathInput" style="border: none;"></td>
+						</tr>
+						<tr id='folderTypeRow'>
+							<td style="border: none;">Folder Type</td>
+							<td style="border: none;">
+							<input name="folderType" id="codeFolder" type="radio" onchange='checkFolderType()'/>
+							<label for="codeFolder">Code</label>&nbsp;&nbsp;&nbsp;
+							<input name="folderType" id="contentFolder" type="radio" onchange='checkFolderType()'/>
+							<label for="contentFolder">Content</label>
+							</td>
+						</tr>
+						<tr id='languageRow'>
+							<td style="border: none;">Language<span id='languageRules'>&nbsp;*</span></td>
+							<td style="border: none;">
+							<input name="language" id="languageR" type="radio"/>
+							<label for="languageR">R</label>&nbsp;&nbsp;&nbsp;
+							<input name="language" id="languageP" type="radio"/>
+							<label for="languageP">Python</label>
+							</td>
+						</tr>
+						<tr id='workersRow'>
+							<td style="border: none;">Workers<span id='workerRules'>&nbsp;*</span></td>
+							<td style="border: none;"><input name="workersInput" id="workersInput" type="number" value=2 min=1 max=1024/>					
+							</td>
+						</tr>
+						<tr id='modulesRow'>
+							<td id='modulesLabel' style="border: none;">Modules:</td>
+							<td style="border: none;">
+								<!--
+								<select class="custom-select" id="moduleSelect">
+								</select>
+								-->
+								<select id="moduleSelect" class="form-control">
+								</select>
+								<br>
+								<button type="button" id="goModuleButton" class="enabled-button" onclick="onGoModule(false)">Go...</button>&nbsp;
+								<button type="button" id="delModuleButton" class="enabled-button" onclick="onDelModule()">Delete</button>
+							</td>
+						<tr id='newModulesRow'>
+							<td style="border: none;"></td>
+							<td style="border: none;">
+								<button type="button" id="newModuleButton" class="enabled-button" onclick="onGoModule(true)">New Module...</button>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;"><span id='folderRequired'>*&nbsp;Required</span></td>
+							<td style="border: none;"></td>
+						</tr>
+					</tbody>
+				</table>
+		    </div>
+			<div class="modal-footer">
+		        <!-- If existing project, this button is labeled Cancel, and returns to the Project Properties screen -->
+		        <button type="button" id="folderBack" class="enabled-button" onclick="onFolderBack()">Back</button>
+		        <!-- If existing project, this button is labeled Save not Next, and returns to the main Project screen -->
+		        <button type="button" id="folderNext" class="enabled-button" onclick="onFolderNext()">Next</button>
+		    </div>
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="modulePropertiesModal" tabindex="-1" role="dialog" aria-labelledby="modulePropertiesTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modulePropertiesTitle">Module Properties</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="onCancel()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id='titleModulePath' style='visibility: hidden'>
+				 <span>/</span><span id="titleModuleFolder"></span>/<span id="titleModuleModule"></span>
+				</div>
+				<table id="moduleTable" class="table" style="border-collapse: collapse;">
+					<tbody id="moduleBody">
+						<tr>
+							<td style="border: none;">Module Name<span id='moduleNameAst'>&nbsp;*</span></td>
+							<td style="border: none;"><input name="moduleNameInput" id="moduleNameInput" type="text" maxlength="30" style="width: 30em;" onchange="onChangeModuleName()"/>
+							<br><span id='moduleNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Title</td>
+							<td style="border: none;"><input name="moduleTitleInput" id="moduleTitleInput" type="text" maxlength="50" style="width: 30em;"/></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Description</td>
+							<td style="border: none;"><textarea name="moduleDescriptionInput" id="moduleDescriptionInput" maxlength="500" rows="2" cols="60"/></textarea></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Source File<span id='fileSelectRules'>&nbsp;*</span></td>
+							<td style="border: none;">
+								<!--
+								<select class="custom-select" id="fileSelect">
+								</select>
+								-->
+								<select id="fileSelect" class="form-control">
+								</select>
+							</td>
+						</tr>
+						<tr id='servicesRow'>
+							<td style="border: none;">Services</td>
+							<td style="border: none;">
+								<!--
+								<select class="custom-select" id="serviceSelect">
+								</select>
+								-->
+								<select id="serviceSelect" class="form-control">
+								</select>
+								<br>
+								<button type="button" id="goServiceButton" class="enabled-button" onclick="onGoService(false)">Go...</button>&nbsp;
+								<button type="button" id="delServiceButton" class="enabled-button" onclick="onDelService()">Delete</button>
+							</td>
+						<tr id='newServicesRow'>
+							<td style="border: none;"></td>
+							<td style="border: none;">
+								<button type="button" id="newServiceButton" class="enabled-button" onclick="onGoService(true)">New Service...</button>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Required Packages</td>
+							<td style="border: none;">
+								<input name="packageInput" id="packageInput" type="text" style="width: 15em;"/>
+								<button id="packageAddButton" onclick="onPackageAdd()" style="padding: 0px"><img src="gt.png" style="width:75%; height:75%;"></button>
+								<select name="packageSelect" id="packageSelect" style="width: 15em;" onChange='onPackageSelectChange()'></select>
+								<button id="packageDelButton" onclick="onPackageDel()" style="padding: 0px"><img src="compost.png" style="width:75%; height:75%;"></button>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;"><span id='moduleRequired'>*&nbsp;Required</span></td>
+							<td style="border: none;"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" id="moduleBack" class="enabled-button" onclick="onModuleBack()">Back</button>
+				<button type="button" id="moduleNext" class="enabled-button" onclick="onModuleNext()">Next</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="servicePropertiesModal" tabindex="-1" role="dialog" aria-labelledby="servicePropertiesTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="servicePropertiesTitle">Service Properties</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="onCancel()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id='titleServicePath' style='visibility: hidden'>
+					<span>http://&lt;domain or ip&gt;</span><span id="titleServicePort"></span>/services/<span id="titleServiceFolder"></span>/<span id="titleServiceModule"></span>/<span id="titleServiceService"></span>
+				</div>
+				<table id="serviceTable" class="table" style="border-collapse: collapse;">
+					<tbody id="serviceBody">
+						<tr>
+							<td style="border: none;">Service Name<span id='serviceNameAst'>&nbsp;*</span></td>
+							<td style="border: none;"><input name="serviceNameInput" id="serviceNameInput" type="text" maxlength="30" style="width: 30em;" onchange="onChangeServiceName()"/>
+							<br><span id='serviceNameRules'>Lower case letters, numbers, dashes, and underscores, &le;30 characters.</span>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Title</td>
+							<td style="border: none;"><input name="serviceTitleInput" id="serviceTitleInput" type="text" maxlength="50" style="width: 30em;"/></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Description</td>
+							<td style="border: none;"><textarea name="serviceDescriptionInput" id="serviceDescriptionInput" maxlength="500" rows="2" cols="60"/></textarea></td>
+						</tr>
+						<tr>
+							<td style="border: none;">Function<span id='functionSelectRules'>&nbsp;*</span></td>
+							<td style="border: none;">
+								<!--
+								<select class="custom-select" id="functionSelect">
+								</select>
+								-->
+								<select id="functionSelect" class="form-control">
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;"></td>
+							<td id='inputComments' style="border: none;">The function should have 1 argument:  The request body as a JSON string.</td>
+						</tr>
+						<tr>
+							<td style="border: none;">HTTP Method<span id='methodRules'>&nbsp;*</span></td>
+							<td style="border: none;">
+							<input name="method" id="methodPOSTInput" type="radio" value="POST" checked="checked" onchange='checkServiceProperties()'/>
+							<label for="methodPOSTInput">POST</label>&nbsp;&nbsp;&nbsp;
+							<input name="method" id="methodGETInput" type="radio" value="GET" onchange='checkServiceProperties()'/>
+							<label for="methodGETInput">GET</label>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Include Parameters</td>
+							<td style="border: none;">
+								<input name="includeBodyInput" id="includeBodyInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
+								<label for="includeBodyInput">Include HTTP request body?</label><br>
+								<input name="includeParamsInput" id="includeParamsInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
+								<label for="includeParamsInput">Include HTTP query parameters?</label><br>
+								<input name="paramsToDFInput" id="paramsToDFInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
+								<label for="paramsToDFInput">Parse the parameters into a data frame?</label><br>
+								<input name="includeRequestInput" id="includeRequestInput" type="checkbox" onchange='checkServiceProperties()'/>&nbsp;
+								<label for="includeRequestInput">Include HTTP request object?</label><br>
+							</td>
+						</tr>
+						<tr id='parseInputRow'>
+							<td style="border: none;">Parse Input (Body) As</td>
+							<td style="border: none;">
+							<select name="inputParseTypeInput" id="inputParseTypeInput" class="form-control" style="width: 15em;">
+								<option value="none">Do not parse</option>
+								<option value="dataFrame">Data frame</option>
+								<option value="list">List</option>
+								<option value="vector">Vector</option>
+								<option value="matrix">Matrix</option>
+							</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;">Convert Output From</td>
+							<td style="border: none;">
+							<select name="outputParseTypeInput" id="outputParseTypeInput" class="form-control" style="width: 15em;">
+								<option value="none">Do not convert</option>
+								<option value="dataFrame">Data frame</option>
+								<option value="list">List</option>
+								<option value="vector">Vector</option>
+								<option value="matrix">Matrix</option>
+							</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="border: none;"><span id='serviceRequired'>*&nbsp;Required</span></td>
+							<td style="border: none;"></td>
+						</tr>
+					</tbody>
+				</table>
+		    </div>
+			<div class="modal-footer">
+				<button type="button" id="serviceBack" class="enabled-button" onclick="onServiceBack()">Back</button>
+				<!-- If new project, the user is next asked if they want to build the project -->
+				<button type="button" id="serviceNext" class="enabled-button" onclick="onServiceNext()">Next</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="projectBuildModal" tabindex="-1" role="dialog" aria-labelledby="projectBuildTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="projectBuildTitle">Build Project</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="onCancel()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<input name="buildProjectCheckBox" id="buildProjectCheckBox" type="checkbox"/>&nbsp;
+				<label for="buildProjectCheckBox">Build Docker project</label><br>
+				<input name="buildImageCheckBox" id="buildImageCheckBox" type="checkbox" style="visibility: hidden;" disabled/>&nbsp;
+				<label for="buildImageCheckBox" style="visibility: hidden;">Build image</label><br>
+				<input name="startLocalhostCheckBox" id="startLocalhostCheckBox" type="checkbox" style="visibility: hidden;" disabled/>&nbsp;
+				<label for="startLocalhostCheckBox" style="visibility: hidden;">Start container on localhost</label><br>
+				<h5>Status:</h5>
+				<div id="statusPane" class="build-list">
+				</div>
+		    </div>
+			<div class="modal-footer">
+		        <button type="button" id="cancelBuildButton" class="enabled-button" onclick="onCancelBuild()">Back</button>
+		        <button type="button" id="buildProjectButton" class="enabled-button" onclick="onBuildProject()">Finish</button>
+		        <!--
+		        <button type="button" id="downloadDockerButton" class="enabled-button" onclick="onDownloadDocker()" style="visibility: hidden;">Download...</button>
+		        -->
+			</div>
+		</div>
+	</div>
 </div>
 
 </body>

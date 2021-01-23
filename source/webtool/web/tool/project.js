@@ -18,6 +18,7 @@ var serviceName = null;
 var newProject = true;
 var language = null;
 var built = false;
+var currentModal = null;
 
 // Flag indicating whether current screen has been changed
 var changed = false;
@@ -39,6 +40,7 @@ var folderDescriptionInput = null;
 var folderNameAst = null;
 var folderNameInput = null;
 var folderNext = null;
+var folderPropertiesModal = null;
 var folderRequired = null;
 var folderSelectGroup = null;
 var folderSelect = null;
@@ -83,6 +85,7 @@ var packageInput = null;
 var packageSelect = null;
 var paramsToDFInput = null;
 var projectBack = null;
+var projectBuildModal = null;
 var projectDescriptionInput = null;
 var projectNameAst = null;
 var projectNameInput = null;
@@ -138,6 +141,7 @@ function initDOMObjects() {
 	folderNameAst = document.getElementById('folderNameAst');
 	folderNameInput = document.getElementById('folderNameInput');
 	folderNext = document.getElementById('folderNext');
+	folderPropertiesModal = document.getElementById('folderPropertiesModal');
 	folderRequired = document.getElementById('folderRequired');
 	folderSelect = document.getElementById('folderSelect');
 	folderSelectGroup = document.getElementById('folderSelectGroup');
@@ -183,6 +187,7 @@ function initDOMObjects() {
 	packageSelect = document.getElementById('packageSelect');
 	paramsToDFInput = document.getElementById('paramsToDFInput');
 	projectBack = document.getElementById('projectBack');
+	projectBuildModal = document.getElementById('projectBuildModal');
 	projectDescriptionInput = document.getElementById('projectDescriptionInput');
 	projectNameAst = document.getElementById('projectNameAst');
 	projectNameInput = document.getElementById('projectNameInput');
@@ -260,6 +265,7 @@ function initDOMObjects() {
 	//submitFunction = null;
 	//document.onkeypress = submit;
 
+
 }
 
 //Display project properties.
@@ -276,9 +282,11 @@ function switchModal(nextModalID) {
 
 	// Hide all the modals.
 	modals.forEach(function(modalID, index, array) {
-		var modal = document.getElementById(modalID);
+		//var modal = document.getElementById(modalID);
+		var modal = $('#' + modalID);
 		if (modal)
-			modal.style.display = 'none';
+			//modal.style.display = 'none';
+			modal.modal('hide');
 	});
 
 	// No changes made in the next modal.
@@ -286,13 +294,19 @@ function switchModal(nextModalID) {
 
 	// Show the next modal, if any.
 	if (nextModalID) {
-		var modal = document.getElementById(nextModalID);
-		if (modal)
-			modal.style.display = 'block';
+		/*
+		var modalScreen = document.getElementById(nextModalID);
+		if (modalScreen)
+			modalScreen.modal({});
+		*/
+		currentModal = $('#' + nextModalID);
+		//currentModal = document.getElementById(nextModalID);
+		currentModal.modal({});
 	}
 	// Otherwise, if no modal reload page with project name.
 	// That way, if project page gets reloaded, it will remember the project!
-	else {
+	else if (currentModal) {
+		currentModal.modal('hide');
 		var params = new URLSearchParams(window.location.search);
 		if (!params.has('projectname')&&project&&project['projectName'])
 			window.location.search += (window.location.search ? '&': '?') + 'projectname=' + project['projectName'];
@@ -385,6 +399,11 @@ function popProjectProps() {
 	// Populate the folder select list
 	popFolderSelect();
 
+	// Set handler to set focus on projectNameInput.
+	$('#projectPropertiesModal').on('shown.bs.modal', function () {
+	    $('#projectNameInput').focus();
+	});
+
 	if (projectName) {
 
 		// Populate project properties
@@ -401,7 +420,12 @@ function popProjectProps() {
 			projectTitleInput.value = projectTitle;
 		if (projectDescription)
 			projectDescriptionInput.value = projectDescription;
-	
+
+		// Set handler to set focus on projectTitleInput.
+		$('#projectPropertiesModal').on('shown.bs.modal', function () {
+		    $('#projectTitleInput').focus();
+		});
+
 		// Get the folders in the project.
 		var folders = project['folders'];
 		if (!folders) {
@@ -410,6 +434,8 @@ function popProjectProps() {
 		}
 			
 	}
+
+	setProjectButtons();
 
 	return true;
 
@@ -522,7 +548,14 @@ function prepFolderScreen() {
 	uploadRequired.innerHTML = '&nbsp;*';
 	workersInput.value = 2;
 
+	// Set handler to set focus on folderNameInput.
+	$('#folderPropertiesModal').on('shown.bs.modal', function () {
+	    $('#folderNameInput').focus();
+	});
+
 	deleteChildNodes(moduleSelect);
+
+	folderPropertiesModal.className = 'modal';
 
 }
 
@@ -569,6 +602,11 @@ function popFolderProps() {
 		folderTitleInput.focus();
 		folderTitleInput.value = folder['folderTitle'];
 		folderDescriptionInput.value = folder['folderDescription'];
+
+		// Set handler to set focus on folderTitleInput.
+		$('#folderPropertiesModal').on('shown.bs.modal', function () {
+		    $('#folderTitleInput').focus();
+		});
 
 		// Set subtitle to /projectname/foldername
 		var sourcePath = folder['sourcePath'];
@@ -630,6 +668,9 @@ function popFolderProps() {
 
 	}
 
+	if (!newProject)
+		folderPropertiesModal.className = 'modal fade';
+
 	enableCodeFolderProps(!folderType||folderType&&folderType!='content');
 	//disableModuleSelect();
 
@@ -653,6 +694,11 @@ function prepModuleScreen() {
 	moduleRequired.style.color = 'Black';
 	moduleTitleInput.value = '';
 	moduleDescriptionInput.value = '';
+
+	// Set handler to set focus on moduleNameInput.
+	$('#modulePropertiesModal').on('shown.bs.modal', function () {
+	    $('#moduleNameInput').focus();
+	});
 
 	// Initially list of services is hidden and button disabled
 	deleteChildNodes(serviceSelect);
@@ -757,6 +803,11 @@ function popModuleProps() {
 		var moduleDescription = module['moduleDescription'];
 		moduleDescription = moduleDescription? moduleDescription: '';
 		moduleDescriptionInput.value = moduleDescription;
+
+		// Set handler to set focus on moduleTitleInput.
+		$('#modulePropertiesModal').on('shown.bs.modal', function () {
+		    $('#moduleTitleInput').focus();
+		});
 
 		// Get services for the module
 		var services = module['services'];
@@ -890,6 +941,11 @@ function prepServiceScreen() {
 	paramsToDFInput.checked = false;
 	paramsToDFInput.disabled = true;
 	includeRequestInput.checked = false;
+
+	// Set handler to set focus on serviceNameInput.
+	$('#servicePropertiesModal').on('shown.bs.modal', function () {
+	    $('#serviceNameInput').focus();
+	});
 
 	deleteChildNodes(functionSelect);
 
@@ -1092,6 +1148,11 @@ function popServiceProps() {
 		serviceDescription = serviceDescription? serviceDescription: '';
 		serviceDescriptionInput.value = serviceDescription;
 
+		// Set handler to set focus on serviceTitleInput.
+		$('#servicePropertiesModal').on('shown.bs.modal', function () {
+		    $('#serviceTitleInput').focus();
+		});
+
 		var function_ = service['function'];
 		if (function_&&(functionSelect.length > 1))
 			setSelected(functionSelect, function_);
@@ -1214,7 +1275,17 @@ function popBuildProps() {
 	buildImageCheckBox.checked = buildImageValue;
 	startLocalhostCheckBox.checked = startLocalhostValue;
 	
+	// Set handler to set focus on buildProjectCheckBox.
+	$('#projectBuildModal').on('shown.bs.modal', function () {
+	    $('#buildProjectCheckBox').focus();
+	});
+
 	built = false;
+
+	if (newProject)
+		projectBuildModal.className = 'modal';
+	else
+		projectBuildModal.className = 'modal fade';
 
 	return true;
 
@@ -1231,7 +1302,7 @@ function goModal(nextModalID) {
 		newProject = false;
 
 	// Switch to the next modal.
-	switchModal(nextModalID);
+	//switchModal(nextModalID);
 
 	// Populate project properties screen.
 	if (!nextModalID||nextModalID=='projectPropertiesModal') {
@@ -1270,7 +1341,7 @@ function goModal(nextModalID) {
 	}
 
 	// Switch to the next modal.
-	//switchModal(nextModalID);
+	switchModal(nextModalID);
 
 }
 
@@ -1764,8 +1835,6 @@ function onKeepModuleProps(nextModalID) {
 }
 
 // Keep new service properties.
-// toProject is true if focus is to be returned to the main project page,
-// false to return to the module properties.
 function onKeepServiceProps(nextModalID) {
 
 	// If no change, just go to the next screen
