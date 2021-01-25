@@ -8,19 +8,21 @@ Maintainer Pat Tendick ptendick@gmail.com
 <html>
 <head>
 <!--
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<script src="jquery-2.0.1.min.js"></script>
-<script src="bootstrap.min.js"></script>
--->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+-->
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="jquery.min.js"></script>
+<script src="popper.min.js"></script>
+<script src="bootstrap.min.js"></script>
 
 <link rel='stylesheet' href='css/cnr.css'>
-<link rel='stylesheet' href='css/modal.css'>
 <script src="common.js"></script>
+
 <script src="project.js"></script>
+
 <meta charset="UTF-8">
 <title>CANNR Tool</title>
 </head>
@@ -95,7 +97,7 @@ If no folders, display the following:
 </div>
 <br>
 
-<div class="modal fade" id="projectPropertiesModal" tabindex="-1" role="dialog" aria-labelledby="projectPropertiesTitle" aria-hidden="true">
+<div class="modal fade" id="projectPropertiesModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="projectPropertiesTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -138,7 +140,7 @@ If no folders, display the following:
 	</div>
 </div>
 
-<div class="modal" id="folderPropertiesModal" tabindex="-1" role="dialog" aria-labelledby="folderPropertiesTitle" aria-hidden="true">
+<div class="modal" id="folderPropertiesModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="folderPropertiesTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -149,7 +151,7 @@ If no folders, display the following:
 			</div>
 			<div class="modal-body">
 				<div id='titleFolderPath' style='visibility: hidden'>
-					<span>/</span><span id="titleFolder"></span>
+					<span id="titleFolder"></span>
 				</div>
 				<table id="folderTable" class="table" style="border-collapse: collapse;">
 					<tbody id="folderBody">
@@ -237,7 +239,7 @@ If no folders, display the following:
 	</div>
 </div>
 
-<div class="modal" id="modulePropertiesModal" tabindex="-1" role="dialog" aria-labelledby="modulePropertiesTitle" aria-hidden="true">
+<div class="modal" id="modulePropertiesModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="modulePropertiesTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -320,7 +322,7 @@ If no folders, display the following:
 	</div>
 </div>
 
-<div class="modal" id="servicePropertiesModal" tabindex="-1" role="dialog" aria-labelledby="servicePropertiesTitle" aria-hidden="true">
+<div class="modal" id="servicePropertiesModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="servicePropertiesTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -426,7 +428,7 @@ If no folders, display the following:
 	</div>
 </div>
 
-<div class="modal" id="projectBuildModal" tabindex="-1" role="dialog" aria-labelledby="projectBuildTitle" aria-hidden="true">
+<div class="modal" id="projectBuildModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="projectBuildTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">

@@ -149,30 +149,63 @@ def deleteProject(input):
             }
 
 
-# Returns the project document for a project given the project name.
+# Returns a dictionary of all projects.
+def getProjectsDict():
+
+        # Get the collection of projects
+        projects = {}
+
+        # List the contents of the projects directory
+        for projectName in os.listdir(projectsPath):
+            # Check that the item is a directory
+            if os.path.isdir(os.path.join(projectsPath, projectName)):
+                # Read the file and add it to the collection
+                filePath = projectsPath + '/' + projectName + '/project.json'
+                project = cc.readJSONFile(filePath)
+                projects[projectName] = project
+
+        return projects
+
+
+# Returns the project document for a project given the project name or timestamp.
 def getProject(params):
 
     try:
     
-        # Get the project from the input, return error if no project
-        projectName = params.get('projectname', None)
-        if not projectName:
-            return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project specified'}
-        
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
-        
-        # Check to see if the project exists already
-        filePath = projectsPath + '/' + projectName + '/project.json'
-        if not os.path.isfile(filePath):
-            return {'succeeded': False, 'error': 'projectNotExist', 'errorMsg': 'Project does not exist'}
 
-        # Read the project file
-        project = cc.readJSONFile(filePath)
-            
-        # Return the result
-        return {'succeeded': True, 'project': project}
+        # Get all of the projects
+        projects = getProjectsDict()
+
+        # Retrieve the project name and timestamp
+        projectName = params.get('projectname', None)
+        timestamp = params.get('timestamp', None)
+
+        # Try retrieving by project name
+        if projectName:
+            project = projects[projectName]
+            if project:
+                return {'succeeded': True, 'project': project}
+            else:
+                return {'succeeded': False, 'error': 'projectNotExist', 'errorMsg': 'Project does not exist'}
+
+        # Try retrieving by timestamp
+        elif timestamp:
+            # Go through the projects
+            for projectName in projects:
+                project = projects[projectName]
+                # If timestamp matches, we're done
+                if project.get('timestamp', '0')==timestamp:
+                    return {'succeeded': True, 'project': project}
+
+            # No project found
+            return {'succeeded': True, 'project': None}
+
+        # Error if no project name or timestamp specified
+        else:
+            return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name or timestamp specified'}
 
     except Exception as err:
         return {
@@ -187,7 +220,7 @@ def getProject(params):
 def getProjects():
 
     try:
-    
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
@@ -202,9 +235,12 @@ def getProjects():
                 filePath = projectsPath + '/' + projectName + '/project.json'
                 project = cc.readJSONFile(filePath)
                 projects[projectName] = project
+        '''
             
         # Return the result
-        return {'succeeded': True, 'projects': projects}
+        return {
+            'succeeded': True,
+            'projects': getProjectsDict()}
 
     except Exception as err:
         return {

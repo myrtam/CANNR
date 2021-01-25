@@ -19,6 +19,8 @@ var newProject = true;
 var language = null;
 var built = false;
 var currentModal = null;
+var timestamp = null;
+var folderType = null;
 
 // Flag indicating whether current screen has been changed
 var changed = false;
@@ -307,9 +309,11 @@ function switchModal(nextModalID) {
 	// That way, if project page gets reloaded, it will remember the project!
 	else if (currentModal) {
 		currentModal.modal('hide');
+		/*
 		var params = new URLSearchParams(window.location.search);
 		if (!params.has('projectname')&&project&&project['projectName'])
 			window.location.search += (window.location.search ? '&': '?') + 'projectname=' + project['projectName'];
+		*/
 	}
 
 }
@@ -364,6 +368,9 @@ function popFolderSelect() {
 		}
 		
 	});
+
+	// Set the folder select list to the last one visited, if any.
+	setSelected(folderSelect, folderName);
 
 }
 
@@ -442,15 +449,21 @@ function popProjectProps() {
 }
 
 //Shows or hides the folder path on the folder properties screen
-function showFolderPath(folderName2) {
+function showFolderPath(folderName2, folderType2) {
 	
-	if (folderName2) {
-		titleFolder.innerHTML = folderName2;
+	if (folderType2) {
+		if (folderType=='content') {
+			var port = project['nginxPort'];
+			port = port? (port=='80'? '': ':' + port): '';
+			titleFolder.innerHTML = 'http://&ltdomain or ip&gt' + port + '/web/' + folderName2;
+		}
+		else
+			titleFolder.innerHTML = '/' + folderName2;
 		titleFolderPath.style.visibility = 'visible';
 	}
 	else
 		titleFolderPath.style.visibility = 'hidden';
-	
+
 }
 
 //Shows or hides the module path on the module properties screen
@@ -475,7 +488,7 @@ function buildServicePath(folderName2, moduleName2, serviceName2) {
 	var port = project['nginxPort'];
 	port = port? (port=='80'? '': ':' + port): '';
 
-	return 'http://&ltdomain or ip&gt' + folderName2 + '/' + moduleName2 + '/' + serviceName2 + '/';
+	return 'http://&ltdomain or ip&gt' + port + '/services/' + folderName2 + '/' + moduleName2 + '/' + serviceName2 + '/';
 	
 }
 
@@ -525,7 +538,7 @@ function clearStatus() {
 function prepFolderScreen() {
 
 	// Initialize screen items
-	showFolderPath(null);
+	showFolderPath(null, folderType);
 	folderNameInput.value = '';
 	folderNameInput.disabled = false;
 	folderNameInput.focus();
@@ -580,8 +593,8 @@ function popFolderProps() {
 
 	setFolderButtons();
 
-	var folderType = null;
-	folderTypeRow.style.visibility = newProject? 'hidden': 'visible';
+	folderType = null;
+	//folderTypeRow.style.visibility = newProject? 'hidden': 'visible';
 
 	// If folder name doesn't exist, we're done
 	if (folderName) {
@@ -590,9 +603,13 @@ function popFolderProps() {
 		var folder = folders[folderName]
 		if (!folder)
 			return false;
-	
+
+		// Get the folder type
+		folderType = folder['folderType'];
+		folderType = !folderType? 'code': folderType;
+
 		// Set subtitle to /foldername
-		showFolderPath(folderName);
+		showFolderPath(folderName, folderType);
 
 		// Populate the folder name
 		folderNameInput.value = folderName;
@@ -620,8 +637,6 @@ function popFolderProps() {
 		}
 
 		// Handle folder type
-		folderType = folder['folderType'];
-		folderType = !folderType? 'code': folderType;
 		if (folderType=='content') {
 			codeFolder.checked = false;
 			contentFolder.checked = true;
@@ -665,6 +680,9 @@ function popFolderProps() {
 			}
 			
 		});
+
+		// Set the module select list to the last one visited, if any.
+		setSelected(moduleSelect, moduleName);
 
 	}
 
@@ -842,6 +860,9 @@ function popModuleProps() {
 			}
 			
 		});
+
+		// Set the service select list to the last one visited, if any.
+		setSelected(serviceSelect, serviceName);
 
 		// Add required packages
 		// Make sure packages exist in the module
@@ -1214,12 +1235,15 @@ function popBuildProps() {
 		var folderTitle = folder['folderTitle'];
 		addStatusMessage(folderKey + (folderTitle? ' - ' + folderTitle: ''), '20px');
 
-		var folderType = folder['folderType'];
+		var folderType2 = folder['folderType'];
 		var sourcePath = folder['sourcePath'];
-		if (folderType&&folderType=='content') {
+		if (folderType2&&folderType2=='content') {
 			addStatusMessage('Static content', '40px');
 			if (sourcePath)
 				addStatusMessage('Source=' + sourcePath, '40px');
+			var port = project['nginxPort'];
+			port = port? (port=='80'? '': ':' + port): '';
+			addStatusMessage('http://&ltdomain or ip&gt' + port + '/web/' + folderKey, '40px');
 			return;
 		}
 
@@ -1353,8 +1377,7 @@ function updateProject(nextModalID) {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	var date = new Date();
-	xhr.open("POST", baseURL + "updateproject?timestamp=" + date.getTime());
+	xhr.open("POST", baseURL + "updateproject");
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -1427,10 +1450,12 @@ function writeProject(project1, overwrite, cancel) {
 
 	// Prepare the project to write to the service.
 	var project2 = project1? JSON.parse(JSON.stringify(project1)): null;
-	if (!project2) {
-		project2 = {};
-		project2['projectName'] = newProjectName;
-	}
+	if (!project2)
+		project2 = {
+				'projectName': newProjectName,
+				'timestamp': timestamp
+		};
+
 	project2['projectTitle'] = projectTitleInput.value;
 	project2['projectDescription'] = projectDescriptionInput.value;
 	if (!project2['folders'])
@@ -1609,7 +1634,9 @@ function onKeepFolderProps(nextModalID) {
 	folder['folderTitle'] = folderTitleInput.value;
 	folder['folderDescription'] = folderDescriptionInput.value;
 
-	folder['folderType'] = !contentFolder.checked? 'code': 'content';
+	// Handle folder type
+	folderType = !contentFolder.checked? 'code': 'content';
+	folder['folderType'] = folderType;
 
 	// Populate folder attributes
 	folder['language'] = language;
@@ -1971,62 +1998,97 @@ function cancelBuild() {
 
 }
 
-
+// Tries to retrieve
 function getProject() {
 
 	// Get the project name query parameter
 	var params = new URLSearchParams(window.location.search);	
 	var paramProjectName = params.get('projectname');
+	timestamp = params.get('timestamp');
 
 	// Assume a new project
 	newProject = true;
-	
-	// If project name specified, try to retrieve the project document
-	if (paramProjectName) {
 
-		// Not a new project
-		newProject = false;
-		
-		// Prepare the XHR request.
-		var xhr = new XMLHttpRequest();
-		var date = new Date();
-		xhr.open("GET", baseURL + "getproject" + "?projectname=" + paramProjectName + "&timestamp=" + date.getTime());
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	var url = baseURL + "getproject"
+	// Add either the project name or timestamp to the URL.
+	if (paramProjectName)
+		url += "?projectname=" + paramProjectName;
+	else if (timestamp)
+		url += "?timestamp=" + timestamp;
 
-		// Define the callback function.
-		xhr.onload = function () {
+	// Add extra timestamp to prevent caching.
+	url += "&timestamp2=" +  Date.now();
+	xhr.open("GET", url);
 
-			// Get the response, check HTTP status.
-			if (xhr.status == "200") {
+	// Define the callback function.
+	xhr.onload = function () {
 
-				// Retrieve the response and process it.
-				var response = JSON.parse(xhr.responseText);
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and process it.
+			var response = JSON.parse(xhr.responseText);
+			var succeeded = response.succeeded;
+			if (succeeded) {
+
+				// Retrieve the project
 				project = response['project'];
-				goModal(null);
-				projectName = paramProjectName;
 
-				// Populate the folder select list
-				popFolderSelect();
+				// If project exists
+				if (project) {
 
-			} else {
-				console.error(xhr.responseText);
-				alert("Error retrieving project");
-				// TODO:  RETURN TO THE MAIN PAGE
+					// Not a new project
+					newProject = false;
+
+					// Go to the main screen
+					projectName = paramProjectName;
+					goModal(null);
+
+					// Populate the folder select list
+					popFolderSelect();
+
+				}
+				else {
+		
+					projectPageTitle.innerHTML = 'New Project';
+					projectPropertiesTitle.innerHTML = 'New Project';
+					onProjectProps();
+	
+				}
+
 			}
+			else {
+
+				// Display error message.
+				var errorMsg = response['errorMsg'];
+				console.error(errorMsg);
+				var detail = response['detail'];
+				console.error(detail);
+				alert(errorMsg);
+
+				// Return to the main page
+				onExitProject();
+
+			}
+
+		} else {
+
+			// Display error message.
+			console.error(xhr.responseText);
+			alert("Error retrieving project");
+
+			// Return to the main page
+			onExitProject();
 
 		}
 
-		// Send the request.
-		xhr.send();
-		
 	}
-	else {
-		
-		projectPageTitle.innerHTML = 'New Project';
-		projectPropertiesTitle.innerHTML = 'New Project';
-		onProjectProps();
-		
-	}
-	
+
+	// Send the request.
+	xhr.send();
+
 }
 
 // Handler for the folder Go button
@@ -2068,11 +2130,12 @@ function onFolderSelectChange() {
 function onExitProject() {
 
 	// URL of the home screen, plus timestamp to avoid caching.
-	var homeURL = 'index.html?timestamp=' + Date.now()
+	var homeURL = 'index.html?timestamp=' + Date.now();
+	homeURL += '&notitle=true';
 
 	// Try to include the latest project name if possible, so it can be preselected
 	if (project&&project['projectName']) {
-		homeURL += '&projectname=' + project['projectName']
+		homeURL += '&projectname=' + project['projectName'];
 	}
 
 	// Navigate to the home page
@@ -2101,11 +2164,11 @@ function onChangeFolderName() {
 	var folderName2 = folderNameInput.value;
 	if (!checkName(folderName2)) {
 		document.getElementById('folderNameRules').style.color = 'Red';
-		showFolderPath(null);
+		showFolderPath(null, folderType);
 	}
 	else {
 		document.getElementById('folderNameRules').style.color = 'Black';
-		showFolderPath(folderName2);
+		showFolderPath(folderName2, folderType);
 	}
 	
 }
@@ -2284,8 +2347,7 @@ function onProjectCancel() {
 //Handle the Next/Save button in the Project Properties screen.
 function onFolderNext() {
 
-	//folderBack.innerHTML = 'Close';
-	var modalID = newProject? 'modulePropertiesModal': 'folderPropertiesModal';
+	var modalID = (newProject&&folderType!='content')? 'modulePropertiesModal': null;
 	onKeepFolderProps(modalID);
 
 }
@@ -2297,11 +2359,8 @@ function onFolderBack() {
 	
 	if (newProject&&changed)
 		onKeepFolderProps(modalID);
-	else if (!changed||confirm('Discard changes?')) {
-		//popProjectProps();
-		//switchModal(modalID);
+	else if (!changed||confirm('Discard changes?'))
 		goModal(modalID);
-	}
 
 }
 
@@ -2588,10 +2647,10 @@ function setProjectButtons() {
 function setFolderButtons() {
 
 	// Disable the Save button
-	disableButton(folderNext, !changed&&!(newProject&&folderName));
+	disableButton(folderNext, !changed);
 
 	// Change button labels appropriately
-	if (newProject) {
+	if (newProject&&folderType!='content') {
 		folderNext.innerHTML = 'Next';
 		folderBack.innerHTML = 'Back';
 	}
@@ -2923,7 +2982,7 @@ function buildProject() {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "buildproject?timestamp=");
+	xhr.open("POST", baseURL + "buildproject");
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -3064,8 +3123,13 @@ function enableCodeFolderProps(isCodeFolder) {
 // Responds to changes of folder type.
 function checkFolderType() {
 
-	enableCodeFolderProps(!contentFolder.checked);
-	
+	// Check the folder type.
+	folderType = !contentFolder.checked? 'code': 'content';
+
+	// Enable/disable folder properties fields and buttons
+	enableCodeFolderProps(folderType!='content');
+	setFolderButtons();
+
 	return;
 
 }

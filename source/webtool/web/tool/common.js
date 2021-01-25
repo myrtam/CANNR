@@ -64,11 +64,17 @@ function delSelected(selectList) {
 // Selects the item with value
 function setSelected(selectList, value) {
 
-	// Find the first selected item.
+	// Check that the value exists in the list.
+	if (value&&selectList.querySelector('[value="' + value + '"]'))
+		// Set the value.
+		selectList.value = value;
+	/*
+    // Find the first selected item.
 	for (var i=0; i<selectList.length; i++) {
 		var option = selectList[i];
 		option.selected = (option.value==value);
 	}
+	*/
 	
 }
 
@@ -106,3 +112,54 @@ function submit(event){
 		submitFunction();
 }
 */
+
+// Returns true if and only if value is contained in string.
+function containedIn(value, string) {
+
+	return string.indexOf(value) < 0? false: true;
+	
+}
+
+// Detect the user's browser
+function detectBrowser() {
+
+    var userAgent = navigator.userAgent.toUpperCase();
+
+    if (containedIn("OPR", userAgent))
+        return "Opera";
+
+    if (containedIn("CHROME", userAgent)||containedIn("CRIOS", userAgent))
+        return "Chrome";
+
+    if (containedIn("FIREFOX", userAgent)||containedIn("FXIOS", userAgent))
+        return "Firefox";
+
+    if (containedIn("EDG", userAgent))
+        return "Edge";
+
+    if (containedIn("MSIE", userAgent)||containedIn("TRIDENT", userAgent))
+        return "IE";
+
+    if (containedIn("MACINTOSH", userAgent)||containedIn("IPHONE", userAgent)
+    	||containedIn("IPAD", userAgent)||containedIn("IPOD", userAgent))
+        return "Safari";
+
+    return "Unknown";
+
+}
+
+// Returns whether browser supported or not, displays error message if not supported.
+function browserSupported() {
+
+	// Check browser, show error message if not compatible.
+	var browser = detectBrowser();
+	if (browser=="IE"||browser=="Unknown") {
+		alert("Browser not supported.  Please use Chrome, Firefox, or Safari.");
+		return false;
+	}
+
+	return true;
+	
+}
+
+

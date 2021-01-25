@@ -8,22 +8,51 @@ Maintainer Pat Tendick ptendick@gmail.com
 <html>
 <head>
 <link rel="stylesheet" href="css/bootstrap.min.css">
-<link rel='stylesheet' href='css/cnr.css'>
-<!--
-<link rel='stylesheet' href='css/all.css'>
--->
-<script src="jquery-2.0.1.min.js"></script>
+<script src="jquery.min.js"></script>
+<script src="popper.min.js"></script>
 <script src="bootstrap.min.js"></script>
+<!--
+<script type="module" src="./uuid/index.js"></script>
+-->
+
+<link rel='stylesheet' href='css/cnr.css'>
 <script src="common.js"></script>
+
 <script src="index.js"></script>
+
 <meta charset="UTF-8">
 <title>CANNR Tool</title>
 </head>
 
 <body style="background-color:#F5F5F5;">
 
+<div class="modal fade" id="toolTitleModal" tabindex="-1" role="dialog" aria-labelledby="toolTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			  <h4 class="modal-title" id="toolTitle">Welcome!</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+				<p>
+				Welcome to the CANNR<sup>TM</sup> Analytics Container Building Tool.
+				The CANNR tool enables you to create containerized microservices from your R or Python code.
+				</p>
+				<!--
+					Add links to documentation, license, etc.
+				-->
+		    </div>
+			<div class="modal-footer">
+		        <button type="button" id="projectBack" class="enabled-button" data-dismiss="modal">Close</button>
+		    </div>
+		</div>
+	</div>
+</div>
+
 <div class="top-margin">
-<h2>CANNR<sup>TM</sup> Analytics Container Building Tool</h2>
+<h2>CANNR Tool Projects</h2>
 <br>
 <div>
 <p>Create a project to produce a container for your services.</p>
@@ -57,10 +86,22 @@ If no project, display the following:
 </body>
 <script>
 
-initDOMObjects();
+// Check if browser supported.  If so, launch the tool.
+if (browserSupported()) {
 
-// Populate select list of projects
-getProjects();
+	// Get the project name query parameter
+	var params = new URLSearchParams(window.location.search);	
+	var noTitle = params.get('notitle');
+
+	if (!noTitle)
+		$('#toolTitleModal').modal({});
+
+	initDOMObjects();
+
+	// Populate select list of projects
+	getProjects();
+
+}
 
 </script>
 </html>
