@@ -1,4 +1,4 @@
-This is the CANNR TM analytics container building tool for converting R and
+This is the CANNR <sup>TM</sup> analytics container building tool for converting R and
 Python code into microservices.  The CANNR tool takes functions in R and Python
 source files and creates scalable containerized microservices that expose things
 like models and calculations so that they may be easily consumed by software
@@ -71,7 +71,7 @@ docker build -t project1 .
 
 You should then be able to run the container using
 
-docker run -d -p 80:80 project1
+docker run -d -p 80:80 --name project1 project1
 
 You should then be able to access some of the example services from a browser using
 
@@ -79,6 +79,13 @@ http://127.0.0.1/services/pyfolder/rand/rand
 
 http://127.0.0.1/services/rfolder/iris/predplengthslength?x=6.5
 
+To stop the container, use the command
+
+docker stop project1
+
+To restart it, use the command
+
+docker start project1
 
 Web UI
 ------
@@ -88,9 +95,13 @@ navigate to the working directory and use the command
 
 docker build -t cannrtool .
 
-You can then start the tool by changing to the external directory and entering the command
+On OSX, you can  start the tool by changing to the external directory and entering the command
 
 docker run -d -p 8080:80 --name cannrtool --mount type=bind,source="$(pwd)",target=/external cannrtool
+
+On Windows, use the command
+
+docker run -d -p 8080:80 --name cannrtool --mount type=bind,source="%CD%",target=/external cannrtool
 
 which runs the tool on port 8080.  To run the tool on a different port, replace 8080 in the above with
 the port you want to use.  You should then be able to access the Web tool using the URL
@@ -101,3 +112,11 @@ When you access this URL, you should see, among other things, a list of projects
 If you go to this project and then click the Build button, you will be prompted to build the project.  Once the project
 has been built, you can find the built Docker project in the external/working/project1 folder.  To build the image
 and run the container, follow the instructions for building and running project1 above.
+
+To stop the tool, use the command
+
+docker stop cannrtool
+
+To restart it, use the command
+
+docker start cannrtool
