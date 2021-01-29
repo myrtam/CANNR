@@ -91,7 +91,7 @@ Web UI
 ------
 
 To use the Web-based version of the CANNR tool, you must first build it.  To build the tool,
-navigate to the working directory and use the command
+navigate to the working/cannrtool (or working\cannrtool on Windows) directory and use the command
 
 docker build -t cannrtool .
 
