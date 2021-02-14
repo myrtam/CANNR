@@ -6,10 +6,11 @@
 	"maintainerName": "Pat Tendick",
 	"maintainerEmail": "ptendick@gmail.com",
 	"dependencyNotice": "Copyright/license notice for dependencies",
-	"portRange": [5000,5500],
+	"portRange": [5001,5500],
 	"nginxPort": 80,
 	"smiPort": 8080,
 	"initRequired": true,
+	"local": true,
 	"folders": {
 		"pyfolder": {
 			"folderTitle": "Basic test project",
@@ -30,12 +31,10 @@
 							"functionName": "calcSum",
 							"method": "POST",
 							"includeParams": false,
-							"parseInput": true,
-							"inputParseType": "dictionary",
-							"capacity": 1000,
-							"note": "If parseType is dictionary, capacity is ignored",
-							"parseOutput": true,
-							"outputParseType": "dictionary",
+							"includeRequest": false,
+							"includeBody": true,
+							"inputParseType": "array",
+							"outputParseType": "default",
 							"serviceHelp": "Help!",
 							"testInput": null
 						}
@@ -51,9 +50,7 @@
 						"rand": {
 							"functionName": "rand",
 							"method": "GET",
-							"includeParams": false,
-							"parseOutput": true,
-							"outputParseType": "dictionary",
+							"outputParseType": "default",
 							"serviceHelp": "Help!",
 							"testInput": null
 						}
@@ -78,17 +75,10 @@
 							"functionName": "predPLengthSLength",
 							"method": "GET",
 							"includeParams": true,
-							"parseInput": true,
-							"inputParseType": "dataframe",
-							"inputParseOptions": {},
-							"capacity": 1,
-							"parseOutput": true,
-							"outputParseType": "dataframe",
-							"outputParseOptions": {},
+							"outputParseType": "default",
 							"serviceHelp": "Help!",
 							"testInput": null
 						}
-						
 					}
 				},
 				"sum": {
@@ -100,34 +90,25 @@
 							"functionName": "sumX",
 							"method": "POST",
 							"includeParams": false,
-							"parseInput": true,
-							"inputParseType": "dataframe",
+							"includeRequest": false,
+							"includeBody": true,
+							"inputParseType": "default",
 							"inputParseOptions": {},
 							"capacity": 1000,
-							"parseOutput": true,
-							"outputParseType": "dataframe",
-							"outputParseOptions": {},
+							"outputParseType": "default",
 							"serviceHelp": "Help!",
 							"testInput": null
 						}
-						
 					}
 				}
 			}
-		}
-	},
-	"content": {
+		},
 		"static": {
+			"folderType": "content",
 			"folderTitle": "Static content test folder",
 			"folderDescription": "<description here>",
-			"sourcePath": "./mystatic"
-			},
-		"tools": {
-			"folderTitle": "Tools content test project",
-			"folderDescription": "<description here>",
-			"sourcePath": "./mytools"
+			"sourcePath": ".\\mystatic"
 		}
-	},
-	"note": "The above content entry copys the diretory ./tool to /web/pages/tool and maps /tool to /web/pages/tool"
+	}
 }
 

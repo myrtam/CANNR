@@ -12,4 +12,4 @@ import random
 # We want to expose this as a Web service.
 def rand():
 
-    return {'result': random.random()}
+    return random.random()

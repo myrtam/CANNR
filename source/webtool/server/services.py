@@ -279,7 +279,7 @@ def uploadFolder(params, request):
 
     # Get the data from the request
     data = request.get_data()
-    
+
     # Write out the files
     fileNames = None
     fullFolderName = projectPath + '/' + folderName + '/'

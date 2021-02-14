@@ -76,10 +76,10 @@ def buildPyFolder(folderName, project):
     moduleText += buildCodeLine(0, ['import logging'])
     moduleText += buildCodeLine(0, ['import uuid'])
     moduleText += buildCodeLine(0, ['import pandas'])
-    moduleText += buildCodeLine(0, ['from flask import Flask, render_template, request'])
+    moduleText += buildCodeLine(0, ['from flask import Flask, render_template, request, Response'])
 
     # Import utilities.
-    moduleText += buildCodeLine(0, ['import cannrcore as cnr'])
+    moduleText += buildCodeLine(0, ['import cannrcore as cc'])
 
     # Change to the folder home.
     moduleText += '\n'
@@ -108,7 +108,7 @@ def buildPyFolder(folderName, project):
         fileName = module.get('sourceFile', None)
         moduleFileName = folderPath + '/' + folderName + '/' + fileName
         moduleShortName = 'm_' + str(moduleNum)
-        moduleText += buildCodeLine(0, [moduleShortName, ' = ','cnr.importPackage("', moduleShortName, '", "', moduleFileName, '")'])
+        moduleText += buildCodeLine(0, [moduleShortName, ' = ','cc.importPackage("', moduleShortName, '", "', moduleFileName, '")'])
         moduleShortNames[moduleName] = moduleShortName
         moduleNum += 1
         # TODO: If no source file, error.
@@ -117,9 +117,9 @@ def buildPyFolder(folderName, project):
     # Create the Flask app object.
     moduleText += '\n'
     moduleText += buildCodeLine(0, ['app = Flask(__name__)'])
-    moduleText += buildCodeLine(0, ['workerID = str(uuid.uuid4())'])
-    moduleText += buildCodeLine(0, ['credentials = None'])
-    moduleText += buildCodeLine(0, ['lastUpdateID = None'])
+    moduleText += buildCodeLine(0, ['cnr__workerID = str(uuid.uuid4())'])
+    moduleText += buildCodeLine(0, ['cnr__credentials = None'])
+    moduleText += buildCodeLine(0, ['cnr__lastUpdateID = None'])
     moduleText += '\n'
     
     # Dispatcher to shut down the worker.
@@ -130,33 +130,40 @@ def buildPyFolder(folderName, project):
     moduleText += buildCodeLine(1, ['return "Shutting down..."'])
 
     # Build the wrappers.
-    moduleText += '\n'
     functionNumber = 1
     moduleNumber = 1
     for moduleName in moduleNames:
         module = cc.getModule(moduleName, folder)
         serviceNames = cc.getServiceNames(module)
         
+        moduleText += '\n'
         
         for serviceName in serviceNames:
             service = cc.getService(serviceName, module)
+            capacity = service.get('capacity', 0)
             method = service.get('method', 'POST')
             # TODO: CHECK TO MAKE SURE functionName EXISTS!
             functionName = service.get('functionName', 'ERROR')
             moduleText += buildCodeLine(0, ['# Service ', serviceName, ' in module ', moduleName])
             moduleText += buildCodeLine(0, ['@app.route("/services/', folderName, '/', moduleName, '/', serviceName, '", methods=["', method , '"])'])
             moduleText += buildCodeLine(0, ['def s_', str(functionNumber), '():'])
+            moduleText += buildCodeLine(1, ['try:'])
             functionNumber += 1
             # TODO: ADD METRICS.
             # TODO: ADD LOGGING.
-            # TODO: THE FOLLOWING JUST PARSES THE QUERY PARAMETERS AND BODY TO AND FROM DICTIONARIES.  NEED TO HANDLE OTHER CASES.
-            # TODO: CHECK FOR CAPACITY.  ONLY FOR Pandas DATAFRAMES.
-            # TODO: json PACKAGE DOESN'T PARSE NUMPY DATA TYPES.  NEED TO SPECIFY NUMPY TO JSON TYPE CONVERTER AS default PARAMETER OF json.dumps.
-            # SEE https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable/50916741
-            # AND https://docs.python.org/3/library/json.html
+
+            # For POST, parse the body.
+            includeBody = service.get('includeBody', True)
+            if method == 'POST' and includeBody:
+                moduleText += buildCodeLine(2, ['inputObject = cc.toInputType(request, inputParseType="', service.get('inputParseType', 'none'), '")'])
+                # Add capacity check if appropriate
+                if capacity:
+                    moduleText += buildCodeLine(2, ['if isinstance(inputObject, pandas.core.frame.DataFrame) and len(inputObject.index) > ', str(capacity),':'])
+                    moduleText += buildCodeLine(3, ['return {"error": "Capacity exceeded"}'])            
+            
             functionText = moduleShortNames[moduleName] + '.' + functionName
             # NOTE:  request.get_json() RETURNS A DICTIONARY.
-            
+
             codeComponents = ['output = ', functionText, '(']
             functionArgs = []
             if service.get('includeParams', False):
@@ -165,16 +172,22 @@ def buildPyFolder(folderName, project):
                 if len(functionArgs)>0:
                     functionArgs.append(',')
                 functionArgs.append('request')
-            if method == 'POST' and service.get('includeBody', True):
+            if method == 'POST' and includeBody:
                 if len(functionArgs)>0:
                     functionArgs.append(',')
-                functionArgs.append('request.get_json()')
+                #functionArgs.append('request.get_json()')
+                functionArgs.append('inputObject')
             codeComponents.extend(functionArgs)
             codeComponents.append(')')
 
-            moduleText += buildCodeLine(1, codeComponents)
-            moduleText += buildCodeLine(1, ['parsedOutput = json.dumps(output, indent=2)'])
-            moduleText += buildCodeLine(1, ['return(parsedOutput)'])
+            moduleText += buildCodeLine(2, codeComponents)
+
+            moduleText += buildCodeLine(2, ['return Response(cc.serviceOutput(output, "', service.get('outputParseType', 'default'), '"), ',
+                'content_type="application/json"',')'])
+
+            moduleText += buildCodeLine(1, ['except Exception as err:'])
+            #moduleText += buildCodeLine(2, ['return(\'{"error": "\' + str(err) + \'"}\')'])
+            moduleText += buildCodeLine(2, ['return {"error": str(err)}'])            
 
         # Stub for refreshing objects in the module
         # TODO:  IMPLEMENT THIS
@@ -183,7 +196,7 @@ def buildPyFolder(folderName, project):
         moduleText += buildCodeLine(0, ['@app.route("/refreshObjects/', folderName, '/', moduleName, '", methods=["POST"])'])
         moduleText += buildCodeLine(0, ['def refresh_', str(moduleNumber), '():'])
         moduleText += buildCodeLine(1, ['# TODO: STUB - TO BE ADDED'])
-        moduleText += buildCodeLine(1, ['# TODO: PASS BACK workerID IN THE RESPONSE'])
+        moduleText += buildCodeLine(1, ['# TODO: PASS BACK cnr__workerID IN THE RESPONSE'])
         moduleText += buildCodeLine(1, ['return({})'])
 
         # Update credentials (e.g., for object store)
@@ -194,10 +207,10 @@ def buildPyFolder(folderName, project):
         moduleText += buildCodeLine(0, ['def updateCred_', str(moduleNumber), '():'])
         moduleText += buildCodeLine(1, ['parsedBody = json.loads(request.get_json())'])
         moduleText += buildCodeLine(1, ['updateID = parsedBody.get("updateID", None)'])
-        moduleText += buildCodeLine(1, ['if updateID and updateID != lastUpdateID:'])
-        moduleText += buildCodeLine(2, ['lastUpdateID = updateID'])
+        moduleText += buildCodeLine(1, ['if updateID and updateID != cnr__lastUpdateID:'])
+        moduleText += buildCodeLine(2, ['cnr__lastUpdateID = updateID'])
         moduleText += buildCodeLine(2, [''])
-        moduleText += buildCodeLine(1, ['return({"workerID": workerID})'])
+        moduleText += buildCodeLine(1, ['return({"workerID": cnr__workerID})'])
         moduleText += '\n'
 
         moduleNumber += 1
@@ -252,10 +265,11 @@ def buildRModuleEpilogue(folderName, moduleName, project):
     
     moduleText += buildCodeLine(0, ['library(jsonlite)'])
     moduleText += buildCodeLine(0, ['library(urltools)'])
+    moduleText += buildCodeLine(0, ['library(cannrio)'])
     moduleText += '\n'
-    moduleText += buildCodeLine(0, ['workerID <- Sys.getenv("WORKER_ID")'])
-    moduleText += buildCodeLine(0, ['credentials <- NULL'])
-    moduleText += buildCodeLine(0, ['lastUpdateID <- NULL'])
+    moduleText += buildCodeLine(0, ['cnr__workerID <- Sys.getenv("WORKER_ID")'])
+    moduleText += buildCodeLine(0, ['cnr__credentials <- NULL'])
+    moduleText += buildCodeLine(0, ['cnr__lastUpdateID <- NULL'])
     moduleText += '\n'
     
     # Build the wrappers.
@@ -266,26 +280,24 @@ def buildRModuleEpilogue(folderName, moduleName, project):
         method = service.get('method', 'POST')
         functionName = service.get('functionName', 'ERROR')
         moduleText += buildCodeLine(0, ['# Service ', serviceName, ' in module ', moduleName, ' in folder ', folderName])
-        moduleText += buildCodeLine(0, ["#' @", method.lower(), " /services/", folderName, "/", moduleName, "/", serviceName])
+        moduleText += buildCodeLine(0, ['#* @serializer unboxedJSON'])
+        moduleText += buildCodeLine(0, ['#* @', method.lower(), ' /services/', folderName, '/', moduleName, '/', serviceName])
         moduleText += buildCodeLine(0, ['function(req) {'])
         
         if method == 'POST' and service.get('includeBody', True):
-            moduleText += buildCodeLine(1, ['rawJSON <- req$postBody'])
-            # TODO: THE FOLLOWING JUST PARSES THE QUERY PARAMETERS AND BODY TO AND FROM DATAFRAMES.  NEED TO HANDLE OTHER CASES.
-            # TODO: CHECK FOR CAPACITY.  ONLY FOR DATAFRAMES.
-            moduleText += buildCodeLine(1, ['listFromJSON <- fromJSON(rawJSON)'])
-            moduleText += buildCodeLine(1, ['bodyInput <- as.data.frame(listFromJSON)'])
-            input = service.get('input', {})
-            capacity = input.get('capacity', None)
+            inputParseType = service.get('inputParseType', 'default')
+            moduleText += buildCodeLine(1, ['inputObject <- cnrFromJSON(req$postBody, inputParseType="', inputParseType,'")'])
+            capacity = service.get('capacity', 0)
             if capacity:
-                moduleText += buildCodeLine(1, ['if (nrow(bodyInput) > ', str(capacity),') {'])
-                moduleText += buildCodeLine(2, ['return(data.frame(error = "Capacity exceeded"))'])            
+                moduleText += buildCodeLine(1, ['if (class(inputObject)=="data.frame" && nrow(inputObject) > ', str(capacity),') {'])
+                moduleText += buildCodeLine(2, ['return(list(error = "Capacity exceeded"))'])            
                 moduleText += buildCodeLine(1, ['}'])
 
 
-        codeComponents = ['output <- ', functionName, '(']
+        codeComponents = ['outputObject <- ', functionName, '(']
         functionArgs = []
         if service.get('includeParams', False):
+            # TODO: MOVE THIS TO cannrio PACKAGE
             moduleText += buildCodeLine(1, ['queryParams <- param_get(paste0("http://x.com/x", req$QUERY_STRING))'])
             functionArgs.append('queryParams')
         if service.get('includeRequest', False):
@@ -295,12 +307,13 @@ def buildRModuleEpilogue(folderName, moduleName, project):
         if method == 'POST':
             if len(functionArgs)>0:
                 functionArgs.append(',')
-            functionArgs.append('bodyInput')
+            functionArgs.append('inputObject')
         codeComponents.extend(functionArgs)
         codeComponents.append(')')
         moduleText += buildCodeLine(1, codeComponents)
 
-        moduleText += buildCodeLine(1, ['return(output)'])
+        outputParseType = service.get('outputParseType', 'default')
+        moduleText += buildCodeLine(1, ['return(cnrToJSON(outputObject, outputParseType="', outputParseType, '"))'])
         moduleText += buildCodeLine(0, ['}'])
 
     moduleText += '\n'    
@@ -319,11 +332,11 @@ def buildRModuleEpilogue(folderName, moduleName, project):
     moduleText += buildCodeLine(1, ['rawJSON <- req$postBody'])
     moduleText += buildCodeLine(1, ['listFromJSON <- fromJSON(rawJSON)'])
     moduleText += buildCodeLine(1, ['updateID <- listFromJSON[["updateID"]]'])
-    moduleText += buildCodeLine(1, ['if (updateID != lastUpdateID) {'])
-    moduleText += buildCodeLine(2, ['lastUpdateID <- updateID'])
-    moduleText += buildCodeLine(2, ['credentials <- listFromJSON[["credentials"]]'])
+    moduleText += buildCodeLine(1, ['if (updateID != cnr__lastUpdateID) {'])
+    moduleText += buildCodeLine(2, ['cnr__lastUpdateID <- updateID'])
+    moduleText += buildCodeLine(2, ['cnr__credentials <- listFromJSON[["credentials"]]'])
     moduleText += buildCodeLine(1, ['}'])
-    moduleText += buildCodeLine(1, ['return(list("workerID" = workerID))'])
+    moduleText += buildCodeLine(1, ['return(list("workerID" = cnr__workerID))'])
     moduleText += buildCodeLine(0, ['}'])
 
     return moduleText
@@ -570,7 +583,7 @@ def buildProject(project, basePath, context):
                 moduleText = sourceText + 2*'\n' + buildRModuleEpilogue(folderName, moduleName, project)
                 folderPath = getFolderPath(foldersPath, folderName)
                 modulePath = folderPath + os.path.sep + moduleName + ".R"
-                
+
                 # Write out the module script.
                 with open(modulePath, "w") as moduleFile:
                     moduleFile.write(moduleText)

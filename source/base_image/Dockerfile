@@ -30,6 +30,7 @@ RUN pip3 install docker
 RUN pip3 install stdlib_list
 RUN pip3 install flask
 RUN pip3 install pandas
+RUN pip3 install numpyencoder
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.9/dist-packages/
 
 # Install NGINX community edition and create log directories
@@ -40,6 +41,7 @@ RUN mkdir -p /usr/share/nginx/logs/
 # Install R packages
 RUN install2.r plumber
 RUN install2.r urltools
+RUN install2.r stringr
 #RUN install2.r objectstore
 
 # Create the event calendar directory
@@ -56,6 +58,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy project contents and set PYTHONPATH
 COPY cannr /usr/local/cannr
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/cannr/lib
+
+# Install local R packages
+RUN cd /usr/local/cannr/packages && Rscript installpack.R
 
 # Set DOCKER_HOST so tool can access Docker on the host machine
 #ENV DOCKER_HOST=host.docker.internal

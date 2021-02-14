@@ -1,0 +1,20 @@
+Package: cannrio
+Type: Package
+Title: IO Functions for CANNR TM R Services
+Version: 0.1.0
+Author: Pat Tendick
+Maintainer: Pat Tendick <ptendick@gmail.com>
+Description: This package contains functions that convert between JSON input and output
+    to and from service calls and R objects.  For example, the CANNR user might specify
+    that a function takes a data frame as input and returns a vector as output.
+    The functions in this package would convert the JSON provided in the service call
+    into a data frame to be input into the function, and then would convert the vector
+    output of the function into JSON to be returned by the Web service.
+    This package is not intended to be used outside of the CANNR containerized services.
+Imports:
+    jsonlite,
+    rlang,
+    stringr
+License: apache-2 + file LICENSE
+Encoding: UTF-8
+LazyData: true

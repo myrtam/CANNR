@@ -40,22 +40,24 @@ predPLengthSLength <- function(new) {
 ################################################################################
 
 ################################################################################
-# Generated 2021-01-13 02:20:40
+# Generated 2021-02-14 16:20:01
 ################################################################################
 
 library(jsonlite)
 library(urltools)
+library(cannrio)
 
-workerID <- Sys.getenv("WORKER_ID")
-credentials <- NULL
-lastUpdateID <- NULL
+cnr__workerID <- Sys.getenv("WORKER_ID")
+cnr__credentials <- NULL
+cnr__lastUpdateID <- NULL
 
 # Service predplengthslength in module iris in folder rfolder
-#' @get /services/rfolder/iris/predplengthslength
+#* @serializer unboxedJSON
+#* @get /services/rfolder/iris/predplengthslength
 function(req) {
 	queryParams <- param_get(paste0("http://x.com/x", req$QUERY_STRING))
-	output <- predPLengthSLength(queryParams)
-	return(output)
+	outputObject <- predPLengthSLength(queryParams)
+	return(cnrToJSON(outputObject, outputParseType="default"))
 }
 
 # Refresh objects in module iris
@@ -71,9 +73,9 @@ function(req) {
 	rawJSON <- req$postBody
 	listFromJSON <- fromJSON(rawJSON)
 	updateID <- listFromJSON[["updateID"]]
-	if (updateID != lastUpdateID) {
-		lastUpdateID <- updateID
-		credentials <- listFromJSON[["credentials"]]
+	if (updateID != cnr__lastUpdateID) {
+		cnr__lastUpdateID <- updateID
+		cnr__credentials <- listFromJSON[["credentials"]]
 	}
-	return(list("workerID" = workerID))
+	return(list("workerID" = cnr__workerID))
 }

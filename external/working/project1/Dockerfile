@@ -19,7 +19,7 @@ COPY conf.d/http /etc/nginx/http
 COPY . .
 
 # Copy static content
-COPY ./content/web/mystatic /content
+COPY ./content/web/static /content
 
 
 # Change permissions and run main script to start services

@@ -63,41 +63,42 @@ function getProjects() {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
-
-				// If success, get the projects collection.
-				var projects = response['projects'];
-				deleteChildNodes(projectSelect);
-
-				// Load the projects into the pick list.
-				var keys = Object.keys(projects);
-				keys.forEach( function (key, index) {
-
-					// Create a new pick list item and add the project to it.
-					var option = document.createElement('option');
-					projectSelect.appendChild(option);
-					project = projects[key];
-					label = key
-					if (project['projectTitle'])
-						label = label + ' - ' + project['projectTitle'];
-					option.innerHTML = label;
-					option.setAttribute('value', key);
-
-					// If only one project, select it by default.
-					if (keys.length==1) {
-						selectedProjectName = key;
-						option.selected = true;
-					}
-					
-				});
-				
-				setSelected(projectSelect, projectName);
-				
-			}
-			else
-				alert(response.errorMsg);
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					projects = data['projects'];
+					deleteChildNodes(projectSelect);
 	
+					// Load the projects into the pick list.
+					var keys = Object.keys(projects);
+					keys.forEach( function (key, index) {
+	
+						// Create a new pick list item and add the project to it.
+						var option = document.createElement('option');
+						projectSelect.appendChild(option);
+						project = projects[key];
+						label = key
+						if (project['projectTitle'])
+							label = label + ' - ' + project['projectTitle'];
+						option.innerHTML = label;
+						option.setAttribute('value', key);
+	
+						// If only one project, select it by default.
+						if (keys.length==1) {
+							selectedProjectName = key;
+							option.selected = true;
+						}
+						
+					});
+				
+					setSelected(projectSelect, projectName);
+				
+				}
+				else
+					alert(data.errorMsg);
+	
+			}
+			
 		} else {
 			console.error(xhr.responseText);
 			alert("Error retrieving session state");
@@ -166,7 +167,7 @@ function onDelProject() {
 		return;
 
 	// Prepare the XHR request.
-	var request = {"projectName": projectName};
+	var request = {'data': {'projectName': projectName}};
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", baseURL + "deleteproject");
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
@@ -179,19 +180,22 @@ function onDelProject() {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
 
-				alert('Project deleted.');
-
-				// Remove the project from the pick list
-				delSelected(projectSelect);
+					alert('Project deleted.');
+	
+					// Remove the project from the pick list
+					delSelected(projectSelect);
+					
+					disableProjectSelect();
+	
+				}
+				else
+					alert(data.errorMsg);
 				
-				disableProjectSelect();
-
 			}
-			else
-				alert(response.errorMsg);
 	
 		} else {
 			alert("Error deleting project.");

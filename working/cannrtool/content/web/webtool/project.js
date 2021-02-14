@@ -85,7 +85,7 @@ var packageAddButton = null;
 var packageDelButton = null;
 var packageInput = null;
 var packageSelect = null;
-var paramsToDFInput = null;
+//var paramsToDFInput = null;
 var projectBack = null;
 var projectBuildModal = null;
 var projectDescriptionInput = null;
@@ -187,7 +187,7 @@ function initDOMObjects() {
 	packageDelButton = document.getElementById('packageDelButton');
 	packageInput = document.getElementById('packageInput');
 	packageSelect = document.getElementById('packageSelect');
-	paramsToDFInput = document.getElementById('paramsToDFInput');
+	//paramsToDFInput = document.getElementById('paramsToDFInput');
 	projectBack = document.getElementById('projectBack');
 	projectBuildModal = document.getElementById('projectBuildModal');
 	projectDescriptionInput = document.getElementById('projectDescriptionInput');
@@ -257,7 +257,7 @@ function initDOMObjects() {
 	methodGETInput.addEventListener('input', serviceInput);
 	methodPOSTInput.addEventListener('input', serviceInput);
 	outputParseTypeInput.addEventListener('input', serviceInput);
-	paramsToDFInput.addEventListener('input', serviceInput);
+	//paramsToDFInput.addEventListener('input', serviceInput);
 	serviceDescriptionInput.addEventListener('input', serviceInput);
 	serviceNameInput.addEventListener('input', serviceInput);
 	serviceNameRules.addEventListener('input', serviceInput);
@@ -444,6 +444,8 @@ function popProjectProps() {
 
 	setProjectButtons();
 
+	disableFolderSelect()
+
 	return true;
 
 }
@@ -451,7 +453,7 @@ function popProjectProps() {
 //Shows or hides the folder path on the folder properties screen
 function showFolderPath(folderName2, folderType2) {
 	
-	if (folderType2) {
+	if (folderName2) {
 		if (folderType=='content') {
 			var port = project['nginxPort'];
 			port = port? (port=='80'? '': ':' + port): '';
@@ -794,6 +796,9 @@ function popModuleProps() {
 		
 	}
 
+	// If existing module, can't edit source file.
+	fileSelect.disabled = moduleName? true: false;
+
 	// Populate module data if exists
 	if (moduleName) {
 
@@ -959,8 +964,8 @@ function prepServiceScreen() {
 	methodGETInput.checked = false;
 	includeBodyInput.checked = true;
 	includeParamsInput.checked = false;
-	paramsToDFInput.checked = false;
-	paramsToDFInput.disabled = true;
+	//paramsToDFInput.checked = false;
+	//paramsToDFInput.disabled = true;
 	includeRequestInput.checked = false;
 
 	// Set handler to set focus on serviceNameInput.
@@ -970,11 +975,79 @@ function prepServiceScreen() {
 
 	deleteChildNodes(functionSelect);
 
-	// Disable the Save button
-	//disableButton(serviceNext, true);
-
 	deleteChildNodes(inputParseTypeInput);
 	deleteChildNodes(outputParseTypeInput);
+
+	var option = null;
+
+	// Populate pull down lists for input and output conversions.
+	if (language=='R') {
+
+		option = document.createElement('option');
+		inputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Jsonlite Defaults';
+		option.setAttribute('value', 'default');
+		option.selected = true;
+
+		/*
+		option = document.createElement('option');
+		inputParseTypeInput.appendChild(option);
+		option.innerHTML = 'R Data Frame';
+		option.setAttribute('value', 'dataframe');
+		*/
+		
+		option = document.createElement('option');
+		outputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Jsonlite Defaults';
+		option.setAttribute('value', 'default');
+		
+		option = document.createElement('option');
+		outputParseTypeInput.appendChild(option);
+		option.innerHTML = "Do Not Convert";
+		option.setAttribute('value', 'none');
+
+	}
+	else {
+		
+		option = document.createElement('option');
+		inputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Python List/Dictionary (Default)';
+		option.setAttribute('value', 'default');
+		
+		option = document.createElement('option');
+		inputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Pandas DataFrame';
+		option.setAttribute('value', 'dataframe');
+		
+		option = document.createElement('option');
+		inputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Numpy Array';
+		option.setAttribute('value', 'array');
+		
+		option = document.createElement('option');
+		inputParseTypeInput.appendChild(option);
+		option.innerHTML = "Do Not Parse";
+		option.setAttribute('value', 'none');
+
+		option = document.createElement('option');
+		outputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Default JSON Conversion';
+		option.setAttribute('value', 'default');
+
+		option = document.createElement('option');
+		outputParseTypeInput.appendChild(option);
+		option.innerHTML = 'Pandas DataFrame';
+		option.setAttribute('value', 'dataframe');
+		
+		option = document.createElement('option');
+		outputParseTypeInput.appendChild(option);
+		option.innerHTML = "String Version of Object";
+		option.setAttribute('value', 'none');
+
+	}
+
+	setSelected(inputParseTypeInput, 'default');
+	setSelected(outputParseTypeInput, 'default');
 
 }
 
@@ -1045,102 +1118,6 @@ function popServiceProps() {
 		
 	}
 	
-	var option = null;
-
-	option = document.createElement('option');
-	inputParseTypeInput.appendChild(option);
-	if (language=='R') {
-		option.innerHTML = 'R List';
-		option.setAttribute('value', 'rlist');
-	}
-	else {
-		option.innerHTML = 'Python Dictionary';
-		option.setAttribute('value', 'dictionary');
-	}
-
-	option = document.createElement('option');
-	inputParseTypeInput.appendChild(option);
-	if (language=='R')
-		option.innerHTML = 'R Data Frame';
-	else
-		option.innerHTML = 'Pandas DataFrame';
-	option.setAttribute('value', 'dataframe');
-
-	if (language=='Python') {
-		option = document.createElement('option');
-		inputParseTypeInput.appendChild(option);
-		option.innerHTML = 'Python List';
-		option.setAttribute('value', 'plist');
-	}
-
-	option = document.createElement('option');
-	inputParseTypeInput.appendChild(option);
-	if (language=='R') {
-		option.innerHTML = 'Vector/Matrix';
-		option.setAttribute('value', 'vector');
-	}
-	else {
-		option.innerHTML = 'Numpy Array';
-		option.setAttribute('value', 'nparray');
-	}
-
-	option = document.createElement('option');
-	inputParseTypeInput.appendChild(option);
-	option.innerHTML = "Do not parse";
-	option.setAttribute('value', 'none');
-
-	if (language=='R')
-		setSelected(inputParseTypeInput, 'rlist');
-	else
-		setSelected(inputParseTypeInput, 'dictionary');
-
-	option = document.createElement('option');
-	outputParseTypeInput.appendChild(option);
-	if (language=='R') {
-		option.innerHTML = 'R List';
-		option.setAttribute('value', 'rlist');
-	}
-	else {
-		option.innerHTML = 'Python Dictionary';
-		option.setAttribute('value', 'dictionary');
-	}
-
-	option = document.createElement('option');
-	outputParseTypeInput.appendChild(option);
-	if (language=='R')
-		option.innerHTML = 'R Data Frame';
-	else
-		option.innerHTML = 'Pandas DataFrame';
-	option.setAttribute('value', 'dataframe');
-
-	if (language=='Python') {
-		option = document.createElement('option');
-		outputParseTypeInput.appendChild(option);
-		option.innerHTML = 'Python List';
-		option.setAttribute('value', 'plist');
-	}
-
-	option = document.createElement('option');
-	outputParseTypeInput.appendChild(option);
-	if (language=='R') {
-		option.innerHTML = 'Vector/Matrix';
-		option.setAttribute('value', 'vector');
-	}
-	else {
-		option.innerHTML = 'Numpy Array';
-		option.setAttribute('value', 'nparray');
-	}
-
-	option = document.createElement('option');
-	outputParseTypeInput.appendChild(option);
-	option.innerHTML = "Do not parse";
-	option.setAttribute('value', 'none');
-
-	if (language=='R')
-		setSelected(outputParseTypeInput, 'rlist');
-	else
-		setSelected(outputParseTypeInput, 'dictionary');
-
 	// Populate module data if exists
 	if (serviceName) {
 
@@ -1186,13 +1163,13 @@ function popServiceProps() {
 
 		includeBody = service['includeBody'];
 		includeParams = service['includeParams'];
-		paramsToDF = service['paramsToDF'];
+		//paramsToDF = service['paramsToDF'];
 		includeRequest = service['includeRequest'];
 		inputParseType = service['inputParseType'];
 		outputParseType = service['outputParseType'];
 		includeBodyInput.checked = includeBody? true: false;
 		includeParamsInput.checked = includeParams? true: false;
-		paramsToDFInput.checked = paramsToDF? true: false;
+		//paramsToDFInput.checked = paramsToDF? true: false;
 		includeRequestInput.checked = includeRequest? true: false;
 		setSelected(inputParseTypeInput, inputParseType);
 		setSelected(outputParseTypeInput, outputParseType);
@@ -1373,7 +1350,7 @@ function goModal(nextModalID) {
 function updateProject(nextModalID) {
 
 	// Prepare the request doc
-	var request = {'project': project};
+	var request = {'data': {'project': project}};
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -1388,15 +1365,17 @@ function updateProject(nextModalID) {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
-				project = response['project'];
-				// Populate the folder select list
-				popFolderSelect();
-				goModal(nextModalID);
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
+					// Populate the folder select list
+					popFolderSelect();
+					goModal(nextModalID);
+				}
+				else
+					alert(data['errorMsg']);
 			}
-			else
-				alert(response['errorMsg']);
 		} 
 		else
 			alert('Error updating project');
@@ -1470,9 +1449,11 @@ function writeProject(project1, overwrite, cancel) {
 
 	// Define the request, including the project.
 	var request = {
+		'data': {
 			'project': project2,
 			'overwrite': overwrite
-		};
+		}
+	};
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -1490,34 +1471,39 @@ function writeProject(project1, overwrite, cancel) {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
+			var data = response['data'];
+			if (data) {
 
-				// Update project properties
-				project = response['project'];
-				popProjectProps();
+				if (data.succeeded) {
+					project = data['project'];
+					popProjectProps();
 
-				// Populate folder properties on the page
-				goModal(nextModalID);
-				// Notify that project created.
-				if (newProject&&!folderName)
-					alert('Project created.');
-			}
-			else {
-				// Otherwise, handle the error.
-				var error = response['error']
-				if (error)
-					// If the project already exists and not cancelling, prompt whether to overwrite and try again.
-					if  (error=='projectExists') {
-						if (!cancel&&confirm("Project exists.  Overwrite?"))
-							writeProject(project1, true, false);
+					// Populate folder properties on the page
+					goModal(nextModalID);
+					// Notify that project created.
+					if (newProject&&!folderName)
+						alert('Project created.');
+
+				}
+				else {
+					// Otherwise, handle the error.
+					var error = data['error']
+					if (error) {
+						// If the project already exists and not cancelling, prompt whether to overwrite and try again.
+						if  (error=='projectExists') {
+							if (!cancel&&confirm("Project exists.  Overwrite?"))
+								writeProject(project1, true, false);
+						}
+						else
+							alert(data['errorMsg']);
 					}
 					else
-						alert(response['errorMsg']);
-				else
-					alert('Error creating project');
-					
+						alert('Error creating project');
+						
+				}
 			}
+			else
+				alert(response['error']);
 
 		} else {
 			alert('Error creating project');
@@ -1646,7 +1632,7 @@ function onKeepFolderProps(nextModalID) {
 		folder['modules'] = {};
 
 	// Prepare the request doc
-	var request = {'project': project};
+	var request = {'data': {'project': project}};
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -1661,61 +1647,71 @@ function onKeepFolderProps(nextModalID) {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
 
-				// Get the updated project (should be the same)
-				project = response['project']
-
-				// Populate the folder select list
-				popFolderSelect();
-
-				// If files to upload, upload them.
-				if (files&&files.length>0) {
-
-					// Populate the multipart form data.
-					var formData = new FormData();
-					for (var i = 0; i < files.length; i++)
-				    	formData.append('files', files[i]);
-
-					// Prepare the request
-					var xhr2 = new XMLHttpRequest();
-					xhr2.open("POST", baseURL + "uploadfolder?projectname=" + projectName + '&foldername=' + folderName);
-					xhr2.setRequestHeader('Content-type','application/octet-stream');
+					// Populate the folder select list
+					popFolderSelect();
 	
-					// Define the callback function.
-					xhr2.onload = function () {
+					// If files to upload, upload them.
+					if (files&&files.length>0) {
 	
-						// Get the response, check HTTP status.
-						if (xhr2.status == "200") {
+						// Populate the multipart form data.
+						var formData = new FormData();
+						for (var i = 0; i < files.length; i++)
+					    	formData.append('files', files[i]);
 	
-							// Retrieve the response and check whether the request succeeded.
-							var response = JSON.parse(xhr2.responseText);
-							var succeeded = response.succeeded;
-							if (succeeded) {
-								// Populate properties on the page
-								project = response['project'];
-								// Update the project
-								//goModal(nextModalID);
-								updateProject(nextModalID);
+						// Prepare the request
+						var xhr2 = new XMLHttpRequest();
+						xhr2.open("POST", baseURL + "uploadfolder?projectname=" + projectName + '&foldername=' + folderName);
+						xhr2.setRequestHeader('Content-type','application/octet-stream');
+		
+						// Define the callback function.
+						xhr2.onload = function () {
+		
+							// Get the response, check HTTP status.
+							if (xhr2.status == "200") {
+		
+								// Retrieve the response and check whether the request succeeded.
+								var response2 = JSON.parse(xhr2.responseText);
+								var data2 = response2['data'];
+								if (data2) {
+									if (data2.succeeded) {
+										project = data2['project'];
+										// Update the project
+										//goModal(nextModalID);
+										updateProject(nextModalID);
+									}
+									else
+										alert(data2['errorMsg']);
+								}
+								else
+									alert(response2['error']);
+	
 							}
-
+							else
+								alert('Error uploading files');
+	
 						}
-
+						xhr2.send(formData);
+	
 					}
-					xhr2.send(formData);
-
+					else {
+						// Go to the module properties page
+						project = data['project'];
+						goModal(nextModalID);
+					}
 				}
-				else {
-					// Go to the module properties page
-					project = response['project'];
-					goModal(nextModalID);
-				}
-
+				else
+					alert(data['errorMsg']);
 			}
 			else
-				alert(response['errorMsg']);
-		} else
+				alert(response['error']);
+
+		}
+		else
 			alert('Error updating project');
 
 	}
@@ -1826,7 +1822,7 @@ function onKeepModuleProps(nextModalID) {
 		module['services'] = {};
 
 	// Prepare the request doc
-	var request = {'project': project};
+	var request = {'data': {'project': project}};
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -1841,14 +1837,15 @@ function onKeepModuleProps(nextModalID) {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
-				// Populate project properties on the page
-				project = response['project'];
-				goModal(nextModalID);
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
+					goModal(nextModalID);
+				}
+				else
+					alert(data['errorMsg']);
 			}
-			else
-				alert(response['errorMsg']);
 		} else {
 			alert('Error updating project');
 		}
@@ -1946,7 +1943,7 @@ function onKeepServiceProps(nextModalID) {
 	// Get parameter options
 	var includeBody = includeBodyInput.checked;
 	var includeParams = includeParamsInput.checked;
-	var paramsToDF = paramsToDFInput.checked;
+	//var paramsToDF = paramsToDFInput.checked;
 	var includeRequest = includeRequestInput.checked;
 
 	// Get the input parse type method
@@ -1980,7 +1977,7 @@ function onKeepServiceProps(nextModalID) {
 	service['method'] = method;
 	service['includeBody'] = includeBody;
 	service['includeParams'] = includeParams;
-	service['paramsToDF'] = paramsToDF;
+	//service['paramsToDF'] = paramsToDF;
 	service['includeRequest'] = includeRequest;
 	service['inputParseType'] = inputParseType;
 	service['outputParseType'] = outputParseType;
@@ -2030,46 +2027,47 @@ function getProject() {
 
 			// Retrieve the response and process it.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
 
-				// Retrieve the project
-				project = response['project'];
-
-				// If project exists
-				if (project) {
-
-					// Not a new project
-					newProject = false;
-
-					// Go to the main screen
-					projectName = paramProjectName;
-					goModal(null);
-
-					// Populate the folder select list
-					popFolderSelect();
-
+					// If project exists
+					if (project) {
+	
+						// Not a new project
+						newProject = false;
+	
+						// Go to the main screen
+						projectName = paramProjectName;
+						goModal(null);
+	
+						// Populate the folder select list
+						popFolderSelect();
+	
+					}
+					else {
+			
+						projectPageTitle.innerHTML = 'New Project';
+						projectPropertiesTitle.innerHTML = 'New Project';
+						onProjectProps();
+		
+					}
+				
 				}
 				else {
-		
-					projectPageTitle.innerHTML = 'New Project';
-					projectPropertiesTitle.innerHTML = 'New Project';
-					onProjectProps();
+
+					// Display error message.
+					var errorMsg = data['errorMsg'];
+					console.error(errorMsg);
+					var detail = data['detail'];
+					console.error(detail);
+					alert(errorMsg);
+	
+					// Return to the main page
+					onExitProject();
 	
 				}
-
-			}
-			else {
-
-				// Display error message.
-				var errorMsg = response['errorMsg'];
-				console.error(errorMsg);
-				var detail = response['detail'];
-				console.error(detail);
-				alert(errorMsg);
-
-				// Return to the main page
-				onExitProject();
 
 			}
 
@@ -2261,11 +2259,11 @@ function checkServiceProperties() {
 
 	// Handle whether HTTP parameters are to be included
 	if (includeParamsInput.checked) {
-		paramsToDFInput.disabled = false;
+		//paramsToDFInput.disabled = false;
 		arguments.push('HTTP query parameters');
 	}
-	else
-		paramsToDFInput.disabled = true;
+	//else
+	//	paramsToDFInput.disabled = true;
 
 	// Handle whether the HTTP request is to be included
 	if (includeRequestInput.checked) {
@@ -2414,7 +2412,8 @@ function onServiceBack() {
 function onCancel() {
 
 	if (!changed||confirm('Discard changes?'))
-		switchModal(null);
+		//switchModal(null);
+		goModal(null);
 
 }
 
@@ -2849,7 +2848,7 @@ function runContainer() {
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
-	var request = {'image': imageID, 'name': projectName}
+	var request = {'data': {'image': imageID, 'name': projectName}}
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -2864,28 +2863,32 @@ function runContainer() {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
 
-				// Get the container information
-				var containerID = response['id'];
-				var containerShortID = response['short_id'];
-				project['containerID'] = containerID;
-				project['image'] = response['image'];
-				project['labels'] = response['labels'];
-				project['containerName'] = response['name'];
-				project['containerShortID'] = containerShortID;
-				project['containerStatus'] = response['status'];
-
-				// Add the status message
-				if (containerShortID)
-					addStatusMessage('Container ' + containerShortID + 'started', null);
-					statusScrollBottom();
-				writeProject(project, true, false);
-
+					// Get the container information
+					var containerID = data['id'];
+					var containerShortID = data['short_id'];
+					project['containerID'] = containerID;
+					project['image'] = data['image'];
+					project['labels'] = data['labels'];
+					project['containerName'] = data['name'];
+					project['containerShortID'] = containerShortID;
+					project['containerStatus'] = data['status'];
+	
+					// Add the status message
+					if (containerShortID)
+						addStatusMessage('Container ' + containerShortID + 'started', null);
+						statusScrollBottom();
+					writeProject(project, true, false);
+				
+				}
+				else
+					alert(data['errorMsg']);
 			}
-			else
-				alert(response['errorMsg']);
+
 		} 
 		else
 			alert('Error starting container');
@@ -2916,7 +2919,7 @@ function buildImage() {
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
-	var request = {'projectName': projectName, 'tag': projectName}
+	var request = {'data': {'projectName': projectName, 'tag': projectName}}
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -2931,24 +2934,28 @@ function buildImage() {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
-				id = response['id'];
-				project['imageID'] = id;
-				tag = response['tag'];
-				project['tag'] = tag;
-				if (id)
-					addStatusMessage('Successfully built ' + id, null);
-				if (tag)
-					addStatusMessage('Successfully tagged ' + tag, null);
-				statusScrollBottom();
-				if (project['startLocalhost']&&project['imageID'])
-					runContainer();
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
+
+					id = data['id'];
+					project['imageID'] = id;
+					tag = data['tag'];
+					project['tag'] = tag;
+					if (id)
+						addStatusMessage('Successfully built ' + id, null);
+					if (tag)
+						addStatusMessage('Successfully tagged ' + tag, null);
+					statusScrollBottom();
+					if (project['startLocalhost']&&project['imageID'])
+						runContainer();
+					else
+						writeProject(project, true, false);
+				}
 				else
-					writeProject(project, true, false);
+					alert(data['errorMsg']);
 			}
-			else
-				alert(response['errorMsg']);
 		} 
 		else
 			alert('Error building image');
@@ -2978,7 +2985,7 @@ function buildProject() {
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
-	var request = {'project': project};
+	var request = {'data': {'project': project}};
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -2993,24 +3000,28 @@ function buildProject() {
 
 			// Retrieve the response and check whether the request succeeded.
 			var response = JSON.parse(xhr.responseText);
-			var succeeded = response.succeeded;
-			if (succeeded) {
-				project = response['project'];
-				// Populate the folder select list
-				popFolderSelect();
-				addStatusMessage('Project ' + projectName + ' built successfully!', null);
-				statusScrollBottom();
-				built = true;
-				setBuildButtons();
-				/*
-				if (project['buildImage'])
-					buildImage();
-				else if (project['startLocalhost']&&project['imageID'])
-					runContainer();
-				*/
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
+					// Populate the folder select list
+					popFolderSelect();
+					addStatusMessage('Project ' + projectName + ' built successfully!', null);
+					statusScrollBottom();
+					built = true;
+					setBuildButtons();
+					/*
+					if (project['buildImage'])
+						buildImage();
+					else if (project['startLocalhost']&&project['imageID'])
+						runContainer();
+					*/
+				}
+				else
+					alert(data['errorMsg']);
 			}
 			else
-				alert(response['errorMsg']);
+				alert(response['error']);
 		} 
 		else
 			alert('Error building project');
@@ -3038,15 +3049,6 @@ function onBuildProject(){
 	if (!project)
 		return;
 
-	/*
-	 * New project:
-	 * - If not built, build
-	 * - Else, go to null 
-	 * Existing project:
-	 * - If confirm, build project and stay on projectBuildModal
-	 * - Else, show cancelled status message
-	 */
-	
 	var nextModalID = 'projectBuildModal';
 	
 	if (newProject) {

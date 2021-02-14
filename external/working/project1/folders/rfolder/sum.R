@@ -26,24 +26,24 @@ sumX <- function(df) {
 ################################################################################
 
 ################################################################################
-# Generated 2021-01-13 02:20:40
+# Generated 2021-02-14 16:20:01
 ################################################################################
 
 library(jsonlite)
 library(urltools)
+library(cannrio)
 
-workerID <- Sys.getenv("WORKER_ID")
-credentials <- NULL
-lastUpdateID <- NULL
+cnr__workerID <- Sys.getenv("WORKER_ID")
+cnr__credentials <- NULL
+cnr__lastUpdateID <- NULL
 
 # Service sum in module sum in folder rfolder
-#' @post /services/rfolder/sum/sum
+#* @serializer unboxedJSON
+#* @post /services/rfolder/sum/sum
 function(req) {
-	rawJSON <- req$postBody
-	listFromJSON <- fromJSON(rawJSON)
-	bodyInput <- as.data.frame(listFromJSON)
-	output <- sumX(bodyInput)
-	return(output)
+	inputObject <- cnrFromJSON(req$postBody, inputParseType="default")
+	outputObject <- sumX(inputObject)
+	return(cnrToJSON(outputObject, outputParseType="default"))
 }
 
 # Refresh objects in module sum
@@ -59,9 +59,9 @@ function(req) {
 	rawJSON <- req$postBody
 	listFromJSON <- fromJSON(rawJSON)
 	updateID <- listFromJSON[["updateID"]]
-	if (updateID != lastUpdateID) {
-		lastUpdateID <- updateID
-		credentials <- listFromJSON[["credentials"]]
+	if (updateID != cnr__lastUpdateID) {
+		cnr__lastUpdateID <- updateID
+		cnr__credentials <- listFromJSON[["credentials"]]
 	}
-	return(list("workerID" = workerID))
+	return(list("workerID" = cnr__workerID))
 }

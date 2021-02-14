@@ -1,11 +1,12 @@
 {
   "projectName": "project1",
-  "projectTitle": "Example project 1",
-  "projectDescription": "Example showing both Python and R, and both GET and POST services.",
+  "timestamp": "1613317953942",
+  "projectTitle": "Basic project, Web tool version",
+  "projectDescription": "",
   "folders": {
     "pyfolder": {
-      "folderTitle": "Example Python Folder",
-      "folderDescription": "Example Python folder with 2 modules.",
+      "folderTitle": "Example Python folder",
+      "folderDescription": "",
       "folderType": "code",
       "language": "Python",
       "sourcePath": "folder1",
@@ -14,22 +15,21 @@
         "rand": {
           "moduleName": "rand",
           "moduleTitle": "Random Number Module",
-          "moduleDescription": "Module with one service that generates a random (0,1) deviate and exposes it as a GET service.",
+          "moduleDescription": "",
           "sourceFile": "rand.py",
           "packages": [],
           "services": {
             "rand": {
               "serviceName": "rand",
               "serviceTitle": "Random Number Service",
-              "serviceDescription": "Returns a random (0,1) deviate.",
+              "serviceDescription": "Returns a U(0,1) deviate",
               "functionName": "rand",
               "method": "GET",
               "includeBody": true,
               "includeParams": false,
-              "paramsToDF": false,
               "includeRequest": false,
-              "inputParseType": "dictionary",
-              "outputParseType": "dictionary"
+              "inputParseType": "default",
+              "outputParseType": "default"
             }
           },
           "functionNames": [
@@ -39,29 +39,27 @@
         },
         "sum": {
           "moduleName": "sum",
-          "moduleTitle": "Sum of List/Array Elements",
-          "moduleDescription": "Sums the elements of a Python list/array.",
-          "sourceFile": "rand.py",
+          "moduleTitle": "",
+          "moduleDescription": "",
+          "sourceFile": "sum.py",
           "packages": [],
           "services": {
             "sum": {
               "serviceName": "sum",
-              "serviceTitle": "Sum List/Array",
-              "serviceDescription": "Sums the elements in a list.",
-              "functionName": "rand",
+              "serviceTitle": "",
+              "serviceDescription": "",
+              "functionName": "calcSum",
               "method": "POST",
               "includeBody": true,
               "includeParams": false,
-              "paramsToDF": false,
               "includeRequest": false,
-              "inputParseType": "dictionary",
-              "outputParseType": "dictionary"
+              "inputParseType": "array",
+              "outputParseType": "default"
             }
           },
           "functionNames": [
-            "rand"
-          ],
-          "nodeNumber": 4
+            "calcSum"
+          ]
         }
       },
       "fileNames": [
@@ -71,8 +69,8 @@
       "nodeNumber": 2
     },
     "rfolder": {
-      "folderTitle": "Example R Folder",
-      "folderDescription": "Contains 2 modules, one that generates a random number and one that returns a fitted regression value.",
+      "folderTitle": "Example R Source Folder",
+      "folderDescription": "",
       "folderType": "code",
       "language": "R",
       "sourcePath": "folder2",
@@ -81,66 +79,61 @@
         "iris": {
           "moduleName": "iris",
           "moduleTitle": "Fisher's Iris Regression",
-          "moduleDescription": "Module that does a prediction based on Fisher's iris data.",
+          "moduleDescription": "",
           "sourceFile": "iris.R",
           "packages": [],
           "services": {
             "predplengthslength": {
               "serviceName": "predplengthslength",
-              "serviceTitle": "Predict Petal Length",
-              "serviceDescription": "Predict petal length from sepal length for species Virginica.  Need to add query parameter x=<sepal length>, e.g., ?x=6.5.",
+              "serviceTitle": "Predict Petal Length from Sepal Length",
+              "serviceDescription": "",
               "functionName": "predPLengthSLength",
               "method": "GET",
               "includeBody": true,
               "includeParams": true,
-              "paramsToDF": true,
               "includeRequest": false,
-              "inputParseType": "rlist",
-              "outputParseType": "dataframe"
+              "inputParseType": "default",
+              "outputParseType": "default"
             }
           },
           "functionNames": [
             "predPLengthSLength"
-          ],
-          "nodeNumber": 6
+          ]
         },
         "sum": {
           "moduleName": "sum",
-          "moduleTitle": "Sum of Variable Values",
-          "moduleDescription": "Module that provides one service that sums the values of variable X in an R data frame.",
+          "moduleTitle": "Sum of Data Frame Column",
+          "moduleDescription": "",
           "sourceFile": "sum.R",
           "packages": [],
           "services": {
             "sum": {
               "serviceName": "sum",
-              "serviceTitle": "",
+              "serviceTitle": "Sum of Variable X in a Data Frame",
               "serviceDescription": "",
               "functionName": "sumX",
               "method": "POST",
               "includeBody": true,
               "includeParams": false,
-              "paramsToDF": false,
               "includeRequest": false,
-              "inputParseType": "dataframe",
-              "outputParseType": "dataframe"
+              "inputParseType": "default",
+              "outputParseType": "default"
             }
           },
           "functionNames": [
             "sumX"
-          ],
-          "nodeNumber": 7
+          ]
         }
       },
       "fileNames": [
         "iris.R",
         "irisFit.R",
         "sum.R"
-      ],
-      "nodeNumber": 5
+      ]
     },
-    "mystatic": {
-      "folderTitle": "Example Content Folder",
-      "folderDescription": "Example of a folder containing static content.",
+    "static": {
+      "folderTitle": "Example Static Content Folder",
+      "folderDescription": "",
       "folderType": "content",
       "language": null,
       "sourcePath": "mystatic",
@@ -148,14 +141,11 @@
       "modules": {},
       "fileNames": [
         "static.html"
-      ],
-      "nodeNumber": 8
+      ]
     }
   },
-  "generateDockerfile": true,
-  "buildContainer": true,
-  "startLocalhost": false,
   "buildProject": true,
   "buildImage": true,
+  "startLocalhost": false,
   "nodeNumber": 1
 }

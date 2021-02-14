@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-01-13 02:20:40
+Generated 2021-02-14 16:20:01
 """
 import json
 import os
@@ -15,18 +15,18 @@ import sys
 import logging
 import uuid
 import pandas
-from flask import Flask, render_template, request
-import cannrcore as cnr
+from flask import Flask, render_template, request, Response
+import cannrcore as cc
 
 
 os.chdir("/folders/pyfolder/pyfolder")
-m_1 = cnr.importPackage("m_1", "/folders/pyfolder/pyfolder/rand.py")
-m_2 = cnr.importPackage("m_2", "/folders/pyfolder/pyfolder/rand.py")
+m_1 = cc.importPackage("m_1", "/folders/pyfolder/pyfolder/rand.py")
+m_2 = cc.importPackage("m_2", "/folders/pyfolder/pyfolder/sum.py")
 
 app = Flask(__name__)
-workerID = str(uuid.uuid4())
-credentials = None
-lastUpdateID = None
+cnr__workerID = str(uuid.uuid4())
+cnr__credentials = None
+cnr__lastUpdateID = None
 
 # Shut down the worker
 @app.route("/shutdown/pyfolder", methods=["POST"])
@@ -37,15 +37,17 @@ def shutdown():
 # Service rand in module rand
 @app.route("/services/pyfolder/rand/rand", methods=["GET"])
 def s_1():
-	output = m_1.rand()
-	parsedOutput = json.dumps(output, indent=2)
-	return(parsedOutput)
+	try:
+		output = m_1.rand()
+		return Response(cc.serviceOutput(output, "default"), content_type="application/json")
+	except Exception as err:
+		return {"error": str(err)}
 
 # Refresh objects in module rand
 @app.route("/refreshObjects/pyfolder/rand", methods=["POST"])
 def refresh_1():
 	# TODO: STUB - TO BE ADDED
-	# TODO: PASS BACK workerID IN THE RESPONSE
+	# TODO: PASS BACK cnr__workerID IN THE RESPONSE
 	return({})
 
 # Update credentials in module rand
@@ -53,23 +55,27 @@ def refresh_1():
 def updateCred_1():
 	parsedBody = json.loads(request.get_json())
 	updateID = parsedBody.get("updateID", None)
-	if updateID and updateID != lastUpdateID:
-		lastUpdateID = updateID
+	if updateID and updateID != cnr__lastUpdateID:
+		cnr__lastUpdateID = updateID
 		
-	return({"workerID": workerID})
+	return({"workerID": cnr__workerID})
+
 
 # Service sum in module sum
 @app.route("/services/pyfolder/sum/sum", methods=["POST"])
 def s_2():
-	output = m_2.rand(request.get_json())
-	parsedOutput = json.dumps(output, indent=2)
-	return(parsedOutput)
+	try:
+		inputObject = cc.toInputType(request, inputParseType="array")
+		output = m_2.calcSum(inputObject)
+		return Response(cc.serviceOutput(output, "default"), content_type="application/json")
+	except Exception as err:
+		return {"error": str(err)}
 
 # Refresh objects in module sum
 @app.route("/refreshObjects/pyfolder/sum", methods=["POST"])
 def refresh_2():
 	# TODO: STUB - TO BE ADDED
-	# TODO: PASS BACK workerID IN THE RESPONSE
+	# TODO: PASS BACK cnr__workerID IN THE RESPONSE
 	return({})
 
 # Update credentials in module sum
@@ -77,10 +83,10 @@ def refresh_2():
 def updateCred_2():
 	parsedBody = json.loads(request.get_json())
 	updateID = parsedBody.get("updateID", None)
-	if updateID and updateID != lastUpdateID:
-		lastUpdateID = updateID
+	if updateID and updateID != cnr__lastUpdateID:
+		cnr__lastUpdateID = updateID
 		
-	return({"workerID": workerID})
+	return({"workerID": cnr__workerID})
 
 
 # Run the app.

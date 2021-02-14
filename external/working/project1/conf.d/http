@@ -19,7 +19,7 @@ http {
 		location /services/rfolder/sum {
 			proxy_pass http://rfolder_sum;
 		}
-		location /web/mystatic {
+		location /web/static {
 			root /content;
 		}
 	}
