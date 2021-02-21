@@ -40,7 +40,7 @@ predPLengthSLength <- function(new) {
 ################################################################################
 
 ################################################################################
-# Generated 2021-02-14 11:29:48
+# Generated 2021-02-20 21:13:13
 ################################################################################
 
 library(jsonlite)
@@ -57,7 +57,7 @@ cnr__lastUpdateID <- NULL
 function(req) {
 	queryParams <- param_get(paste0("http://x.com/x", req$QUERY_STRING))
 	outputObject <- predPLengthSLength(queryParams)
-	return(cnrToJSON(outputObject, outputParseType="default"))
+	return(cnrToJSONList(outputObject, outputParseType="default"))
 }
 
 # Refresh objects in module iris

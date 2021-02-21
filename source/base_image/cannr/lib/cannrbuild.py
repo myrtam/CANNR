@@ -80,6 +80,7 @@ def buildPyFolder(folderName, project):
 
     # Import utilities.
     moduleText += buildCodeLine(0, ['import cannrcore as cc'])
+    moduleText += buildCodeLine(0, ['import cannrio as ci'])
 
     # Change to the folder home.
     moduleText += '\n'
@@ -155,7 +156,7 @@ def buildPyFolder(folderName, project):
             # For POST, parse the body.
             includeBody = service.get('includeBody', True)
             if method == 'POST' and includeBody:
-                moduleText += buildCodeLine(2, ['inputObject = cc.toInputType(request, inputParseType="', service.get('inputParseType', 'none'), '")'])
+                moduleText += buildCodeLine(2, ['inputObject = ci.toInputType(request, inputParseType="', service.get('inputParseType', 'none'), '")'])
                 # Add capacity check if appropriate
                 if capacity:
                     moduleText += buildCodeLine(2, ['if isinstance(inputObject, pandas.core.frame.DataFrame) and len(inputObject.index) > ', str(capacity),':'])
@@ -182,7 +183,7 @@ def buildPyFolder(folderName, project):
 
             moduleText += buildCodeLine(2, codeComponents)
 
-            moduleText += buildCodeLine(2, ['return Response(cc.serviceOutput(output, "', service.get('outputParseType', 'default'), '"), ',
+            moduleText += buildCodeLine(2, ['return Response(ci.serviceOutput(output, "', service.get('outputParseType', 'default'), '"), ',
                 'content_type="application/json"',')'])
 
             moduleText += buildCodeLine(1, ['except Exception as err:'])
@@ -313,7 +314,7 @@ def buildRModuleEpilogue(folderName, moduleName, project):
         moduleText += buildCodeLine(1, codeComponents)
 
         outputParseType = service.get('outputParseType', 'default')
-        moduleText += buildCodeLine(1, ['return(cnrToJSON(outputObject, outputParseType="', outputParseType, '"))'])
+        moduleText += buildCodeLine(1, ['return(cnrToJSONList(outputObject, outputParseType="', outputParseType, '"))'])
         moduleText += buildCodeLine(0, ['}'])
 
     moduleText += '\n'    
@@ -346,7 +347,7 @@ def buildRModuleEpilogue(folderName, moduleName, project):
 def checkWorkingDirectory(context):
     # Check whether the tool has a working directory
     workingDirectory = context.get("workingDirectory", None)
-    if not workingDirectory or not cc.existsDirectory(workingDirectory):
+    if not workingDirectory or not os.path.isdir(workingDirectory):
         raise cc.RTAMError(cc.noDirectoryMsg, cc.noDirectoryCode)
 
     return os.path.abspath(workingDirectory)
@@ -376,7 +377,7 @@ def initBuild(project, context):
 
     # Get the project path and delete it if it exists
     projectPath = cc.getProjectPath(project, context)
-    if cc.existsDirectory(projectPath):
+    if os.path.isdir(projectPath):
         shutil.rmtree(projectPath)
         
     os.makedirs(projectPath)

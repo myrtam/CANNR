@@ -26,7 +26,7 @@ sumX <- function(df) {
 ################################################################################
 
 ################################################################################
-# Generated 2021-02-14 11:29:48
+# Generated 2021-02-20 21:13:13
 ################################################################################
 
 library(jsonlite)
@@ -46,7 +46,7 @@ function(req) {
 		return(list(error = "Capacity exceeded"))
 	}
 	outputObject <- sumX(inputObject)
-	return(cnrToJSON(outputObject, outputParseType="default"))
+	return(cnrToJSONList(outputObject, outputParseType="default"))
 }
 
 # Refresh objects in module sum

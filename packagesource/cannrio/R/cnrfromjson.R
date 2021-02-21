@@ -1,8 +1,7 @@
 #' Convert JSON input to a CANNR service to an R object
 #'
 #' Converts a JSON string to an R object.  This is a wrapper around the jsonlite
-#' fromJSON function.  In the future, this function may enable the user to specify
-#' additional information about how the input should be parsed.
+#' fromJSON function.
 #'
 #' @param inputJSON A JSON string containing the data to be converted to an R object.
 #' Must be of the form '{"data": <input data>}', e.g.,

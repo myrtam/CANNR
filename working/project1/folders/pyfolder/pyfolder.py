@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-02-14 11:29:48
+Generated 2021-02-20 21:13:13
 """
 import json
 import os
@@ -17,6 +17,7 @@ import uuid
 import pandas
 from flask import Flask, render_template, request, Response
 import cannrcore as cc
+import cannrio as ci
 
 
 os.chdir("/folders/pyfolder/pyfolder")
@@ -38,9 +39,9 @@ def shutdown():
 @app.route("/services/pyfolder/sum/sum", methods=["POST"])
 def s_1():
 	try:
-		inputObject = cc.toInputType(request, inputParseType="array")
+		inputObject = ci.toInputType(request, inputParseType="array")
 		output = m_1.calcSum(inputObject)
-		return Response(cc.serviceOutput(output, "default"), content_type="application/json")
+		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
@@ -67,7 +68,7 @@ def updateCred_1():
 def s_2():
 	try:
 		output = m_2.rand()
-		return Response(cc.serviceOutput(output, "default"), content_type="application/json")
+		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 

@@ -19,7 +19,7 @@
       "folderTitle": "Basic test project",
       "folderDescription": "<description here>",
       "language": "Python",
-      "sourcePath": ".\\folder1",
+      "sourcePath": "./folder1",
       "workers": 1,
       "modules": {
         "sum": {
@@ -71,7 +71,7 @@
     },
     "rfolder": {
       "language": "R",
-      "sourcePath": ".\\folder2",
+      "sourcePath": "./folder2",
       "paths": [],
       "initializationType": null,
       "workers": 1,
@@ -121,7 +121,7 @@
       "folderType": "content",
       "folderTitle": "Static content test folder",
       "folderDescription": "<description here>",
-      "sourcePath": ".\\mystatic",
+      "sourcePath": "./mystatic",
       "nodeNumber": 8
     }
   },

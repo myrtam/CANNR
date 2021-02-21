@@ -6,6 +6,7 @@ query parameters and return a dictionary.
 '''
 
 import cannrcore as cc
+import cannrio as ci
 import cannrbuild as cb
 import os
 import json
@@ -219,24 +220,7 @@ def getProject(params):
 # Returns a collection of all project documents.
 def getProjects():
 
-    try:
-        '''
-        # Check to make sure /projects exists
-        if not projectsPath:
-            return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
-        
-        # Get the collection of projects
-        projects = {}
-        # List the contents of the projects directory
-        for projectName in os.listdir(projectsPath):
-            # Check that the item is a directory
-            if os.path.isdir(os.path.join(projectsPath, projectName)):
-                # Read the file and add it to the collection
-                filePath = projectsPath + '/' + projectName + '/project.json'
-                project = cc.readJSONFile(filePath)
-                projects[projectName] = project
-        '''
-            
+    try:            
         # Return the result
         return {
             'succeeded': True,
@@ -284,7 +268,7 @@ def uploadFolder(params, request):
     fileNames = None
     fullFolderName = projectPath + '/' + folderName + '/'
     try:
-        fileNames = cc.writeFiles(data, fullFolderName)
+        fileNames = ci.writeFiles(data, fullFolderName)
 
     except Exception as err:
         return {
@@ -306,7 +290,7 @@ def uploadFolder(params, request):
         folders[folderName] = folder
         
     #folder['fileNames'] = cc.regexFilter(fileNames, '^[^/]*$')
-    folder['fileNames'] = cc.regexFilter([s[len(fullFolderName):] for s in fileNames], '^[^/]*$')
+    folder['fileNames'] = ci.regexFilter([s[len(fullFolderName):] for s in fileNames], '^[^/]*$')
     
     # Write the updated project to the project folder and return the project.
     return {

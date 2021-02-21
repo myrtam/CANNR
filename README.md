@@ -12,12 +12,9 @@ Requirements
 ------------
 
 You need to have Docker and Python 3.7 or higher installed.  Also, you need to
-install the following Python packages, using e.g., pip install:
+install the stdlib_list package, using e.g.
 
-numpy
-numpyencoder
-pandas
-flask
+pip install stdlib_list 
 
 Future versions will probably run in a container and only require having Docker
 installed.
