@@ -10,6 +10,7 @@ http {
 		server localhost:5003 max_conns=1;
 	}
 	server {
+		client_max_body_size	16M;
 		location /services/pyfolder {
 			proxy_pass http://pyfolder;
 		}

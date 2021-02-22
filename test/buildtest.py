@@ -53,12 +53,6 @@ class TestCannrBuild(unittest.TestCase):
         self.assertTrue(rFolderText)
     
     # Completed
-    def test_existsDirectory(self):
-
-        self.assertTrue(cnc.existsDirectory('/'))
-        self.assertFalse(cnc.existsDirectory('/doesnotexist'))
-    
-    # Completed
     def test_getFolderPath(self):
 
         folderPath = cnb.getFolderPath('../working/project1', 'pyfolder')
@@ -106,7 +100,7 @@ class TestCannrBuild(unittest.TestCase):
         #context = cnc.readJSONFile('context.json')
         workingDirectory = self.context.get('workingDirectory')
         foldersPath = workingDirectory + os.path.sep + 'project1' + os.path.sep + 'folders'
-        if cnc.existsDirectory(foldersPath):
+        if os.path.isdir(foldersPath):
             shutil.rmtree(foldersPath)
         os.mkdir(foldersPath)
         #projectFilePath = os.path.abspath('../examples/project1/project.json')

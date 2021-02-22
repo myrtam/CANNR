@@ -14,6 +14,7 @@
   "smiPort": 8080,
   "initRequired": false,
   "local": true,
+  "maxBodySize": "16M",
   "folders": {
     "tool": {
       "folderTitle": "Services",

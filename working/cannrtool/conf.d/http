@@ -4,6 +4,7 @@ http {
 		server localhost:5001 max_conns=1;
 	}
 	server {
+		client_max_body_size	16M;
 		location /services/tool {
 			proxy_pass http://tool;
 		}

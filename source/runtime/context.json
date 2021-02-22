@@ -2,7 +2,7 @@
 	"workingDirectory": "../../working",
 	"projectsPath": "../../projects",
 	"baseImage": "cannr-base",
-	"maintainerEmail": "pat@pat.com",
+	"maintainerEmail": "someone@somewhere.com",
 	"authPolicy": {
 		"authPolicyLen": 12,
 		"authPolicyChars": [

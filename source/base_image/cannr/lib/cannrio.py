@@ -11,6 +11,7 @@ from numpyencoder import NumpyEncoder
 from flask import request
 from werkzeug.utils import secure_filename
 import re
+import shutil
 import json
 import os
 

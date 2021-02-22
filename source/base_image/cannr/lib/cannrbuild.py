@@ -14,14 +14,18 @@ from datetime import datetime
 import shutil
 
 
-# Returns the Dockerfile template
-def getDockerfile():
+# Returns a file in the lib directory as text
+def getLibFile(filename):
     libPathLen = __file__.rfind(os.path.sep)
     libPath = os.path.sep
     if libPathLen > 0:
         libPath = __file__[:libPathLen]
-    with open(libPath + os.path.sep + 'Dockerfile', "r") as dockerFile:
-        return dockerFile.read()
+    with open(libPath + os.path.sep + filename, 'r') as libFile:
+        return libFile.read()
+
+# Returns the Dockerfile template
+def getDockerfile():
+    return getLibFile('Dockerfile')
 
 # Generate a line of code given the indent and list of terms
 def buildCodeLine(indent, content):
@@ -518,8 +522,13 @@ def buildProject(project, basePath, context):
     #    include /etc/nginx/mime.types;
 
 
-    # NGINX servers
+    # NGINX server block
     nginxServerBlock =  '\t' + 'server {\n'
+
+    # Add limit on body size, if applicable
+    maxBodySize = project.get('maxBodySize', None)
+    if maxBodySize:
+        nginxServerBlock += 2*'\t' + 'client_max_body_size\t' + maxBodySize + ';\n'
 
     # Whether running locally or in a container.
     local = context.get('local', False)
@@ -711,11 +720,9 @@ def buildProject(project, basePath, context):
         pass
     nginxProjectHttpPath = nginxProjectConfPath + os.path.sep + 'http'
     
-    with open(nginxProjectHttpPath, "w") as nginxFile:
-        nginxFile.write(ngnixHttpBlock)
+    with open(nginxProjectHttpPath, "w") as httpFile:
+        httpFile.write(ngnixHttpBlock)
 
-    # TODO: IN DOCKER API, COPY NGINX HTTP CONFIG FILE
-    
     # Add imports of R packages to container and Dockerfile
     installText = ''
     rPackageSet = set(rPackageNames)

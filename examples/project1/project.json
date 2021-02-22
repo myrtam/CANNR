@@ -11,6 +11,7 @@
 	"smiPort": 8080,
 	"initRequired": true,
 	"local": true,
+	"maxBodySize": "16M",
 	"folders": {
 		"pyfolder": {
 			"folderTitle": "Basic test project",
