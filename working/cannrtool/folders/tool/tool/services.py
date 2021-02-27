@@ -61,7 +61,7 @@ def parseSource(source, language):
         
 
 # Creates a new project folder in the container's work area.
-def createProject(input):
+def createProject_(input):
     
     try:
     
@@ -113,14 +113,36 @@ def createProject(input):
             }
 
 
+# Version of createProject_ that takes the project name as a resource.
+def createProject(resources, input):
+    
+    try:
+    
+        # Get the project from the input, return error if no project
+        project = input.get('project', None)
+        if not project:
+            return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
+        
+        projectName = resources.get('projectname', None)
+        project['projectName'] = projectName
+        
+        return createProject_(input)
+
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorCreatingProject',
+            'errorMsg': 'Error creating project',
+            'detail': str(err)
+            }
+
+
 # Deletes the project from the container's work area.
-def deleteProject(input):
+def deleteProject_(input):
 
     try:
     
-        # Convert input to dictionary
-        #inputObject = json.loads(input)
-        
         # Get the project from the input, return error if no project
         projectName = input.get('projectName', None)
         if not projectName:
@@ -140,6 +162,25 @@ def deleteProject(input):
             
         # Return the 
         return {'succeeded': True}
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorDeletingProject',
+            'errorMsg': 'Error deleting project',
+            'detail': str(err)
+            }
+
+
+# Deletes the project from the container's work area.
+def deleteProject(resources):
+
+    try:
+    
+        # Get the project from the input, return error if no project
+        projectName = resources.get('projectname', None)
+        
+        return deleteProject_({'projectName': projectName})
 
     except Exception as err:
         return {
@@ -185,7 +226,7 @@ def getProject(params):
         timestamp = params.get('timestamp', None)
 
         # Try retrieving by project name
-        if projectName:
+        if projectName and projectName != '~':
             project = projects[projectName]
             if project:
                 return {'succeeded': True, 'project': project}
@@ -300,13 +341,10 @@ def uploadFolder(params, request):
 
 
 # Deletes a folder from a project.
-def deleteFolder(input):
+def deleteFolder_(input):
 
     try:
     
-        # Convert input to dictionary
-        #inputObject = json.loads(input)
-        
         # Get the project from the input, return error if no project
         projectName = input.get('projectName', None)
         folderName = input.get('folderName', None)
@@ -353,8 +391,28 @@ def deleteFolder(input):
             }
 
 
+# Deletes a folder from a project.
+def deleteFolder(resources):
+
+    try:
+    
+        # Get the project from the input
+        projectName = resources.get('projectname', None)
+        folderName = resources.get('foldername', None)
+        
+        return deleteFolder_({'projectName': projectName, 'folderName': folderName})
+        
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorDeletingFolder',
+            'errorMsg': 'Error deleting folder',
+            'detail': str(err)
+            }
+
+
 # Updates project data, excluding folders
-def updateProject(input):
+def updateProject_(input):
     
     try:
     
@@ -394,6 +452,32 @@ def updateProject(input):
             }
 
 
+# Updates project data, excluding folders
+def updateProject(resources, input):
+    
+    try:
+    
+        # Get the project from the input, return error if no project
+        project = input.get('project', None)
+        if not project:
+            return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
+        
+        # Get the project name, add to the project
+        projectName = resources.get('projectname', None)
+        project['projectName'] = projectName
+        
+        # Update the project
+        return updateProject_(input)
+        
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorUpdatingProject',
+            'errorMsg': 'Error updating project',
+            'detail': str(err)
+            }
+
+
 # Updates a project and returns the updated project with function names
 # populated for a module.
 def updateModule(params, input):
@@ -401,7 +485,7 @@ def updateModule(params, input):
     try:
 
         # Update the project to check for errors
-        update = updateProject(input)
+        update = updateProject_(input)
         project = update.get('project', None)
         if not update.get('succeeded', None) or not project:
             return update
@@ -444,7 +528,7 @@ def updateModule(params, input):
         module['functionNames'] = parseSource(source, language)
         
         # Update the project again and return the result
-        return updateProject({'project': project})
+        return updateProject_({'project': project})
     
     except Exception as err:
         return {
@@ -517,12 +601,42 @@ def renameFolder(input):
 
 
 # Builds the project.
-def buildProject(input):
+def buildProject_(input):
 
     try:
 
         # Update the project, return status if not successful
-        status = updateProject(input);
+        status = updateProject_(input);
+        if not status.get('succeeded', False):
+            return status
+
+        # Get the project
+        project = status.get('project', None)
+        
+        # Build the project
+        cb.buildProject(project, '', context)
+
+        return {
+            'succeeded': True,
+            'project': project
+            }
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorBuildingProject',
+            'errorMsg': 'Error building project',
+            'detail': str(err)
+            }
+
+
+# Builds the project.
+def buildProject(resources, input):
+
+    try:
+    
+        # Update the project, return status if not successful
+        status = updateProject(resources, input);
         if not status.get('succeeded', False):
             return status
 
@@ -670,9 +784,9 @@ def stopContainer(input):
 
         # Return the container status.
         return {
-        'succeeded': True, 
-        'status': container.status
-        }
+            'succeeded': True, 
+            'status': container.status
+            }
 
     except Exception as err:
         return {
@@ -701,9 +815,9 @@ def getStatus(input):
 
         # Return the container status.
         return {
-        'succeeded': True, 
-        'status': container.status
-        }
+            'succeeded': True, 
+            'status': container.status
+            }
 
     except Exception as err:
         return {
@@ -713,6 +827,34 @@ def getStatus(input):
             'detail': str(err)
             }
 
+
+# Sends the contents of a folder on the files system to the server.  For use in REST API, R & Python packages.
+def sendFolder(resources, request):
+
+    return {
+        'succeeded': True,
+        'projectname': resources.get('projectname', None),
+        'foldername': resources.get('foldername', None)
+        }
+
+# Sends a source module in text form to the server.  For use in R & Python packages.  Depending on the language, loads the module into a file named <module name>.py/R.  Does not modify the corresponding project.json file.
+def sendModule(resources, input):
+
+    return {
+        'succeeded': True,
+        'projectname': resources.get('projectname', None),
+        'foldername': resources.get('foldername', None),
+        'modulename': resources.get('modulename', None)
+        }
+
+# Sends an object to the server.  For use in R & Python packages.  Loads the object into a file with a specified name in the top level directory of the folder.  Does not modify the corresponding project.json file.
+def sendObject(resources, request):
+
+    return {
+        'succeeded': True,
+        'projectname': resources.get('projectname', None),
+        'foldername': resources.get('foldername', None)
+        }
 
 
 

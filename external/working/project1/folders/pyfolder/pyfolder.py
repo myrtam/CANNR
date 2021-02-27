@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-02-14 16:20:01
+Generated 2021-02-27 22:16:27
 """
 import json
 import os
@@ -17,6 +17,7 @@ import uuid
 import pandas
 from flask import Flask, render_template, request, Response
 import cannrcore as cc
+import cannrio as ci
 
 
 os.chdir("/folders/pyfolder/pyfolder")
@@ -24,6 +25,7 @@ m_1 = cc.importPackage("m_1", "/folders/pyfolder/pyfolder/rand.py")
 m_2 = cc.importPackage("m_2", "/folders/pyfolder/pyfolder/sum.py")
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 cnr__workerID = str(uuid.uuid4())
 cnr__credentials = None
 cnr__lastUpdateID = None
@@ -39,9 +41,10 @@ def shutdown():
 def s_1():
 	try:
 		output = m_1.rand()
-		return Response(cc.serviceOutput(output, "default"), content_type="application/json")
+		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
+
 
 # Refresh objects in module rand
 @app.route("/refreshObjects/pyfolder/rand", methods=["POST"])
@@ -65,11 +68,12 @@ def updateCred_1():
 @app.route("/services/pyfolder/sum/sum", methods=["POST"])
 def s_2():
 	try:
-		inputObject = cc.toInputType(request, inputParseType="array")
+		inputObject = ci.toInputType(request, inputParseType="array")
 		output = m_2.calcSum(inputObject)
-		return Response(cc.serviceOutput(output, "default"), content_type="application/json")
+		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
+
 
 # Refresh objects in module sum
 @app.route("/refreshObjects/pyfolder/sum", methods=["POST"])

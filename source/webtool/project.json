@@ -33,57 +33,90 @@
                   "json"
                ],
                "services": {
+                  "createproject_": {
+                     "serviceDescription": "Creates a new project folder in the container's work area.",
+                     "functionName": "createProject_",
+                     "method": "POST",
+                     "inputParseType": "default",
+                     "outputParseType": "default"
+                  },
                   "createproject": {
                      "serviceDescription": "Creates a new project folder in the container's work area.",
                      "functionName": "createProject",
                      "method": "POST",
-                     "parseInput": true,
                      "inputParseType": "default",
-                     "parseOutput": true,
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname"]
+                  },
+                  "deleteproject_": {
+                     "serviceDescription": "Deletes the project from the container's work area.",
+                     "functionName": "deleteProject_",
+                     "method": "POST",
+                     "inputParseType": "default",
                      "outputParseType": "default"
                   },
                   "deleteproject": {
                      "serviceDescription": "Deletes the project from the container's work area.",
                      "functionName": "deleteProject",
-                     "method": "POST",
-                     "parseInput": true,
-                     "inputParseType": "default",
-                     "parseOutput": true,
+                     "method": "GET",
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname"]
+                  },
+                  "getproject_": {
+                     "serviceDescription": "Returns a project document given its name.",
+                     "functionName": "getProject",
+                     "method": "GET",
+					 "includeParams": true,
                      "outputParseType": "default"
                   },
                   "getproject": {
                      "serviceDescription": "Returns a project document given its name.",
                      "functionName": "getProject",
                      "method": "GET",
-					 "includeParams": true,
-                     "includeRequest": false,
-					 "includeBody": false,
-                     "parseOutput": true,
-                     "outputParseType": "default"
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname", "timestamp"]
                   },
                   "getprojects": {
                      "serviceDescription": "Returns a list of all project documents.",
                      "functionName": "getProjects",
                      "method": "GET",
-					 "includeParams": false,
-                     "includeRequest": false,
-					 "includeBody": false,
-                     "parseOutput": true,
                      "outputParseType": "default"
                   },
-                  "uploadfolder": {
+                  "uploadfolder_": {
                      "serviceDescription": "Uploads a folder to a project.",
                      "functionName": "uploadFolder",
                      "method": "POST",
 					 "includeParams": true,
                      "includeRequest": true,
 					 "includeBody": false,
-                     "parseOutput": true,
+                     "outputParseType": "default"
+                  },
+                  "uploadfolder": {
+                     "serviceDescription": "Uploads a folder to a project.",
+                     "functionName": "uploadFolder",
+                     "method": "POST",
+                     "includeRequest": true,
+					 "includeBody": false,
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname", "foldername"]
+                  },
+                  "deletefolder_": {
+                     "serviceDescription": "Deletes a folder from a project.",
+                     "functionName": "deleteFolder_",
+                     "method": "POST",
+                     "inputParseType": "default",
                      "outputParseType": "default"
                   },
                   "deletefolder": {
                      "serviceDescription": "Deletes a folder from a project.",
                      "functionName": "deleteFolder",
+                     "method": "GET",
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname"]
+                  },
+                  "updateproject_": {
+                     "serviceDescription": "Updates project data, excluding folders",
+                     "functionName": "updateProject_",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "default",
@@ -94,12 +127,11 @@
                      "serviceDescription": "Updates project data, excluding folders",
                      "functionName": "updateProject",
                      "method": "POST",
-                     "parseInput": true,
                      "inputParseType": "default",
-                     "parseOutput": true,
-                     "outputParseType": "default"
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname"]
                   },
-                  "updatemodule": {
+                  "updatemodule_": {
 					"serviceDescription": "Updates a project and returns the project file for the project with function names populated for a particular module.",
 					"functionName": "updateModule", 
 					"method": "POST", 
@@ -107,15 +139,32 @@
 					"parseInput": true, 
 					"inputParseType": "default", 
 					"parseOutput": true, 
-					"outputParseType": "default"},
-                  "buildproject": {
+					"outputParseType": "default"
+                  },
+                  "updatemodule": {
+					"serviceDescription": "Updates a project and returns the project file for the project with function names populated for a particular module.",
+					"functionName": "updateModule", 
+					"method": "POST", 
+					"inputParseType": "default", 
+					"outputParseType": "default",
+                     "resourceNames": ["projectname", "foldername", "modulename"]
+                  },
+                  "buildproject_": {
                      "serviceDescription": "Builds the project.",
-                     "functionName": "buildProject",
+                     "functionName": "buildProject_",
                      "method": "POST",
                      "parseInput": true,
                      "inputParseType": "default",
                      "parseOutput": true,
                      "outputParseType": "default"
+                  },
+                  "buildproject": {
+                     "serviceDescription": "Builds the project.",
+                     "functionName": "buildProject",
+                     "method": "POST",
+                     "inputParseType": "default",
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname"]
                   },
                   "buildimage": {
                      "serviceDescription": "Builds the image for the project.",
@@ -198,6 +247,33 @@
                      "inputParseType": "default",
                      "parseOutput": true,
                      "outputParseType": "default"
+                  },
+                  "sendfolder": {
+                     "serviceDescription": "Uploads a zipped folder to a project.",
+                     "functionName": "sendFolder",
+                     "method": "POST",
+                     "includeRequest": true,
+					 "includeBody": false,
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname","foldername"]
+                  },
+                  "sendmodule": {
+                     "serviceDescription": "Uploads a module in text form to a project.",
+                     "functionName": "sendModule",
+                     "method": "POST",
+                     "includeRequest": false,
+					 "includeBody": true,
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname","foldername", "modulename"]
+                  },
+                  "sendobject": {
+                     "serviceDescription": "Uploads an object to a folder in a project.",
+                     "functionName": "sendObject",
+                     "method": "POST",
+                     "includeRequest": true,
+					 "includeBody": false,
+                     "outputParseType": "default",
+                     "resourceNames": ["projectname","foldername"]
                   }
                }
             }

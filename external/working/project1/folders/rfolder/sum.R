@@ -26,7 +26,7 @@ sumX <- function(df) {
 ################################################################################
 
 ################################################################################
-# Generated 2021-02-14 16:20:01
+# Generated 2021-02-27 22:16:27
 ################################################################################
 
 library(jsonlite)
@@ -43,7 +43,7 @@ cnr__lastUpdateID <- NULL
 function(req) {
 	inputObject <- cnrFromJSON(req$postBody, inputParseType="default")
 	outputObject <- sumX(inputObject)
-	return(cnrToJSON(outputObject, outputParseType="default"))
+	return(cnrToJSONList(outputObject, outputParseType="default"))
 }
 
 # Refresh objects in module sum

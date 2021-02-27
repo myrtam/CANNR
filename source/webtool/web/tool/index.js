@@ -52,8 +52,8 @@ function getProjects() {
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
 	xhr.withCredentials = true;
-	var date = new Date();
-	xhr.open("GET", baseURL + "getprojects" + "?timestamp=" + date.getTime());
+	xhr.open("GET", baseURL + "getprojects");
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
 
 	// Define the callback function.
 	xhr.onload = function () {
@@ -169,8 +169,8 @@ function onDelProject() {
 	// Prepare the XHR request.
 	var request = {'data': {'projectName': projectName}};
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "deleteproject");
-	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+	xhr.open("GET", baseURL + "deleteproject/" + projectName);
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
 
 	// Define the callback function.
 	xhr.onload = function () {

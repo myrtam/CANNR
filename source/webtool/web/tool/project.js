@@ -1354,7 +1354,7 @@ function updateProject(nextModalID) {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "updateproject");
+	xhr.open("POST", baseURL + "updateproject/" + projectName);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -1458,9 +1458,9 @@ function writeProject(project1, overwrite, cancel) {
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
 	if (newProject&&!folderName)
-		xhr.open("POST", baseURL + "createproject");
+		xhr.open("POST", baseURL + "createproject/" + projectName);
 	else
-		xhr.open("POST", baseURL + "updateproject");
+		xhr.open("POST", baseURL + "updateproject/" + projectName);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -1636,7 +1636,7 @@ function onKeepFolderProps(nextModalID) {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "updateproject");
+	xhr.open("POST", baseURL + "updateproject/" + projectName);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -1657,7 +1657,7 @@ function onKeepFolderProps(nextModalID) {
 	
 					// If files to upload, upload them.
 					if (files&&files.length>0) {
-	
+
 						// Populate the multipart form data.
 						var formData = new FormData();
 						for (var i = 0; i < files.length; i++)
@@ -1665,7 +1665,7 @@ function onKeepFolderProps(nextModalID) {
 	
 						// Prepare the request
 						var xhr2 = new XMLHttpRequest();
-						xhr2.open("POST", baseURL + "uploadfolder?projectname=" + projectName + '&foldername=' + folderName);
+						xhr2.open("POST", baseURL + "uploadfolder/" + projectName + '/' + folderName);
 						xhr2.setRequestHeader('Content-type','application/octet-stream');
 		
 						// Define the callback function.
@@ -1826,7 +1826,7 @@ function onKeepModuleProps(nextModalID) {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "updatemodule?foldername=" + folderName + "&modulename=" + moduleName);
+	xhr.open("POST", baseURL + "updatemodule/" + projectName + '/' + folderName + "/" + moduleName);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -2008,16 +2008,22 @@ function getProject() {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	var url = baseURL + "getproject"
+	/*
+	var url = baseURL + "getproject_"
 	// Add either the project name or timestamp to the URL.
 	if (paramProjectName)
 		url += "?projectname=" + paramProjectName;
 	else if (timestamp)
 		url += "?timestamp=" + timestamp;
+	*/
+	var url = baseURL + "getproject/"
+	url += (paramProjectName? paramProjectName: '~') + '/';
+	url += (timestamp? timestamp: '0');
 
 	// Add extra timestamp to prevent caching.
-	url += "&timestamp2=" +  Date.now();
+	//url += "&timestamp2=" +  Date.now();
 	xhr.open("GET", url);
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
 
 	// Define the callback function.
 	xhr.onload = function () {
@@ -2734,6 +2740,7 @@ function onDelFolder() {
 		// Disable the folder select as needed
 		disableFolderSelect();
 		// Update the project
+		// TODO:  NEED TO CALL deleteFolder INSTEAD!!!
 		updateProject(null);
 	}
 
@@ -2989,7 +2996,7 @@ function buildProject() {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "buildproject");
+	xhr.open("POST", baseURL + "buildproject/" + projectName);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.

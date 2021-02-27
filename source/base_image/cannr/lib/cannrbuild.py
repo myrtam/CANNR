@@ -36,6 +36,16 @@ def buildCodeLine(indent, content):
         
     return codeLine + '\n'
 
+
+# Builds the app.route line of the Flask handler.
+def buildAppRoute(folderName, moduleName, serviceName, method, resourceNames):
+    appRouteLine = '@app.route("/services/' + folderName + '/' + moduleName + '/' + serviceName
+    for resourceName in resourceNames:
+        appRouteLine += '/<' + resourceName + '>'
+    appRouteLine += '", methods=["' + method + '"])'
+    return appRouteLine
+
+
 # Generates the Python file for a Python folder.
 def buildPyFolder(folderName, project):
     
@@ -122,6 +132,7 @@ def buildPyFolder(folderName, project):
     # Create the Flask app object.
     moduleText += '\n'
     moduleText += buildCodeLine(0, ['app = Flask(__name__)'])
+    moduleText += buildCodeLine(0, ['app.url_map.strict_slashes = False'])
     moduleText += buildCodeLine(0, ['cnr__workerID = str(uuid.uuid4())'])
     moduleText += buildCodeLine(0, ['cnr__credentials = None'])
     moduleText += buildCodeLine(0, ['cnr__lastUpdateID = None'])
@@ -147,15 +158,29 @@ def buildPyFolder(folderName, project):
             service = cc.getService(serviceName, module)
             capacity = service.get('capacity', 0)
             method = service.get('method', 'POST')
+            resourceNames = service.get('resourceNames', [])
             # TODO: CHECK TO MAKE SURE functionName EXISTS!
             functionName = service.get('functionName', 'ERROR')
             moduleText += buildCodeLine(0, ['# Service ', serviceName, ' in module ', moduleName])
-            moduleText += buildCodeLine(0, ['@app.route("/services/', folderName, '/', moduleName, '/', serviceName, '", methods=["', method , '"])'])
-            moduleText += buildCodeLine(0, ['def s_', str(functionNumber), '():'])
+            #moduleText += buildCodeLine(0, ['@app.route("/services/', folderName, '/', moduleName, '/', serviceName, '", methods=["', method , '"])'])
+            moduleText += buildAppRoute(folderName, moduleName, serviceName, method, resourceNames) + '\n'
+            # TODO: IF resourceNames, ADD RESOURCE NAMES AS FUNCTION ARGUMENTS
+
+            resourceArgList = ''
+            resourceString = 'resources = {'
+            for resourceName in resourceNames:
+                resourceString += '"' + resourceName + '": ' + resourceName + ', '
+                resourceArgList += resourceName + ', '
+            resourceString += '}'
+            
+            moduleText += buildCodeLine(0, ['def s_', str(functionNumber), '(', resourceArgList, '):'])
             moduleText += buildCodeLine(1, ['try:'])
             functionNumber += 1
             # TODO: ADD METRICS.
             # TODO: ADD LOGGING.
+
+            if resourceNames:
+                moduleText += buildCodeLine(2, resourceString)
 
             # For POST, parse the body.
             includeBody = service.get('includeBody', True)
@@ -165,22 +190,18 @@ def buildPyFolder(folderName, project):
                 if capacity:
                     moduleText += buildCodeLine(2, ['if isinstance(inputObject, pandas.core.frame.DataFrame) and len(inputObject.index) > ', str(capacity),':'])
                     moduleText += buildCodeLine(3, ['return {"error": "Capacity exceeded"}'])            
-            
+
             functionText = moduleShortNames[moduleName] + '.' + functionName
-            # NOTE:  request.get_json() RETURNS A DICTIONARY.
 
             codeComponents = ['output = ', functionText, '(']
             functionArgs = []
-            if service.get('includeParams', False):
-                functionArgs.append('request.args.to_dict()')
+            if resourceNames:
+                functionArgs.append('resources, ')
+            elif service.get('includeParams', False):
+                functionArgs.append('request.args.to_dict(), ')
             if service.get('includeRequest', False):
-                if len(functionArgs)>0:
-                    functionArgs.append(',')
-                functionArgs.append('request')
+                functionArgs.append('request, ')
             if method == 'POST' and includeBody:
-                if len(functionArgs)>0:
-                    functionArgs.append(',')
-                #functionArgs.append('request.get_json()')
                 functionArgs.append('inputObject')
             codeComponents.extend(functionArgs)
             codeComponents.append(')')
@@ -192,7 +213,9 @@ def buildPyFolder(folderName, project):
 
             moduleText += buildCodeLine(1, ['except Exception as err:'])
             #moduleText += buildCodeLine(2, ['return(\'{"error": "\' + str(err) + \'"}\')'])
-            moduleText += buildCodeLine(2, ['return {"error": str(err)}'])            
+            moduleText += buildCodeLine(2, ['return {"error": str(err)}']) 
+
+            moduleText +=  '\n'
 
         # Stub for refreshing objects in the module
         # TODO:  IMPLEMENT THIS
