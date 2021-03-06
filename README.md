@@ -91,17 +91,17 @@ Web UI
 ------
 
 To use the Web-based version of the CANNR tool, you must first build it.  To build the tool,
-navigate to the working/cannrtool (or working\cannrtool on Windows) directory and use the command
+navigate to the working/cannr-web (or working\cannr-web on Windows) directory and use the command
 
-docker build -t cannrtool .
+docker build -t cannr-web .
 
 On OSX, you can  start the tool by changing to the external directory and entering the command
 
-docker run -d -p 8080:80 --name cannrtool --mount type=bind,source="$(pwd)",target=/external cannrtool
+docker run -d -p 8080:80 --name cannr-web --mount type=bind,source="$(pwd)",target=/external cannr-web
 
 On Windows, use the command
 
-docker run -d -p 8080:80 --name cannrtool --mount type=bind,source="%CD%",target=/external cannrtool
+docker run -d -p 8080:80 --name cannr-web --mount type=bind,source="%CD%",target=/external cannr-web
 
 which runs the tool on port 8080.  To run the tool on a different port, replace 8080 in the above with
 the port you want to use.  You should then be able to access the Web tool using the URL
@@ -115,8 +115,8 @@ and run the container, follow the instructions for building and running project1
 
 To stop the tool, use the command
 
-docker stop cannrtool
+docker stop cannr-web
 
 To restart it, use the command
 
-docker start cannrtool
+docker start cannr-web

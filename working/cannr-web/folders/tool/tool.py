@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-02-27 17:30:52
+Generated 2021-03-05 19:56:26
 """
 import json
 import os
@@ -35,19 +35,9 @@ def shutdown():
 	shutdown.shutdown()
 	return "Shutting down..."
 
-# Service createproject_ in module services
-@app.route("/services/tool/services/createproject_", methods=["POST"])
-def s_1():
-	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.createProject_(inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service createproject in module services
 @app.route("/services/tool/services/createproject/<projectname>", methods=["POST"])
-def s_2(projectname, ):
+def s_1(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		inputObject = ci.toInputType(request, inputParseType="default")
@@ -56,19 +46,9 @@ def s_2(projectname, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service deleteproject_ in module services
-@app.route("/services/tool/services/deleteproject_", methods=["POST"])
-def s_3():
-	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.deleteProject_(inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service deleteproject in module services
 @app.route("/services/tool/services/deleteproject/<projectname>", methods=["GET"])
-def s_4(projectname, ):
+def s_2(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.deleteProject(resources, )
@@ -76,18 +56,9 @@ def s_4(projectname, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service getproject_ in module services
-@app.route("/services/tool/services/getproject_", methods=["GET"])
-def s_5():
-	try:
-		output = m_1.getProject(request.args.to_dict(), )
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service getproject in module services
 @app.route("/services/tool/services/getproject/<projectname>/<timestamp>", methods=["GET"])
-def s_6(projectname, timestamp, ):
+def s_3(projectname, timestamp, ):
 	try:
 		resources = {"projectname": projectname, "timestamp": timestamp, }
 		output = m_1.getProject(resources, )
@@ -97,25 +68,16 @@ def s_6(projectname, timestamp, ):
 
 # Service getprojects in module services
 @app.route("/services/tool/services/getprojects", methods=["GET"])
-def s_7():
+def s_4():
 	try:
 		output = m_1.getProjects()
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service uploadfolder_ in module services
-@app.route("/services/tool/services/uploadfolder_", methods=["POST"])
-def s_8():
-	try:
-		output = m_1.uploadFolder(request.args.to_dict(), request, )
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service uploadfolder in module services
 @app.route("/services/tool/services/uploadfolder/<projectname>/<foldername>", methods=["POST"])
-def s_9(projectname, foldername, ):
+def s_5(projectname, foldername, ):
 	try:
 		resources = {"projectname": projectname, "foldername": foldername, }
 		output = m_1.uploadFolder(resources, request, )
@@ -123,19 +85,9 @@ def s_9(projectname, foldername, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service deletefolder_ in module services
-@app.route("/services/tool/services/deletefolder_", methods=["POST"])
-def s_10():
-	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.deleteFolder_(inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service deletefolder in module services
 @app.route("/services/tool/services/deletefolder/<projectname>", methods=["GET"])
-def s_11(projectname, ):
+def s_6(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.deleteFolder(resources, )
@@ -143,19 +95,9 @@ def s_11(projectname, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service updateproject_ in module services
-@app.route("/services/tool/services/updateproject_", methods=["POST"])
-def s_12():
-	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.updateProject_(inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service updateproject in module services
 @app.route("/services/tool/services/updateproject/<projectname>", methods=["POST"])
-def s_13(projectname, ):
+def s_7(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		inputObject = ci.toInputType(request, inputParseType="default")
@@ -164,19 +106,9 @@ def s_13(projectname, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service updatemodule_ in module services
-@app.route("/services/tool/services/updatemodule_", methods=["POST"])
-def s_14():
-	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.updateModule(request.args.to_dict(), inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service updatemodule in module services
 @app.route("/services/tool/services/updatemodule/<projectname>/<foldername>/<modulename>", methods=["POST"])
-def s_15(projectname, foldername, modulename, ):
+def s_8(projectname, foldername, modulename, ):
 	try:
 		resources = {"projectname": projectname, "foldername": foldername, "modulename": modulename, }
 		inputObject = ci.toInputType(request, inputParseType="default")
@@ -185,19 +117,9 @@ def s_15(projectname, foldername, modulename, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service buildproject_ in module services
-@app.route("/services/tool/services/buildproject_", methods=["POST"])
-def s_16():
-	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.buildProject_(inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service buildproject in module services
 @app.route("/services/tool/services/buildproject/<projectname>", methods=["POST"])
-def s_17(projectname, ):
+def s_9(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		inputObject = ci.toInputType(request, inputParseType="default")
@@ -207,47 +129,48 @@ def s_17(projectname, ):
 		return {"error": str(err)}
 
 # Service buildimage in module services
-@app.route("/services/tool/services/buildimage", methods=["POST"])
-def s_18():
+@app.route("/services/tool/services/buildimage/<projectname>", methods=["GET"])
+def s_10(projectname, ):
 	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.buildImage(inputObject)
+		resources = {"projectname": projectname, }
+		output = m_1.buildImage(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
 # Service exportproject in module services
-@app.route("/services/tool/services/exportproject", methods=["POST"])
-def s_19():
+@app.route("/services/tool/services/exportproject/<projectname>", methods=["GET"])
+def s_11(projectname, ):
 	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.exportProject(inputObject)
+		resources = {"projectname": projectname, }
+		output = m_1.exportProject(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
 # Service importproject in module services
-@app.route("/services/tool/services/importproject", methods=["POST"])
-def s_20():
+@app.route("/services/tool/services/importproject/<projectname>", methods=["POST"])
+def s_12(projectname, ):
 	try:
-		output = m_1.importProject(request.args.to_dict(), request, )
+		resources = {"projectname": projectname, }
+		output = m_1.importProject(resources, request, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
 # Service exportbuild in module services
-@app.route("/services/tool/services/exportbuild", methods=["POST"])
-def s_21():
+@app.route("/services/tool/services/exportbuild/<projectname>", methods=["GET"])
+def s_13(projectname, ):
 	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.exportBuild(inputObject)
+		resources = {"projectname": projectname, }
+		output = m_1.exportBuild(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
 # Service runcontainer in module services
 @app.route("/services/tool/services/runcontainer", methods=["POST"])
-def s_22():
+def s_14():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.runContainer(inputObject)
@@ -257,7 +180,7 @@ def s_22():
 
 # Service stopcontainer in module services
 @app.route("/services/tool/services/stopcontainer", methods=["POST"])
-def s_23():
+def s_15():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.stopContainer(inputObject)
@@ -267,7 +190,7 @@ def s_23():
 
 # Service getstatus in module services
 @app.route("/services/tool/services/getstatus", methods=["POST"])
-def s_24():
+def s_16():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.getStatus(inputObject)
@@ -277,7 +200,7 @@ def s_24():
 
 # Service renameproject in module services
 @app.route("/services/tool/services/renameproject", methods=["POST"])
-def s_25():
+def s_17():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.renameProject(inputObject)
@@ -287,7 +210,7 @@ def s_25():
 
 # Service renamefolder in module services
 @app.route("/services/tool/services/renamefolder", methods=["POST"])
-def s_26():
+def s_18():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.renameFolder(inputObject)
@@ -297,7 +220,7 @@ def s_26():
 
 # Service sendfolder in module services
 @app.route("/services/tool/services/sendfolder/<projectname>/<foldername>", methods=["POST"])
-def s_27(projectname, foldername, ):
+def s_19(projectname, foldername, ):
 	try:
 		resources = {"projectname": projectname, "foldername": foldername, }
 		output = m_1.sendFolder(resources, request, )
@@ -305,23 +228,12 @@ def s_27(projectname, foldername, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service sendmodule in module services
-@app.route("/services/tool/services/sendmodule/<projectname>/<foldername>/<modulename>", methods=["POST"])
-def s_28(projectname, foldername, modulename, ):
+# Service sendFile in module services
+@app.route("/services/tool/services/sendFile/<projectname>/<foldername>/<filename>", methods=["POST"])
+def s_20(projectname, foldername, filename, ):
 	try:
-		resources = {"projectname": projectname, "foldername": foldername, "modulename": modulename, }
-		inputObject = ci.toInputType(request, inputParseType="none")
-		output = m_1.sendModule(resources, inputObject)
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
-# Service sendobject in module services
-@app.route("/services/tool/services/sendobject/<projectname>/<foldername>", methods=["POST"])
-def s_29(projectname, foldername, ):
-	try:
-		resources = {"projectname": projectname, "foldername": foldername, }
-		output = m_1.sendObject(resources, request, )
+		resources = {"projectname": projectname, "foldername": foldername, "filename": filename, }
+		output = m_1.sendFile(resources, request, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
