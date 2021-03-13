@@ -17,12 +17,12 @@ import shutil
 import docker
 from flask import request
 from werkzeug.utils import secure_filename
-#from werkzeug.datastructures import ImmutableMultiDict
 
 
 # Try to read the context
 context = None
 projectsPath = None
+dockerURL = 'unix://var/run/docker.sock'
 if os.path.exists('context.json'):
     context = cc.readJSONFile('context.json')
 if os.path.exists('/config/context.json'):
@@ -34,6 +34,7 @@ elif os.path.exists('/external/config/context.json'):
 if context:
     projectsPath = context.get('projectsPath', None)
     workingDirectory = context.get('workingDirectory', None)
+    dockerURL = context.get('dockerURL', 'unix://var/run/docker.sock')
     
 # Define the projects and working folders
 projectsPath = projectsPath if projectsPath else ('/external/projects' if os.path.exists('/external/projects') else None)
@@ -704,17 +705,20 @@ def buildProject(resourceNames, input):
 # Builds the image for the project.
 def buildImage(resourceNames):
 
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
     try:
-
-        # Get the project from the resourceNames, return error if no project
-        projectName = resourceNames.get('projectName', None)
-        tag = resourceNames.get('tag', None)
-        # TODO:  CHECK FOR VALID TAG
-        if not projectName:
-            return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
-
-        # Create the docker client
-        client = docker.from_env()
 
         # Get the built project path and check that it exists
         builtProjectPath = os.path.join(workingDirectory, projectName)
@@ -727,16 +731,24 @@ def buildImage(resourceNames):
                 'detail': 'No built project exists'
                 }
 
-        # Build the project and get the result.
-        result = client.images.build(path = builtProjectPath, tag = (tag if tag else projectName))
-
+        # Create the docker client, build the project, and get the result.
+        client = docker.DockerClient(base_url=dockerURL)
+        result = client.images.build(path = builtProjectPath, tag = projectName)
+        client.close()
+        
         # Return the result
         if len(result) > 0:
-            return {
-                'succeeded': True, 
-                'id': result[0].id,
-                'tags': result[0].tags
-                }
+            project['projectName'] = projectName
+            project['imageID'] = result[0].id
+            project['imageTags'] = result[0].tags
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return status
+            else:
+                return {
+                    'succeeded': True, 
+                    'project': status.get('project', None)
+                    }
         else:
             return {
                 'succeeded': False, 
@@ -770,30 +782,60 @@ def exportBuild(input):
 
 
 # Runs a project image in a container.
-def runContainer(input):
+def runContainer(resourceNames):
 
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
     try:
 
-        # Get the image from the input, return error if no image
-        image = input.get('image', None)
-        name = input.get('name', None)
-        if not image:
-            return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image specified'}
+        # Get the image ID and tags from the proejct, return error if no image
+        imageID = project.get('imageID', None)
+        imageTags = project.get('imageTags', [])
+        if not (imageTags or imageTags[0]):
+            return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image associated with the project'}
+        
+        image = imageTags[0]
+        
+        localPort = project.get('localPort', 80)
+        
+        ports = {str(localPort) + '/tcp': 80}
 
-        # Create the docker client
-        client = docker.from_env()
+        # Create the docker client, start the container, and get the result.
+        client = docker.DockerClient(base_url=dockerURL)
+        container = client.containers.run(image, name = projectName, detach = True, remove = True, ports = ports)
 
-        # Run the container and get the result.
-        container = client.containers.run(image, name = (name if name else None), detach=True)
-        return {
-            'succeeded': True, 
-            'id': container.id,
-            'short_id': container.short_id,
-            'image': container.image,
-            'labels': container.labels,
-            'name': container.name,
-            'status': container.status
-            }
+        # Close the client and return the result
+        client.close()
+        if container:
+            project['containerName'] = container.attrs['Name']
+            project['containerID'] = container.id
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return status
+            else:
+                return {
+                    'succeeded': True,
+                    'status': container.status,
+                    'project': project
+                    }
+        else:
+            return {
+                'succeeded': False, 
+                'error': 'errorStartingContainer',
+                'errorMsg': 'Error starting container',
+                'detail': 'Starting container returned no result'
+                }
 
     except Exception as err:
         return {
@@ -805,61 +847,115 @@ def runContainer(input):
 
 
 # Stops the container running a project image.
-def stopContainer(input):
+def stopContainer(resourceNames):
 
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
     try:
 
-        # Get the container id from the input, return error if no id.
-        id = input.get('id', None)
-        if not id:
-            return {'succeeded': False, 'error': 'noContainerID', 'errorMsg': 'No container id specified'}
+        # Get the image ID and tags from the project, return error if no image
+        containerID = project.get('containerID', None)
+        if not containerID:
+            return {'succeeded': False, 'error': 'noContainer', 'errorMsg': 'No container associated with the project'}
+        
+        # Create the docker client, get the container.
+        client = docker.DockerClient(base_url=dockerURL)
+        container = client.containers.get(containerID)
 
-        # Create the docker client
-        client = docker.from_env()
-
-        # Get the container and check its status.
-        container = client.containers.get(id)
-        if container.status == 'running':
+        # Check the container status and stop it if it is running.
+        if container and container.status == 'running':
             container.stop();
 
-        # Return the container status.
-        return {
-            'succeeded': True, 
-            'status': container.status
-            }
+        # Close the client and return status.
+        client.close()
+        if container:
+            project['containerName'] = None
+            project['containerID'] = None
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return status
+            else:
+                return {
+                    'succeeded': True,
+                    'project': project
+                    }
+        else:
+            return {
+                'succeeded': False, 
+                'error': 'errorStoppingContainer',
+                'errorMsg': 'Error stopping the container',
+                'detail': 'Container not found'
+                }
+
 
     except Exception as err:
         return {
             'succeeded': False, 
             'error': 'errorStoppingContainer',
-            'errorMsg': 'Error stopping container',
+            'errorMsg': 'Error stopping the container',
             'detail': str(err)
             }
 
 
-# Stops the container running a project image.
-def getStatus(input):
+# Get the status of the container for a project.
+def getStatus(resourceNames):
+
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
+    client = None
+
+    try:
+    
+        # Try to connect to the Docker daemon
+        client = docker.DockerClient(base_url=dockerURL)
+    
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorUnableToConnect',
+            'errorMsg': 'Unable to connect to Docker',
+            'detail': str(err)
+            }
 
     try:
 
-        # Get the container id from the input, return error if no id.
-        id = input.get('id', None)
-        if not id:
-            return {'succeeded': False, 'error': 'noContainerID', 'errorMsg': 'No container id specified'}
-
-        # Create the docker client
-        client = docker.from_env()
-
-        # Get the container.
-        container = client.containers.get(id)
-
-        # Return the container status.
+        # Get the image ID and tags from the project, return error if no image
+        containerID = project.get('containerID', None)
+        if not containerID:
+            return {'succeeded': False, 'error': 'noContainer', 'errorMsg': 'No container associated with the project'}
+        
+        # Get the container and return status.
+        container = client.containers.get(containerID)
+        client.close()
         return {
             'succeeded': True, 
             'status': container.status
             }
 
     except Exception as err:
+        client.close()
         return {
             'succeeded': False, 
             'error': 'errorGettingContainerStatus',

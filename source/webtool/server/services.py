@@ -17,12 +17,14 @@ import shutil
 import docker
 from flask import request
 from werkzeug.utils import secure_filename
-#from werkzeug.datastructures import ImmutableMultiDict
 
 
 # Try to read the context
 context = None
 projectsPath = None
+dockerURL = 'unix://var/run/docker.sock'
+if os.path.exists('context.json'):
+    context = cc.readJSONFile('context.json')
 if os.path.exists('/config/context.json'):
     context = cc.readJSONFile('/config/context.json')
 elif os.path.exists('/external/config/context.json'):
@@ -32,6 +34,7 @@ elif os.path.exists('/external/config/context.json'):
 if context:
     projectsPath = context.get('projectsPath', None)
     workingDirectory = context.get('workingDirectory', None)
+    dockerURL = context.get('dockerURL', 'unix://var/run/docker.sock')
     
 # Define the projects and working folders
 projectsPath = projectsPath if projectsPath else ('/external/projects' if os.path.exists('/external/projects') else None)
@@ -114,7 +117,7 @@ def createProject_(input):
 
 
 # Version of createProject_ that takes the project name as a resource.
-def createProject(resources, input):
+def createProject(resourceNames, input):
     
     try:
     
@@ -123,7 +126,7 @@ def createProject(resources, input):
         if not project:
             return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
         
-        projectName = resources.get('projectname', None)
+        projectName = resourceNames.get('projectname', None)
         project['projectName'] = projectName
         
         return createProject_(input)
@@ -173,12 +176,12 @@ def deleteProject_(input):
 
 
 # Deletes the project from the container's work area.
-def deleteProject(resources):
+def deleteProject(resourceNames):
 
     try:
     
         # Get the project from the input, return error if no project
-        projectName = resources.get('projectname', None)
+        projectName = resourceNames.get('projectname', None)
         
         return deleteProject_({'projectName': projectName})
 
@@ -200,17 +203,20 @@ def getProjectsDict():
         # List the contents of the projects directory
         for projectName in os.listdir(projectsPath):
             # Check that the item is a directory
-            if os.path.isdir(os.path.join(projectsPath, projectName)):
-                # Read the file and add it to the collection
-                filePath = projectsPath + '/' + projectName + '/project.json'
-                project = cc.readJSONFile(filePath)
-                projects[projectName] = project
+            projectDir = os.path.join(projectsPath, projectName)
+            if os.path.isdir(projectDir):
+                # Get the project file path and check that the file exists
+                filePath = os.path.join(projectDir, 'project.json')
+                if os.path.isfile(filePath):
+                    # Read the file and add it to the collection
+                    project = cc.readJSONFile(filePath)
+                    projects[projectName] = project
 
         return projects
 
 
 # Returns the project document for a project given the project name or timestamp.
-def getProject(params):
+def getProject(resourceNames):
 
     try:
     
@@ -222,8 +228,8 @@ def getProject(params):
         projects = getProjectsDict()
 
         # Retrieve the project name and timestamp
-        projectName = params.get('projectname', None)
-        timestamp = params.get('timestamp', None)
+        projectName = resourceNames.get('projectname', None)
+        timestamp = resourceNames.get('timestamp', None)
 
         # Try retrieving by project name
         if projectName and projectName != '~':
@@ -276,12 +282,17 @@ def getProjects():
             }
 
 
-# Uploads a folder to a project.
-def uploadFolder(params, request):
+# Handles upload of folder contents.
+# * resourceNames - Dictionary containing project and folder names
+# * request - Flask request for the upload
+# * webUpload - If True, then uploaded data is assumed to be a Web multipart form data directory upload,
+#   otherwise it is assumed to be a zip file.
+def upload(resourceNames, data, uploadType = 'folder'):
     
-    # Get project name and folder name from params
-    projectName = params.get('projectname', None)
-    folderName = params.get('foldername', None)
+    # Get project name and folder name from resourceNames
+    projectName = resourceNames.get('projectname', None)
+    folderName = resourceNames.get('foldername', None)
+    fileName = resourceNames.get('filename', None)
 
     # Check that project name and folder name are OK
     if not (projectName and cc.legalName(projectName) and folderName and cc.legalName(folderName)):
@@ -301,15 +312,25 @@ def uploadFolder(params, request):
 
     # Get the project object from the project directory
     project = cc.readJSONFile(filePath)
+    if not project:
+        return {'succeeded': False, 'error': 'projectNotExist', 'errorMsg': 'Project does not exist'}
 
     # Get the data from the request
-    data = request.get_data()
+    #data = request.get_data()
 
     # Write out the files
-    fileNames = None
+    newFileNames = []
     fullFolderName = projectPath + '/' + folderName + '/'
+    uploadType = uploadType.lower()
     try:
-        fileNames = ci.writeFiles(data, fullFolderName)
+        if uploadType == 'file':
+            newFileName = ci.writeFile(data, fullFolderName, fileName)
+            if newFileName:
+                newFileNames.append(newFileName)
+        elif uploadType == 'zipfile':
+            newFileNames = ci.writeZipFiles(data, fullFolderName)
+        else:           
+            newFileNames = ci.writeFiles(data, fullFolderName)
 
     except Exception as err:
         return {
@@ -319,7 +340,7 @@ def uploadFolder(params, request):
             'detail': str(err)
             }
 
-    # Add return value of writeFiles to the folder object in the project
+    # Get existing folder, if any, add if none
     folders = project.get('folders', None)
     if not folders:
         folders = {}
@@ -329,15 +350,35 @@ def uploadFolder(params, request):
     if not folder:
         folder = {}
         folders[folderName] = folder
-        
-    #folder['fileNames'] = cc.regexFilter(fileNames, '^[^/]*$')
-    folder['fileNames'] = ci.regexFilter([s[len(fullFolderName):] for s in fileNames], '^[^/]*$')
+
+    # Get the list of new file names in the top level directory of the folder
+    newFileNames = ci.regexFilter([s[len(fullFolderName):] for s in newFileNames], '^[^/]*$')
+    
+    # Add to the existing list if appropriate
+    fileNames = folder.get('fileNames', [])
+    if uploadType == 'file':
+        fileNames = fileNames.extend(newFileNames)
+    else:
+        fileNames = newFileNames
+    
+    # Remove duplicates and update in the project
+    fileNames = list(set(fileNames))
+    folder['fileNames'] = fileNames
     
     # Write the updated project to the project folder and return the project.
     return {
         'succeeded': True,
         'project': project
-        }
+        }    
+
+
+# Uploads a folder to a project.
+def uploadFolder(resourceNames, request):
+    
+    # Get the data from the request
+    data = request.get_data()
+
+    return upload(resourceNames, data)
 
 
 # Deletes a folder from a project.
@@ -392,13 +433,13 @@ def deleteFolder_(input):
 
 
 # Deletes a folder from a project.
-def deleteFolder(resources):
+def deleteFolder(resourceNames):
 
     try:
     
         # Get the project from the input
-        projectName = resources.get('projectname', None)
-        folderName = resources.get('foldername', None)
+        projectName = resourceNames.get('projectname', None)
+        folderName = resourceNames.get('foldername', None)
         
         return deleteFolder_({'projectName': projectName, 'folderName': folderName})
         
@@ -453,7 +494,7 @@ def updateProject_(input):
 
 
 # Updates project data, excluding folders
-def updateProject(resources, input):
+def updateProject(resourceNames, input):
     
     try:
     
@@ -463,7 +504,7 @@ def updateProject(resources, input):
             return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
         
         # Get the project name, add to the project
-        projectName = resources.get('projectname', None)
+        projectName = resourceNames.get('projectname', None)
         project['projectName'] = projectName
         
         # Update the project
@@ -480,7 +521,7 @@ def updateProject(resources, input):
 
 # Updates a project and returns the updated project with function names
 # populated for a module.
-def updateModule(params, input):
+def updateModule(resourceNames, input):
     
     try:
 
@@ -490,9 +531,9 @@ def updateModule(params, input):
         if not update.get('succeeded', None) or not project:
             return update
 
-        # Get folder name and module name from params
-        folderName = params.get('foldername', None)
-        moduleName = params.get('modulename', None)
+        # Get folder name and module name from resourceNames
+        folderName = resourceNames.get('foldername', None)
+        moduleName = resourceNames.get('modulename', None)
         folders = project.get('folders', {})
         if not (folderName and moduleName and folders):
             return {'succeeded': False, 'error': 'noModule', 'errorMsg': 'Module does not exist'}
@@ -631,12 +672,12 @@ def buildProject_(input):
 
 
 # Builds the project.
-def buildProject(resources, input):
+def buildProject(resourceNames, input):
 
     try:
     
         # Update the project, return status if not successful
-        status = updateProject(resources, input);
+        status = updateProject(resourceNames, input);
         if not status.get('succeeded', False):
             return status
 
@@ -662,19 +703,22 @@ def buildProject(resources, input):
 
 
 # Builds the image for the project.
-def buildImage(input):
+def buildImage(resourceNames):
 
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
     try:
-
-        # Get the project from the input, return error if no project
-        projectName = input.get('projectName', None)
-        tag = input.get('tag', None)
-        # TODO:  CHECK FOR VALID TAG
-        if not projectName:
-            return {'succeeded': False, 'error': 'noProjectInfo', 'errorMsg': 'No project information specified'}
-
-        # Create the docker client
-        client = docker.from_env()
 
         # Get the built project path and check that it exists
         builtProjectPath = os.path.join(workingDirectory, projectName)
@@ -687,16 +731,24 @@ def buildImage(input):
                 'detail': 'No built project exists'
                 }
 
-        # Build the project and get the result.
-        result = client.images.build(path = builtProjectPath, tag = (tag if tag else projectName))
-
+        # Create the docker client, build the project, and get the result.
+        client = docker.DockerClient(base_url=dockerURL)
+        result = client.images.build(path = builtProjectPath, tag = projectName)
+        client.close()
+        
         # Return the result
         if len(result) > 0:
-            return {
-                'succeeded': True, 
-                'id': result[0].id,
-                'tags': result[0].tags
-                }
+            project['projectName'] = projectName
+            project['imageID'] = result[0].id
+            project['imageTags'] = result[0].tags
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return status
+            else:
+                return {
+                    'succeeded': True, 
+                    'project': status.get('project', None)
+                    }
         else:
             return {
                 'succeeded': False, 
@@ -720,7 +772,7 @@ def exportProject(input):
 
 
 # Imports a previously exported project.  This is the project as specified by the user, not the built project, which can be used to build the image.
-def importProject(params, input):
+def importProject(resourceNames, input):
     return {}
 
 
@@ -730,30 +782,60 @@ def exportBuild(input):
 
 
 # Runs a project image in a container.
-def runContainer(input):
+def runContainer(resourceNames):
 
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
     try:
 
-        # Get the image from the input, return error if no image
-        image = input.get('image', None)
-        name = input.get('name', None)
-        if not image:
-            return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image specified'}
+        # Get the image ID and tags from the proejct, return error if no image
+        imageID = project.get('imageID', None)
+        imageTags = project.get('imageTags', [])
+        if not (imageTags or imageTags[0]):
+            return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image associated with the project'}
+        
+        image = imageTags[0]
+        
+        localPort = project.get('localPort', 80)
+        
+        ports = {str(localPort) + '/tcp': 80}
 
-        # Create the docker client
-        client = docker.from_env()
+        # Create the docker client, start the container, and get the result.
+        client = docker.DockerClient(base_url=dockerURL)
+        container = client.containers.run(image, name = projectName, detach = True, remove = True, ports = ports)
 
-        # Run the container and get the result.
-        container = client.containers.run(image, name = (name if name else None), detach=True)
-        return {
-            'succeeded': True, 
-            'id': container.id,
-            'short_id': container.short_id,
-            'image': container.image,
-            'labels': container.labels,
-            'name': container.name,
-            'status': container.status
-            }
+        # Close the client and return the result
+        client.close()
+        if container:
+            project['containerName'] = container.attrs['Name']
+            project['containerID'] = container.id
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return status
+            else:
+                return {
+                    'succeeded': True,
+                    'status': container.status,
+                    'project': project
+                    }
+        else:
+            return {
+                'succeeded': False, 
+                'error': 'errorStartingContainer',
+                'errorMsg': 'Error starting container',
+                'detail': 'Starting container returned no result'
+                }
 
     except Exception as err:
         return {
@@ -765,61 +847,115 @@ def runContainer(input):
 
 
 # Stops the container running a project image.
-def stopContainer(input):
+def stopContainer(resourceNames):
 
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
     try:
 
-        # Get the container id from the input, return error if no id.
-        id = input.get('id', None)
-        if not id:
-            return {'succeeded': False, 'error': 'noContainerID', 'errorMsg': 'No container id specified'}
+        # Get the image ID and tags from the project, return error if no image
+        containerID = project.get('containerID', None)
+        if not containerID:
+            return {'succeeded': False, 'error': 'noContainer', 'errorMsg': 'No container associated with the project'}
+        
+        # Create the docker client, get the container.
+        client = docker.DockerClient(base_url=dockerURL)
+        container = client.containers.get(containerID)
 
-        # Create the docker client
-        client = docker.from_env()
-
-        # Get the container and check its status.
-        container = client.containers.get(id)
-        if container.status == 'running':
+        # Check the container status and stop it if it is running.
+        if container and container.status == 'running':
             container.stop();
 
-        # Return the container status.
-        return {
-            'succeeded': True, 
-            'status': container.status
-            }
+        # Close the client and return status.
+        client.close()
+        if container:
+            project['containerName'] = None
+            project['containerID'] = None
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return status
+            else:
+                return {
+                    'succeeded': True,
+                    'project': project
+                    }
+        else:
+            return {
+                'succeeded': False, 
+                'error': 'errorStoppingContainer',
+                'errorMsg': 'Error stopping the container',
+                'detail': 'Container not found'
+                }
+
 
     except Exception as err:
         return {
             'succeeded': False, 
             'error': 'errorStoppingContainer',
-            'errorMsg': 'Error stopping container',
+            'errorMsg': 'Error stopping the container',
             'detail': str(err)
             }
 
 
-# Stops the container running a project image.
-def getStatus(input):
+# Get the status of the container for a project.
+def getStatus(resourceNames):
+
+    # Try to get the project name
+    projectName = resourceNames.get('projectname', None)
+
+    if not projectName:
+        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+
+    # Try to get the project
+    projectResult = getProject(resourceNames)
+    if not projectResult.get('succeeded', False):
+        return projectResult
+    
+    project = projectResult.get('project')
+    
+    client = None
+
+    try:
+    
+        # Try to connect to the Docker daemon
+        client = docker.DockerClient(base_url=dockerURL)
+    
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorUnableToConnect',
+            'errorMsg': 'Unable to connect to Docker',
+            'detail': str(err)
+            }
 
     try:
 
-        # Get the container id from the input, return error if no id.
-        id = input.get('id', None)
-        if not id:
-            return {'succeeded': False, 'error': 'noContainerID', 'errorMsg': 'No container id specified'}
-
-        # Create the docker client
-        client = docker.from_env()
-
-        # Get the container.
-        container = client.containers.get(id)
-
-        # Return the container status.
+        # Get the image ID and tags from the project, return error if no image
+        containerID = project.get('containerID', None)
+        if not containerID:
+            return {'succeeded': False, 'error': 'noContainer', 'errorMsg': 'No container associated with the project'}
+        
+        # Get the container and return status.
+        container = client.containers.get(containerID)
+        client.close()
         return {
             'succeeded': True, 
             'status': container.status
             }
 
     except Exception as err:
+        client.close()
         return {
             'succeeded': False, 
             'error': 'errorGettingContainerStatus',
@@ -828,33 +964,23 @@ def getStatus(input):
             }
 
 
-# Sends the contents of a folder on the files system to the server.  For use in REST API, R & Python packages.
-def sendFolder(resources, request):
+# Sends the contents of a zipped folder on the files system to the server.
+# For use in REST API, R & Python packages.
+def sendFolder(resourceNames, data):
 
-    return {
-        'succeeded': True,
-        'projectname': resources.get('projectname', None),
-        'foldername': resources.get('foldername', None)
-        }
+    # Get the data from the request
+    data = request.get_data()
 
-# Sends a source module in text form to the server.  For use in R & Python packages.  Depending on the language, loads the module into a file named <module name>.py/R.  Does not modify the corresponding project.json file.
-def sendModule(resources, input):
+    return upload(resourceNames, data, uploadType = 'zipfile')
 
-    return {
-        'succeeded': True,
-        'projectname': resources.get('projectname', None),
-        'foldername': resources.get('foldername', None),
-        'modulename': resources.get('modulename', None)
-        }
 
-# Sends an object to the server.  For use in R & Python packages.  Loads the object into a file with a specified name in the top level directory of the folder.  Does not modify the corresponding project.json file.
-def sendObject(resources, request):
+# Sends a file to the server using the specified project, folder, and file name.
+# For use in R & Python packages.
+def sendFile(resourceNames, data):
 
-    return {
-        'succeeded': True,
-        'projectname': resources.get('projectname', None),
-        'foldername': resources.get('foldername', None)
-        }
+    # Get the data from the request
+    data = request.get_data()
 
+    return upload(resourceNames, data, uploadType = 'file')
 
 

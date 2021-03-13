@@ -162,29 +162,29 @@
             "runcontainer": {
               "serviceDescription": "Runs a project image in a container.",
               "functionName": "runContainer",
-              "method": "POST",
-              "parseInput": true,
-              "inputParseType": "default",
-              "parseOutput": true,
-              "outputParseType": "default"
+              "method": "GET",
+              "outputParseType": "default",
+              "resourceNames": [
+                "projectname"
+              ]
             },
             "stopcontainer": {
               "serviceDescription": "Stops a container.",
               "functionName": "stopContainer",
-              "method": "POST",
-              "parseInput": true,
-              "inputParseType": "default",
-              "parseOutput": true,
-              "outputParseType": "default"
+              "method": "GET",
+              "outputParseType": "default",
+              "resourceNames": [
+                "projectname"
+              ]
             },
             "getstatus": {
               "serviceDescription": "Gets the status of a container.",
               "functionName": "getStatus",
-              "method": "POST",
-              "parseInput": true,
-              "inputParseType": "default",
-              "parseOutput": true,
-              "outputParseType": "default"
+              "method": "GET",
+              "outputParseType": "default",
+              "resourceNames": [
+                "projectname"
+              ]
             },
             "renameproject": {
               "serviceDescription": "Renames the project.",

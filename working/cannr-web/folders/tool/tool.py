@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-03-05 19:56:26
+Generated 2021-03-12 21:06:36
 """
 import json
 import os
@@ -169,31 +169,31 @@ def s_13(projectname, ):
 		return {"error": str(err)}
 
 # Service runcontainer in module services
-@app.route("/services/tool/services/runcontainer", methods=["POST"])
-def s_14():
+@app.route("/services/tool/services/runcontainer/<projectname>", methods=["GET"])
+def s_14(projectname, ):
 	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.runContainer(inputObject)
+		resources = {"projectname": projectname, }
+		output = m_1.runContainer(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
 # Service stopcontainer in module services
-@app.route("/services/tool/services/stopcontainer", methods=["POST"])
-def s_15():
+@app.route("/services/tool/services/stopcontainer/<projectname>", methods=["GET"])
+def s_15(projectname, ):
 	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.stopContainer(inputObject)
+		resources = {"projectname": projectname, }
+		output = m_1.stopContainer(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
 
 # Service getstatus in module services
-@app.route("/services/tool/services/getstatus", methods=["POST"])
-def s_16():
+@app.route("/services/tool/services/getstatus/<projectname>", methods=["GET"])
+def s_16(projectname, ):
 	try:
-		inputObject = ci.toInputType(request, inputParseType="default")
-		output = m_1.getStatus(inputObject)
+		resources = {"projectname": projectname, }
+		output = m_1.getStatus(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}

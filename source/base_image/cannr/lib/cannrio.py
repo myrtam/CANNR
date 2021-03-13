@@ -14,9 +14,20 @@ import re
 import shutil
 import json
 import os
+import zipfile
+import tempfile
 
 badRequestMsg = "Bad request"
-badRequestCode = 1025
+badRequestCode = 2001
+
+badFileMsg = "Bad file name"
+badFileCode = 2002
+
+multiDirMsg = "Multiple directories in archive"
+multiDirCode = 2003
+
+noDirMsg = "No directory in archive"
+noDirCode = 2004
 
 
 # Compile the regular expression for later use
@@ -247,3 +258,85 @@ def writeFiles(data, directory):
                 dataFile.write(contents)
                 
     return fileNames
+
+
+# Given a bytes object containing a zipped directory, saves the files
+# to the specified directory.  If the directory exists, replaces it.
+# Returns a list of the files written.
+def writeZipFiles(data, directory):
+
+    # If no data, nothing to do
+    if not data:
+        return None
+
+    # Get a temp directory and copy the data to a file in it
+    td1 = tempfile.TemporaryDirectory()
+    tempZipPath = os.path.join(td1.name, 'temp.zip')
+    with open(tempZipPath, 'wb') as tempZip:
+        tempZip.write(data)
+
+    # Open the zip file
+    zf = zipfile.ZipFile(tempZipPath)
+    
+    # Get the list of file names and check to make sure they are safe
+    fileNames = []
+    for fileName in zf.namelist():
+        if not fileName or not secure_filename(fileName):
+            raise Exception(badFileMsg)
+        subDirPath = directory + ('' if directory.endswith('/') else '/') + getSubdirectory(fileName)
+        subDirFilePath = subDirPath + fileName
+        fileNames.append(subDirFilePath)
+
+    # Get a temp directory and extract the contents of the zip file into it
+    td2 = tempfile.TemporaryDirectory()
+    zf.extractall(td2.name)
+
+    # Remove the target directory if it exists
+    if os.path.isdir(directory):
+        shutil.rmtree(directory)
+
+    # Get the source directory name, check to make sure there is only one
+    sd = os.scandir(td2.name)
+    dirCount = 0
+    dirName = None
+    for dirEntry in sd:
+        if dirEntry != '__MACOSX':
+            dirCount += 1
+            dirName = dirEntry
+        if dirCount > 1:
+            raise Exception(multiDirMsg)
+
+    # Check to make sure there is a directory to copy 
+    if not dirName:
+        raise Exception(noDirMsg)
+
+    # Copy the directory
+    shutil.copytree(os.path.join(td2.name, dirName), directory)
+    
+    # Clean up the temp directories
+    td1.cleanup()
+    td2.cleanup()
+    
+    return fileNames
+
+
+# Given a bytes object containing a file, saves the file
+# to the specified directory using the specified file name.
+# If the file exists, replaces it.
+def writeFile(data, directory, fileName):
+
+    # If no data, nothing to do
+    if not data:
+        return None
+
+    # Check to make sure file name is OK
+    if not fileName or not secure_filename(fileName):
+        raise Exception(badFileMsg)
+
+    # Write out the file
+    fullName = os.path.join(directory, fileName)
+    with open(fullName, 'wb') as outputFile:
+        outputFile.write(data)
+
+    # Return the new full file name
+    return fullName

@@ -76,48 +76,58 @@ class TestServices(unittest.TestCase):
             'local': True
         }
 
-        # Read the source file
+        # Read a Python source file
         with open('../source/base_image/cannr/lib/cannrcore.py', "r") as sourceFile:
             self.pSource = sourceFile.read()
 
-        # Read the source file
+        # Read an R source file
         with open('../examples/project1/folder2/iris.R', "r") as sourceFile:
             self.rSource = sourceFile.read()
+
+        # Read the source file
+        with open('testfiles/upload.dat', "rb") as sourceFile:
+            self.uploadData = sourceFile.read()
+
+        # Read the source file
+        with open('testfiles/folder123.zip', "rb") as sourceFile:
+            self.uploadZip = sourceFile.read()
 
         
     # Completed
     def test_createProject(self):
-        
+
+        resourceNames = {'projectname': 'project1'}
+        svs.deleteProject(resourceNames)
+                
         # Try to create a project
         input = {'project': self.project1, 'overwrite': False}
-        response = svs.createProject(input)
+        response = svs.createProject(resourceNames, input)
         self.assertTrue(response.get('succeeded', False))
 
         # Check that overwrite flag works when set to false
         input = {'project': self.project1, 'overwrite': False}
-        response = svs.createProject(input)
+        response = svs.createProject(resourceNames, input)
         self.assertFalse(response.get('succeeded', False))
 
         # Check that overwrite flag works when set to true
         input = {'project': self.project1, 'overwrite': True}
-        response = svs.createProject(input)
+        response = svs.createProject(resourceNames, input)
         self.assertTrue(response.get('succeeded', False))
 
     
     # Completed
     def test_deleteProject(self):
-        
-        # Try to create a project
+
+        resourceNames = {'projectname': 'project1'}
         input = {'project': self.project1, 'overwrite': True}
-        svs.createProject(input)
-        projectName = self.project1.get('projectName', None)
-        projectPath = svs.getProjectsPath() + '/' + projectName
+
+        svs.createProject(resourceNames, input)
+        projectPath = svs.getProjectsPath() + '/project1'
         self.assertTrue(os.path.isdir(projectPath))
         self.assertTrue(os.path.isfile(projectPath + '/project.json'))
 
         # Now try to delete it
-        input = {'projectName': projectName}
-        svs.deleteProject(input)
+        svs.deleteProject(resourceNames)
         self.assertFalse(os.path.isdir(projectPath))
         self.assertFalse(os.path.isfile(projectPath + '/project.json'))
 
@@ -125,13 +135,12 @@ class TestServices(unittest.TestCase):
     # Completed
     def test_getProject(self):
 
-        # Create some projects
-        input = {'project': self.project1, 'overwrite': true}
-        input = {'project': self.project2, 'overwrite': true}
+        resourceNames = {'projectname': 'project1'}
+        input = {'project': self.project1, 'overwrite': True}
+        svs.createProject(resourceNames, input)
 
         # Get the project document and check the response
-        input = {'projectName': projectName}
-        response = svs.getProject(input)
+        response = svs.getProject(resourceNames)
         self.assertTrue(response.get('succeeded', True))
         project = response.get('project', None)
         self.assertTrue(project)
@@ -142,8 +151,12 @@ class TestServices(unittest.TestCase):
     def test_getProjects(self):
         
         # Create some projects
-        input = {'project': self.project1, 'overwrite': true}
-        input = {'project': self.project2, 'overwrite': true}
+        resourceNames = {'projectname': 'project1'}
+        input = {'project': self.project1, 'overwrite': True}
+        svs.createProject(resourceNames, input)
+        resourceNames = {'projectname': 'project2'}
+        input = {'project': self.project2, 'overwrite': True}
+        svs.createProject(resourceNames, input)
 
         # Get the projects collection and check the response
         response = svs.getProjects()
@@ -157,8 +170,28 @@ class TestServices(unittest.TestCase):
     
     
     # Completed
-    def test_uploadFolder(self):
+    def test_upload(self):
         
+        # Create a project
+        resourceNames = {'projectname': 'project1'}
+        svs.deleteProject(resourceNames)
+        input = {'project': self.project1, 'overwrite': True}
+        svs.createProject(resourceNames, input)
+
+        resourceNames = {'projectname': 'project22'}
+        svs.deleteProject(resourceNames)
+        input = {'project': self.project1, 'overwrite': True}
+        svs.createProject(resourceNames, input)
+
+        resourceNames = {'projectname': 'project1', 'foldername': 'folder1'}
+        response = svs.upload(resourceNames, self.uploadData)
+        
+        resourceNames = {'projectname': 'project22', 'foldername': 'folder22'}
+        response = svs.upload(resourceNames, self.uploadZip, uploadType = 'zipfile')
+        
+        resourceNames = {'projectname': 'project1', 'foldername': 'folder1', 'filename': 'iris.R'}
+        response = svs.upload(resourceNames, self.rSource, uploadType = 'file')
+
         self.assertTrue(True)
     
     
@@ -166,17 +199,18 @@ class TestServices(unittest.TestCase):
     def test_deleteFolder(self):
     
         # Create a project
+        resourceNames = {'projectname': 'project2'}
         input = {'project': self.project2, 'overwrite': True}
-        svs.createProject(input)
+        svs.createProject(resourceNames, input)
         
         # Create some folders in the project directory
-        projectPath = svs.getProjectsPath() + '/' + self.project2.get('projectName', None)
+        projectPath = svs.getProjectsPath() + '/project2'
         os.mkdir(projectPath + '/' + 'folder1')
         os.mkdir(projectPath + '/' + 'folder2')
         
         # Try deleting a folder and check the results
-        input = {"projectName": self.project2.get('projectName', None), "folderName": 'folder2'}
-        response = svs.deleteFolder(input)
+        resourceNames = {'projectname': 'project2', 'foldername': 'folder2'}
+        response = svs.deleteFolder(resourceNames)
         newproject = response.get('project')
         self.assertTrue(os.path.isdir(projectPath + '/' + 'folder1'))
         self.assertFalse(os.path.isdir(projectPath + '/' + 'folder2'))
@@ -189,12 +223,13 @@ class TestServices(unittest.TestCase):
     def test_updateProject(self):
         
         # Create a project
+        resourceNames = {'projectname': 'project1'}
         input = {'project': self.project1, 'overwrite': True}
-        response = svs.createProject(input)
+        response = svs.createProject(resourceNames, input)
 
         # Try updating the project.json file
         input = {'project': self.project3}
-        response = svs.updateProject(input)
+        response = svs.updateProject(resourceNames, input)
         newProject = response.get('project')
         self.assertTrue('Modified' in newProject.get('projectTitle'))
     
@@ -202,9 +237,13 @@ class TestServices(unittest.TestCase):
     # Completed
     def test_renameProject(self):
 
+        resourceNames = {'projectname': 'project11'}
+        svs.deleteProject(resourceNames)
+                
         # Create a project
+        resourceNames = {'projectname': 'project1'}
         input = {'project': self.project1, 'overwrite': True}
-        response = svs.createProject(input)
+        response = svs.createProject(resourceNames, input)
 
         # Try to rename the project and check the results
         input = {"oldProjectName": 'project1', "newProjectName": 'project11'}
@@ -273,18 +312,6 @@ class TestServices(unittest.TestCase):
  
         self.assertTrue(True)
 
-    
-    # Not implemented
-    def test_getProjects(self):
- 
-        self.assertTrue(True)
-
-    
-    # Not implemented
-    def test_getProject(self):
- 
-        self.assertTrue(True)
-    
     
 if __name__ == '__main__':
     unittest.main()    

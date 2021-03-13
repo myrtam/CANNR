@@ -3,7 +3,10 @@
 	"workingDirectory": "/external/working",
 	"projectsPath": "/external/projects",
 	"baseImage": "cannr-base",
-	"maintainerEmail": "pat@pat.com",
+	"maintainerEmail": "<maintainer email>",
+	"dockerURL": "unix://var/run/docker.sock",
+	"note1": "Use Unix socket to connect to Docker daemon for Mac & Linux.",
+	"note2": "For Windows, probably need to configure network URL for Docker demon in addition to named pipe, use that instead of Unix socket.",
 	"authPolicy": {
 		"authPolicyLen": 12,
 		"authPolicyChars": [
