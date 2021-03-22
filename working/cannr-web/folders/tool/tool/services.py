@@ -674,23 +674,71 @@ def buildProject_(input):
 # Builds the project.
 def buildProject(resourceNames, input):
 
+    # Update the project, return status if not successful
+    status = updateProject(resourceNames, input);
+    if not status.get('succeeded', False):
+        return status
+
+    # Get the project
+    project = status.get('project', None)
+        
+    # Try connecting to the Docker daemon
+    buildRun = resourceNames.get('buildRun', 'project')
+    projectName = resourceNames.get('projectname', None)
+    client = None
+    try:
+        client = docker.DockerClient(base_url=dockerURL)
+    except Exception as err:
+        if buildRun and buildRun in ['build', 'run']:
+            return {
+                'succeeded': False, 
+                'error': 'errorBuildingImage',
+                'errorMsg': 'Error connecting to the Docker daemon',
+                'detail': str(err)
+                }
+    
+    # Stop the previous container if it exists and is running
+    try:
+
+        # Try using the container ID stored with the project
+        containerID = project.get('containerID', None)
+        if client and containerID:
+            
+            # Get the container, check its status, and stop it if it is running.
+            container = client.containers.get(containerID)
+            if container and container.status == 'running':
+                container.stop();
+
+            # Remove the image and container names and IDs from the project
+            project['imageID'] = None
+            project['imageTags'] = None
+            project['containerName'] = None
+            project['containerID'] = None
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return {'succeeded': False, 
+                    'error': 'errorBuildingProject',
+                    'errorMsg': 'Error updating project',
+                    'detail': status.get('errorMsg', None) if status else None
+                }
+
+    except Exception as err:
+        pass
+
+    # Build the project
     try:
     
-        # Update the project, return status if not successful
-        status = updateProject(resourceNames, input);
-        if not status.get('succeeded', False):
-            return status
-
-        # Get the project
-        project = status.get('project', None)
-        
         # Build the project
         cb.buildProject(project, '', context)
 
-        return {
-            'succeeded': True,
-            'project': project
-            }
+        # If not building the image, we're done
+        if not buildRun or buildRun not in ['build', 'run']:
+            return {
+                'succeeded': True,
+                'status': None,
+                'project': project,
+                'buildRun': buildRun
+                }
 
     except Exception as err:
         return {
@@ -700,6 +748,111 @@ def buildProject(resourceNames, input):
             'detail': str(err)
             }
 
+    # Try building the image
+    try:
+
+        # Get the built project path and check that it exists
+        builtProjectPath = os.path.join(workingDirectory, projectName)
+        builtDockerPath = os.path.join(builtProjectPath, 'Dockerfile')
+        if not os.path.isfile(builtDockerPath):
+            return {
+                'succeeded': False, 
+                'error': 'errorBuildingImage',
+                'errorMsg': 'Error building image',
+                'detail': 'No built project exists'
+                }
+
+        # Create the docker client, build the project, and get the result.
+        result = client.images.build(path = builtProjectPath, tag = projectName)
+        
+        # Return the result
+        if len(result) > 0:
+            project['imageID'] = result[0].id
+            project['imageTags'] = result[0].tags
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                client.close()
+                return {'succeeded': False, 
+                    'error': 'errorBuildingImage',
+                    'errorMsg': 'Error updating project',
+                    'detail': status.get('errorMsg', None) if status else None
+                }
+        else:
+            client.close()
+            return {
+                'succeeded': False, 
+                'error': 'errorBuildingImage',
+                'errorMsg': 'Error building image',
+                'detail': 'Image build returned no result'
+                }
+
+        # If not running the container, we're done
+        if buildRun != 'run':
+            client.close()
+            return {
+                'succeeded': True, 
+                'status': 'Image built',
+                'project': status.get('project', None)
+                }
+
+    except Exception as err:
+        client.close()
+        return {
+            'succeeded': False, 
+            'error': 'errorBuildingImage',
+            'errorMsg': 'Error building image',
+            'detail': str(err)
+            }
+
+    # Try running the container
+    try:
+
+        # Get the image tags from the project, return error if no image
+        imageTags = project.get('imageTags', [])
+        if not (imageTags or imageTags[0]):
+            return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image associated with the project'}
+        
+        # Get the image name
+        image = imageTags[0]
+        localPort = project.get('localPort', 80)
+        ports = {str(localPort) + '/tcp': 80}
+
+        # Start the container, and get the result.
+        container = client.containers.run(image, name = projectName, detach = True, remove = True, ports = ports)
+
+        # Close the client and return the result
+        client.close()
+        if container:
+            project['containerName'] = container.attrs['Name']
+            project['containerID'] = container.id
+            status = updateProject_({'project': project})
+            if not status or not status.get('succeeded', False):
+                return {'succeeded': False, 
+                    'error': 'errorStartingContainer',
+                    'errorMsg': 'Error updating project',
+                    'detail': status.get('errorMsg', None) if status else None
+                }
+            else:
+                return {
+                    'succeeded': True,
+                    'status': container.status,
+                    'project': project
+                    }
+        else:
+            return {
+                'succeeded': False, 
+                'error': 'errorStartingContainer',
+                'errorMsg': 'Error starting container',
+                'detail': 'Starting container returned no result'
+                }
+
+    except Exception as err:
+        return {
+            'succeeded': False, 
+            'error': 'errorRunningContainer',
+            'errorMsg': 'Error running container',
+            'detail': str(err)
+            }
 
 
 # Builds the image for the project.
@@ -800,7 +953,7 @@ def runContainer(resourceNames):
     try:
 
         # Get the image ID and tags from the proejct, return error if no image
-        imageID = project.get('imageID', None)
+        #imageID = project.get('imageID', None)
         imageTags = project.get('imageTags', [])
         if not (imageTags or imageTags[0]):
             return {'succeeded': False, 'error': 'noImage', 'errorMsg': 'No image associated with the project'}
@@ -915,7 +1068,12 @@ def getStatus(resourceNames):
     projectName = resourceNames.get('projectname', None)
 
     if not projectName:
-        return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name specified'}
+        return {
+            'succeeded': False,
+            'containerID': None,
+            'error': 'noProjectName',
+            'errorMsg': 'No project name specified'
+        }
 
     # Try to get the project
     projectResult = getProject(resourceNames)
@@ -934,7 +1092,8 @@ def getStatus(resourceNames):
     except Exception as err:
         return {
             'succeeded': False, 
-            'error': 'errorUnableToConnect',
+            'containerID': None,
+            'error': 'unableToConnect',
             'errorMsg': 'Unable to connect to Docker',
             'detail': str(err)
             }
@@ -944,24 +1103,40 @@ def getStatus(resourceNames):
         # Get the image ID and tags from the project, return error if no image
         containerID = project.get('containerID', None)
         if not containerID:
-            return {'succeeded': False, 'error': 'noContainer', 'errorMsg': 'No container associated with the project'}
+            return {
+                'succeeded': True,
+                'containerID': None,
+                'status': 'noContainer',
+                'detail': 'No container associated with the project'
+            }
         
         # Get the container and return status.
         container = client.containers.get(containerID)
         client.close()
         return {
             'succeeded': True, 
-            'status': container.status
+            'containerID': containerID,
+            'status': container.status,
+            'detail': 'Container found'
             }
 
     except Exception as err:
         client.close()
-        return {
-            'succeeded': False, 
-            'error': 'errorGettingContainerStatus',
-            'errorMsg': 'Error getting container status',
-            'detail': str(err)
+        if err.__class__.__name__ == 'NotFound':
+            return {
+                'succeeded': True,
+                'containerID': None,
+                'status': 'notFound',
+                'detail': 'Container not found'
             }
+        else:
+            return {
+                'succeeded': False, 
+                'containerID': None,
+                'error': 'errorGettingStatus',
+                'errorMsg': 'Error getting container status',
+                'detail': str(err)
+                }
 
 
 # Sends the contents of a zipped folder on the files system to the server.

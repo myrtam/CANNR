@@ -59,7 +59,8 @@
           },
           "functionNames": [
             "calcSum"
-          ]
+          ],
+          "nodeNumber": 4
         }
       },
       "fileNames": [
@@ -98,7 +99,8 @@
           },
           "functionNames": [
             "predPLengthSLength"
-          ]
+          ],
+          "nodeNumber": 6
         },
         "sum": {
           "moduleName": "sum",
@@ -122,14 +124,16 @@
           },
           "functionNames": [
             "sumX"
-          ]
+          ],
+          "nodeNumber": 7
         }
       },
       "fileNames": [
         "iris.R",
         "irisFit.R",
         "sum.R"
-      ]
+      ],
+      "nodeNumber": 5
     },
     "static": {
       "folderTitle": "Example Static Content Folder",
@@ -141,17 +145,16 @@
       "modules": {},
       "fileNames": [
         "static.html"
-      ]
+      ],
+      "nodeNumber": 8
     }
   },
   "buildProject": true,
-  "buildImage": true,
-  "startLocalhost": true,
+  "buildImage": false,
+  "startLocalhost": false,
   "nodeNumber": 1,
-  "imageID": "sha256:061bec9f39f66127e81c52eff94298c31a5195940f873d6ca6e0fe7bd51fdc98",
-  "imageTags": [
-    "project1:latest"
-  ],
+  "imageID": null,
+  "imageTags": null,
   "containerName": null,
   "containerID": null
 }

@@ -440,12 +440,14 @@ If no folders, display the following:
 				</button>
 			</div>
 			<div class="modal-body">
+				<!--  
 				<input name="buildProjectCheckBox" id="buildProjectCheckBox" type="checkbox"/>&nbsp;
 				<label for="buildProjectCheckBox">Build Docker project</label><br>
-				<input name="buildImageCheckBox" id="buildImageCheckBox" type="checkbox" style="visibility: hidden;" disabled/>&nbsp;
-				<label for="buildImageCheckBox" style="visibility: hidden;">Build image</label><br>
-				<input name="startLocalhostCheckBox" id="startLocalhostCheckBox" type="checkbox" style="visibility: hidden;" disabled/>&nbsp;
-				<label for="startLocalhostCheckBox" style="visibility: hidden;">Start container on localhost</label><br>
+				-->
+				<input name="buildImageCheckBox" id="buildImageCheckBox" type="checkbox" onchange='checkBuildProperties()'/>&nbsp;
+				<label for="buildImageCheckBox">Build image</label><br>
+				<input name="startLocalhostCheckBox" id="startLocalhostCheckBox" type="checkbox"/>&nbsp;
+				<label for="startLocalhostCheckBox">Start container on localhost</label><br>
 				<h5>Status:</h5>
 				<div id="statusPane" class="build-list">
 				</div>

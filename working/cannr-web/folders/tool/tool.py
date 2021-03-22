@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-03-12 21:06:36
+Generated 2021-03-20 20:50:03
 """
 import json
 import os
@@ -118,10 +118,10 @@ def s_8(projectname, foldername, modulename, ):
 		return {"error": str(err)}
 
 # Service buildproject in module services
-@app.route("/services/tool/services/buildproject/<projectname>", methods=["POST"])
-def s_9(projectname, ):
+@app.route("/services/tool/services/buildproject/<projectname>/<buildRun>", methods=["POST"])
+def s_9(projectname, buildRun, ):
 	try:
-		resources = {"projectname": projectname, }
+		resources = {"projectname": projectname, "buildRun": buildRun, }
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.buildProject(resources, inputObject)
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")

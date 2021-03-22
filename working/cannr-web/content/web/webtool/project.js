@@ -21,6 +21,11 @@ var built = false;
 var currentModal = null;
 var timestamp = null;
 var folderType = null;
+var containerStatus = null;
+var containerID = null;
+var containerDetail = null;
+var containerErrMsg = null;
+var dockerConnected = false;
 
 // Flag indicating whether current screen has been changed
 var changed = false;
@@ -51,7 +56,7 @@ var folderTitleInput = null;
 var folderTypeRow = null;
 var functionSelect = null;
 var functionSelectRules = null;
-var buildProjectCheckBox = null;
+//var buildProjectCheckBox = null;
 var goFolderButton = null;
 var goModuleButton = null;
 var goServiceButton = null;
@@ -152,7 +157,7 @@ function initDOMObjects() {
 	folderTypeRow = document.getElementById('folderTypeRow');
 	functionSelect = document.getElementById('functionSelect');
 	functionSelectRules = document.getElementById('functionSelectRules');
-	buildProjectCheckBox = document.getElementById('buildProjectCheckBox');
+	//buildProjectCheckBox = document.getElementById('buildProjectCheckBox');
 	goFolderButton = document.getElementById('goFolderButton');
 	goModuleButton = document.getElementById('goModuleButton');
 	goServiceButton = document.getElementById('goServiceButton');
@@ -1182,9 +1187,10 @@ function popServiceProps() {
 
 }
 
-// Populates build screen
-function popBuildProps() {
 
+
+function popBuildScreen() {
+	
 	// Make sure the project exists
 	if (!project)
 		return false;
@@ -1194,6 +1200,17 @@ function popBuildProps() {
 	var folders = project['folders'];
 	if (!projectName||!folders)
 		return false;
+
+	// Add the status of the connection or container as appropriate.
+	if (dockerConnected&&containerID) {
+		addStatusMessage('The following container is associated with this project:', null);
+		addStatusMessage(containerID, '20px');
+		addStatusMessage('Status is ' + containerStatus, '20px');
+	}
+	else if (containerStatus == 'unableToConnect') {
+		addStatusMessage('Unable to connect to Docker:', null);
+		addStatusMessage(containerDetail, '20px');
+	}
 
 	// Display the project name and title, if any.
 	var projectTitle = project['projectTitle'];
@@ -1235,9 +1252,6 @@ function popBuildProps() {
 			if (!module)
 				return false;
 
-			var moduleTitle = project['moduleTitle'];
-			//addStatusMessage('<span class="tab2">Module ' + moduleKey + (moduleTitle? ' - ' + moduleTitle: '') + ' services:</span>');
-
 			var services = module['services'];
 			var serviceKeys = Object.keys(services);
 			serviceKeys.forEach(function(serviceKey, index) {
@@ -1263,87 +1277,156 @@ function popBuildProps() {
 	setBuildButtons();
 
 	// Find build property values based on project and defaults
-	buildProjectValue = project['buildProjectCheckBox'];
 	buildImageValue = project['buildImage'];
 	startLocalhostValue = project['startLocalhostCheckBox'];
-	buildProjectValue = buildProjectValue==false? false: true;
-	buildImageValue = buildImageValue==false? false: true;
-	startLocalhostValue = startLocalhostValue? true: false;
+    imageTags = project['imageTags'];
+	image = (imageTags&&imageTags.length)? imageTags[0]: null;
 
-	// Populate build properties
-	buildProjectCheckBox.checked = buildProjectValue;
-	buildProjectCheckBox.focus();
+	// Build image unless specified otherwise
+	buildImageValue = buildImageValue==false? false: true;
+	// Don't start container unless explicitly specified
+	startLocalhostValue = !!startLocalhostValue;
+
+	// Populate build checkbox properties
+	buildDisabled = (containerStatus == 'unableToConnect');
 	buildImageCheckBox.checked = buildImageValue;
 	startLocalhostCheckBox.checked = startLocalhostValue;
+	buildImageCheckBox.disabled = buildDisabled;
+	startLocalhostCheckBox.disabled = !buildImageValue||buildDisabled;
 	
-	// Set handler to set focus on buildProjectCheckBox.
-	$('#projectBuildModal').on('shown.bs.modal', function () {
-	    $('#buildProjectCheckBox').focus();
-	});
-
 	built = false;
 
 	if (newProject)
 		projectBuildModal.className = 'modal';
 	else
 		projectBuildModal.className = 'modal fade';
-
+		
 	return true;
+	
+}
 
+
+
+// Populates build screen
+function popBuildProps() {
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	var url = baseURL + "getstatus" + '/' + projectName;
+	xhr.open("GET", url);
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and process it.
+			var response = JSON.parse(xhr.responseText);
+			var data = response['data'];
+			if (data) {
+				containerDetail = data['detail'];
+				dockerConnected = data.succeeded;
+				if (dockerConnected) {
+					
+					// Record container status and ID
+					containerStatus = data['status'];
+					containerID = data['containerID'];
+					containerErrMsg = null;
+					
+				}
+				else {
+
+					containerStatus = data['error'];
+					containerID = null;
+					containerErrMsg = data['errorMsg'];
+
+				}
+				
+				if (dockerConnected || containerStatus=='unableToConnect') {
+					if (popBuildScreen())
+						switchModal('projectBuildModal');
+					else
+					{
+						alert('An error occurred while loading build parameters.');
+						onExitProject();
+					}
+				}
+				else {
+					alert('Error getting Docker status:\n' + containerDetail);
+					onExitProject();
+				}
+				
+			}
+			else {
+				alert('Error getting Docker status:\nNo data returned');
+				onExitProject();
+			}
+
+		} else {
+			alert('Error getting Docker status:\nHTTP ' + xhr.status);
+			onExitProject();
+		}
+
+	}
+
+	// Send the request.
+	xhr.send();
+	
 }
 
 // Handle the results from back end project operations.
 function goModal(nextModalID) {
 
-	// Get the project.
-	//project = response['project'];
-
 	// If no modal and the current project exists, not a new project.
 	if (!nextModalID && project)
 		newProject = false;
 
-	// Switch to the next modal.
-	//switchModal(nextModalID);
-
 	// Populate project properties screen.
 	if (!nextModalID||nextModalID=='projectPropertiesModal') {
-		if (!popProjectProps()) {
-			alert('An error occurred while loading the project.');
-			onExitProject();
-		}
+		if (popProjectProps())
+			switchModal(nextModalID);
+		else
+			{
+				alert('An error occurred while loading the project.');
+				onExitProject();
+			}
 	}
 	// Populate folder properties screen.
 	else if (nextModalID=='folderPropertiesModal') {
-		if (!popFolderProps()) {
-			alert('An error occurred while loading the folder.');
-			onExitProject();
-		}
+		if (popFolderProps())
+			switchModal(nextModalID);
+		else
+			{
+				alert('An error occurred while loading the folder.');
+				onExitProject();
+			}
 	}
 	// Populate module properties screen.
 	else if (nextModalID=='modulePropertiesModal') {
-		if (!popModuleProps()) {
-			alert('An error occurred while loading the module.');
-			onExitProject();
-		}
+		if (popModuleProps())
+			switchModal(nextModalID);
+		else
+			{
+				alert('An error occurred while loading the module.');
+				onExitProject();
+			}
 	}
 	// Populate service properties screen.
 	else if (nextModalID=='servicePropertiesModal') {
-		if (!popServiceProps()) {
+		if (popServiceProps())
+			switchModal(nextModalID);
+		else
+			{
 			alert('An error occurred while loading the service.');
 			onExitProject();
 		}
 	}
 	// Populate build screen.
-	else if (nextModalID=='projectBuildModal') {
-		if (!popBuildProps()) {
-			alert('An error occurred while building the project.');
-			onExitProject();
-		}
-	}
-
-	// Switch to the next modal.
-	switchModal(nextModalID);
-
+	else if (nextModalID=='projectBuildModal')
+		popBuildProps();
+	
 }
 
 // Saves an existing project
@@ -2307,6 +2390,14 @@ function checkServiceProperties() {
 
 }
 
+// Checks the values of build properties and sets build screen elements appropriately.
+// TODO:  IMPLEMENT THIS!  ENABLE/DISABLE startLocalhostCheckBox ACCORDING TO buildImageCheckBox
+function checkBuildProperties() {
+
+	startLocalhostCheckBox.disabled = !buildImageCheckBox.checked;
+
+}
+
 // Displays the directory selected in the source upload screen.
 function onSourceUploadChange() {
 
@@ -2850,17 +2941,18 @@ function runContainer() {
 	}
 
 	// Save build options to the project
-	project['buildProject'] = buildProjectCheckBox.checked;
+	//project['buildProject'] = buildProjectCheckBox.checked;
 	project['buildImage'] = buildImageCheckBox.checked;
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
-	var request = {'data': {'image': imageID, 'name': projectName}}
+	//var request = {'data': {'image': imageID, 'name': projectName}}
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "runcontainer");
-	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+	xhr.open("GET", baseURL + "runcontainer/" + projectName);
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+	//xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
 	xhr.onload = function () {
@@ -2903,7 +2995,7 @@ function runContainer() {
 	}
 
 	// Send the request.
-	var contentJSON = JSON.stringify(request);
+	//var contentJSON = JSON.stringify(request);
 	xhr.send(contentJSON);
 	
 }
@@ -2921,7 +3013,7 @@ function buildImage() {
 		return;
 
 	// Save build options to the project
-	project['buildProject'] = buildProjectCheckBox.checked;
+	//project['buildProject'] = buildProjectCheckBox.checked;
 	project['buildImage'] = buildImageCheckBox.checked;
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
@@ -2987,16 +3079,18 @@ function buildProject() {
 		return;
 
 	// Save build options to the project
-	project['buildProject'] = buildProjectCheckBox.checked;
+	//project['buildProject'] = buildProjectCheckBox.checked;
 	project['buildImage'] = buildImageCheckBox.checked;
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
 	var request = {'data': {'project': project}};
+	// TODO:  CHECK IF ABLE TO CONNECT TO DOCKER
+	var buildRun = !buildImageCheckBox.checked? 'project': (!startLocalhostCheckBox.checked? 'build': 'run')
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "buildproject/" + projectName);
+	xhr.open("POST", baseURL + "buildproject/" + projectName + '/' + buildRun);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -3046,18 +3140,15 @@ function onBuildInputChange() {
 
 	if (!changed)
 		changed = true;
-	
+
 }
 
 // Build the project
 function onBuildProject(){
 
-	// TODO:  LIST ITEMS TO BE INCLUDED IN BUILT PROJECT
 	if (!project)
 		return;
 
-	var nextModalID = 'projectBuildModal';
-	
 	if (newProject) {
 		if (built)
 			goModal(null);
@@ -3081,7 +3172,7 @@ function onCancelBuild() {
 
 	if (newProject&&changed) {
 		
-		project['buildProject'] = buildProjectCheckBox.checked;
+		//project['buildProject'] = buildProjectCheckBox.checked;
 		project['buildImage'] = buildImageCheckBox.checked;
 		project['startLocalhost'] = startLocalhostCheckBox.checked;
 		

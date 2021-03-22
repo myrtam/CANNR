@@ -99,14 +99,16 @@
                      "method": "POST",
                      "inputParseType": "default",
                      "outputParseType": "default",
-                     "resourceNames": ["projectname"]
+                     "resourceNames": ["projectname", "buildRun"],
+                     "note1": "buildRun resource is 'build' to build the image, 'run' to run the container, or anything else to just build the project"
                   },
                   "buildimage": {
                      "serviceDescription": "Builds the image for the project.",
                      "functionName": "buildImage",
                      "method": "GET",
                      "outputParseType": "default",
-                     "resourceNames": ["projectname"]
+                     "resourceNames": ["projectname"],
+                     "note1": "Deprecated"
                   },
                   "exportproject": {
                      "serviceDescription": "Exports the project.  This is the project as specified by the user, not the built project, which can be used to build the image.",
@@ -136,7 +138,8 @@
                      "functionName": "runContainer",
                      "method": "GET",
                      "outputParseType": "default",
-                     "resourceNames": ["projectname"]
+                     "resourceNames": ["projectname"],
+                     "note1": "Deprecated"
                   },
                   "stopcontainer": {
                      "serviceDescription": "Stops a container.",

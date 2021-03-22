@@ -150,7 +150,11 @@
     }
   },
   "buildProject": true,
-  "buildImage": true,
+  "buildImage": false,
   "startLocalhost": false,
-  "nodeNumber": 1
+  "nodeNumber": 1,
+  "imageID": null,
+  "imageTags": null,
+  "containerName": null,
+  "containerID": null
 }
