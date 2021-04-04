@@ -2,7 +2,7 @@
 	"configPath": "/external/config/config.json",
 	"workingDirectory": "/external/working",
 	"projectsPath": "/external/projects",
-	"baseImage": "cannr-base",
+	"baseImage": "cannr/cannr-base",
 	"maintainerEmail": "<maintainer email>",
 	"dockerURL": "unix://var/run/docker.sock",
 	"note1": "Use Unix socket to connect to Docker daemon for Mac & Linux.",

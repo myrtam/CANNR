@@ -4,7 +4,7 @@
 # Maintainer Pat Tendick ptendick@gmail.com
 
 # Use Rocker image
-FROM r-base
+FROM r-base:4.0.4
 
 # Install required libraries
 RUN apt-get update --fix-missing
@@ -25,12 +25,9 @@ ENV PATH=$PATH:/
 # Install pip3
 RUN apt-get -y install python3-pip
 
-# Install Python packages and set PYTHONPATH
-RUN pip3 install docker
-RUN pip3 install stdlib_list
-RUN pip3 install flask
-RUN pip3 install pandas
-RUN pip3 install numpyencoder
+# Copy the requirements file, install Python packages, and set PYTHONPATH
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.9/dist-packages/
 
 # Install NGINX community edition and create log directories

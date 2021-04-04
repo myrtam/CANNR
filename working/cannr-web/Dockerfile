@@ -12,11 +12,11 @@ COPY conf.d/http /etc/nginx/http
 # Install R packages
 # No R packages to install
 
-# Install Python packages
-
-
 # Copy project contents
 COPY . .
+
+# Install Python packages
+RUN pip3 install -r requirements.txt
 
 # Copy static content
 COPY ./content/web/webtool /content

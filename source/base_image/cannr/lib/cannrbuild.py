@@ -523,6 +523,7 @@ def buildProject(project, basePath, context):
     # R and Python packages to import, respectively.
     rPackageNames = []
     pPackageNames = []
+    pPackageMap = {}    # Map of package names to package name/version stringss
 
     # Get the port range and first port.
     portRange = getPortRange(project)
@@ -753,22 +754,24 @@ def buildProject(project, basePath, context):
         for pkg in rPackageSet:
             if not cc.isRInstPkg(pkg):
                 installText += 'RUN install2.r ' + pkg + '\n'
-            # TODO: ADD PACKAGE INSTALL USING API
         dockerText = dockerText.replace('#<R Packages>', installText)
     else:
         dockerText = dockerText.replace('#<R Packages>', '# No R packages to install')
     
-    # Add imports of Python packages to container and Dockerfile
-    installText = ''
+    # Build list of imports of Python packages
+    requirementsText = ''
     pPackageSet = set(pPackageNames)
-    if len(pPackageSet):
-        for pkg in pPackageSet:
-            if not cc.isStdPkg(pkg) and not cc.isInstPkg(pkg):
-                installText += 'RUN pip3 install ' + pkg + '\n'
-            # TODO: ADD PACKAGE INSTALL USING API
-        dockerText = dockerText.replace('#<P Packages>', installText)
-    else:
-        dockerText = dockerText.replace('#<P Packages>', '# No Python packages to install')
+    pPackageList = []
+    for pkg in pPackageSet:
+        if not cc.isStdPkg(pkg) and not cc.isInstPkg(pkg):
+            pPackageList.append(pkg)
+    pPackageMap = cc.buildPPackMap(pPackageList)
+    for packageName in pPackageMap:
+        requirementsText += pPackageMap[packageName] + '\n'
+
+    # Copy project file to project directory
+    with open(os.path.join(projectPath,'requirements.txt'), "w") as requirementsFile:
+        requirementsFile.write(requirementsText)    
 
     # Copy static content into container
     dockerContentText = ''

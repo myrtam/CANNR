@@ -91,7 +91,8 @@ class TestCannrBuild(unittest.TestCase):
         
         context = cnc.readJSONFile('context.json')
         workingDir = cnb.initBuild(project, context)
-        self.assertEqual(workingDir, os.path.abspath('../working/project1'))        
+        checkPath = os.path.abspath('working/project1')
+        self.assertEqual(workingDir, checkPath)        
 
     # Completed
     def test_copySourceFromPath(self):

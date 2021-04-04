@@ -26,9 +26,13 @@ To install the tool, clone the CANNR project or download and copy the
 directories to your computer.
 
 You will first need to build the CANNR base Docker image by changing to the
-source/base_image directory and running the command
+source/base_image directory and running in a Windows command shell
 
-docker build -t cannr-base
+docker build -t cannr-base .
+
+For Powershell, use
+
+.\docker build -t cannr-base .
 
 Once you have built the base image, you can run the tool to create containerized
 microservices from your R or Python code.

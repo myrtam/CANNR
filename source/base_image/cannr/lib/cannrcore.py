@@ -106,6 +106,9 @@ errorSerializingDataCode = 1028
 missingOutputMsg = "Missing output"
 missingOutputCode = 1029
 
+multiplePackageSpecMsg = "Multiple version specifications for the same package"
+multiplePackageSpecCode = 1030
+
 
 # Base class for exceptions
 class Error(Exception):
@@ -125,7 +128,7 @@ class RTAMError(Error):
         return self.message
 
     def getErrorCode(self):
-        return errorCode
+        return self.errorCode
 
 
 # Represents the event calendar used to manage services
@@ -469,6 +472,44 @@ def legalName(nameString):
         return False
     
     return True
+
+# Builds map of Python package names to package specs including version.
+# Raises an error if there are different specs for the same package.
+def buildPPackMap(packages):
+    
+    # Map of package names to specs
+    packMap = {}
+    
+    # Regex objects
+    r1 = re.compile('\s')
+    r2 = re.compile('[0-9a-zA-Z\.]*')
+    
+    # Loop through the list of packages
+    for newSpec in packages:
+        
+        # Remove whitespace and extract the package name
+        pTrim = r1.sub('', newSpec)
+        m = r2.match(pTrim)
+        
+        # If no package name, do nothing
+        if not m:
+            continue
+        
+        # Get the package name and check to see if it's already in the map
+        newName = m[0]
+        packSpec = packMap.get(newName, None)
+        
+        # If new spec has a version spec and package already in the map but 
+        # with different spec, that's an error
+        if newSpec!=newName and packSpec and packSpec!=newName and packSpec!=newSpec:
+            raise RTAMError(multiplePackageSpecMsg, multiplePackageSpecCode)
+        
+        # Otherwise, add the new package, provided there is no previous entry
+        # or new entry has a version spec.
+        if not packSpec or newSpec!=newName:
+            packMap[newName] = newSpec
+        
+    return packMap
 
 
 # Saves the project to the specified file path.

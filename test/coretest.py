@@ -239,6 +239,24 @@ class TestCannrCore(unittest.TestCase):
 
         self.assertFalse(cnc.legalName('NRjd9276_vnkhB'))
 
+    def test_buildPPackMap(self):
+
+        pPackageMap = cnc.buildPPackMap(['re==1.0','numpy>=2.0','scipy','os'])
+        self.assertEqual(pPackageMap.get('re'), 're==1.0')
+
+        pPackageMap = cnc.buildPPackMap(['re==1.0','numpy>=2.0','scipy','os', 'scipy>=2.0'])
+        self.assertEqual(pPackageMap.get('scipy'), 'scipy>=2.0')
+
+        errCode = None
+        try:
+            cnc.buildPPackMap(['re==1.0','numpy>=2.0','scipy','os', 'scipy>=2.0', 'numpy>=2.1'])
+        except cnc.RTAMError as err:
+            errCode = err.getErrorCode()
+            
+        self.assertTrue(errCode)
+        self.assertEqual(errCode, cnc.multiplePackageSpecCode)
+
+
     # Completed
     def test_saveProject(self):
 

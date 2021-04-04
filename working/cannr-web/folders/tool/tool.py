@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-03-20 20:50:03
+Generated 2021-04-03 20:38:26
 """
 import json
 import os
@@ -128,19 +128,9 @@ def s_9(projectname, buildRun, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service buildimage in module services
-@app.route("/services/tool/services/buildimage/<projectname>", methods=["GET"])
-def s_10(projectname, ):
-	try:
-		resources = {"projectname": projectname, }
-		output = m_1.buildImage(resources, )
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service exportproject in module services
 @app.route("/services/tool/services/exportproject/<projectname>", methods=["GET"])
-def s_11(projectname, ):
+def s_10(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.exportProject(resources, )
@@ -150,7 +140,7 @@ def s_11(projectname, ):
 
 # Service importproject in module services
 @app.route("/services/tool/services/importproject/<projectname>", methods=["POST"])
-def s_12(projectname, ):
+def s_11(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.importProject(resources, request, )
@@ -160,7 +150,7 @@ def s_12(projectname, ):
 
 # Service exportbuild in module services
 @app.route("/services/tool/services/exportbuild/<projectname>", methods=["GET"])
-def s_13(projectname, ):
+def s_12(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.exportBuild(resources, )
@@ -168,19 +158,9 @@ def s_13(projectname, ):
 	except Exception as err:
 		return {"error": str(err)}
 
-# Service runcontainer in module services
-@app.route("/services/tool/services/runcontainer/<projectname>", methods=["GET"])
-def s_14(projectname, ):
-	try:
-		resources = {"projectname": projectname, }
-		output = m_1.runContainer(resources, )
-		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
-	except Exception as err:
-		return {"error": str(err)}
-
 # Service stopcontainer in module services
 @app.route("/services/tool/services/stopcontainer/<projectname>", methods=["GET"])
-def s_15(projectname, ):
+def s_13(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.stopContainer(resources, )
@@ -190,7 +170,7 @@ def s_15(projectname, ):
 
 # Service getstatus in module services
 @app.route("/services/tool/services/getstatus/<projectname>", methods=["GET"])
-def s_16(projectname, ):
+def s_14(projectname, ):
 	try:
 		resources = {"projectname": projectname, }
 		output = m_1.getStatus(resources, )
@@ -200,7 +180,7 @@ def s_16(projectname, ):
 
 # Service renameproject in module services
 @app.route("/services/tool/services/renameproject", methods=["POST"])
-def s_17():
+def s_15():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.renameProject(inputObject)
@@ -210,7 +190,7 @@ def s_17():
 
 # Service renamefolder in module services
 @app.route("/services/tool/services/renamefolder", methods=["POST"])
-def s_18():
+def s_16():
 	try:
 		inputObject = ci.toInputType(request, inputParseType="default")
 		output = m_1.renameFolder(inputObject)
@@ -220,7 +200,7 @@ def s_18():
 
 # Service sendfolder in module services
 @app.route("/services/tool/services/sendfolder/<projectname>/<foldername>", methods=["POST"])
-def s_19(projectname, foldername, ):
+def s_17(projectname, foldername, ):
 	try:
 		resources = {"projectname": projectname, "foldername": foldername, }
 		output = m_1.sendFolder(resources, request, )
@@ -230,7 +210,7 @@ def s_19(projectname, foldername, ):
 
 # Service sendFile in module services
 @app.route("/services/tool/services/sendFile/<projectname>/<foldername>/<filename>", methods=["POST"])
-def s_20(projectname, foldername, filename, ):
+def s_18(projectname, foldername, filename, ):
 	try:
 		resources = {"projectname": projectname, "foldername": foldername, "filename": filename, }
 		output = m_1.sendFile(resources, request, )

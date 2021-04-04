@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-02-21 20:36:01
+Generated 2021-04-02 21:10:38
 """
 import json
 import os
@@ -25,6 +25,7 @@ m_1 = cc.importPackage("m_1", "/folders/pyfolder/pyfolder/sum.py")
 m_2 = cc.importPackage("m_2", "/folders/pyfolder/pyfolder/rand.py")
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 cnr__workerID = str(uuid.uuid4())
 cnr__credentials = None
 cnr__lastUpdateID = None
@@ -44,6 +45,7 @@ def s_1():
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
+
 
 # Refresh objects in module sum
 @app.route("/refreshObjects/pyfolder/sum", methods=["POST"])
@@ -71,6 +73,7 @@ def s_2():
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:
 		return {"error": str(err)}
+
 
 # Refresh objects in module rand
 @app.route("/refreshObjects/pyfolder/rand", methods=["POST"])

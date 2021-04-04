@@ -278,12 +278,6 @@ class TestServices(unittest.TestCase):
     
     
     # Not implemented
-    def test_buildImage(self):
-
-        self.assertTrue(True)
-    
-    
-    # Not implemented
     def test_exportProject(self):
 
         self.assertTrue(True)
@@ -297,12 +291,6 @@ class TestServices(unittest.TestCase):
     
     # Not implemented
     def test_exportBuild(self):
-
-        self.assertTrue(True)
-    
-    
-    # Not implemented
-    def test_runContainer(self):
 
         self.assertTrue(True)
     

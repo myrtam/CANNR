@@ -1,0 +1,5 @@
+docker==4.4.4
+stdlib-list==0.8.0
+Flask==1.1.2
+pandas==1.2.3
+numpyencoder==0.3.0

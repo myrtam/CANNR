@@ -2,6 +2,8 @@
 # Build the tool
 docker build -t cannr-web .
 
+docker push cannr/cannr-web:latest
+
 # Run the tool the first time
 docker run -d -p 80:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external,target=/external cannr-web
 or
@@ -17,3 +19,4 @@ docker start cannr-web
 
 # Remove the container
 docker rm /cannr-web
+

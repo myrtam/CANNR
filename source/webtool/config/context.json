@@ -2,7 +2,7 @@
 	"configPath": "/external/config.json",
 	"workingDirectory": "/external/working",
 	"projectsPath": "/external/projects",
-	"baseImage": "cannr-base",
+	"baseImage": "cannr/cannr-base",
 	"maintainerEmail": "pat@pat.com",
 	"authPolicy": {
 		"authPolicyLen": 12,
