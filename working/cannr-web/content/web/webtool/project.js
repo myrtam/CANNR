@@ -18,6 +18,7 @@ var serviceName = null;
 var newProject = true;
 var language = null;
 var built = false;
+var running = false;
 var currentModal = null;
 var timestamp = null;
 var folderType = null;
@@ -117,6 +118,7 @@ var sourcePathInput = null;
 var	sourceUpload = null;
 var startLocalhostCheckBox = null;
 var statusPane = null;
+var stopContainerButton = null;
 var titleFolder = null;
 var titleFolderPath = null;
 var titleModuleFolder = null;
@@ -219,6 +221,7 @@ function initDOMObjects() {
 	sourceUpload = document.getElementById('sourceUpload');
 	startLocalhostCheckBox = document.getElementById('startLocalhostCheckBox');
 	statusPane = document.getElementById('statusPane');
+	stopContainerButton = document.getElementById('stopContainerButton');
 	titleFolder = document.getElementById('titleFolder');
 	titleFolderPath = document.getElementById('titleFolderPath');
 	titleModuleFolder = document.getElementById('titleModuleFolder');
@@ -1295,6 +1298,7 @@ function popBuildScreen() {
 	startLocalhostCheckBox.disabled = !buildImageValue||buildDisabled;
 	
 	built = false;
+	//running = false;
 
 	if (newProject)
 		projectBuildModal.className = 'modal';
@@ -1343,6 +1347,8 @@ function popBuildProps() {
 					containerErrMsg = data['errorMsg'];
 
 				}
+
+				running = !!containerID;
 				
 				if (dockerConnected || containerStatus=='unableToConnect') {
 					if (popBuildScreen())
@@ -2215,7 +2221,7 @@ function onFolderSelectChange() {
 
 // Exit the project and return to the home screen
 function onExitProject() {
-
+	
 	// URL of the home screen, plus timestamp to avoid caching.
 	var homeURL = 'index.html?timestamp=' + Date.now();
 	homeURL += '&notitle=true';
@@ -2225,8 +2231,12 @@ function onExitProject() {
 		homeURL += '&projectname=' + project['projectName'];
 	}
 
-	// Navigate to the home page
-	window.location.assign(homeURL);	
+	// Check to see if container is running.  If so, offer to stop it.
+	if (running&&confirm('A container for this project is currently running.  Would you like to stop it?'))
+		stopContainer(null, homeURL);
+	else
+		// Navigate to the home page
+		window.location.assign(homeURL);
 	
 }
 
@@ -2797,14 +2807,11 @@ function setServiceButtons() {
 function setBuildButtons() {
 
 	// Change button labels appropriately
-	if (newProject) {
-		cancelBuildButton.innerHTML = 'Back';
-		buildProjectButton.innerHTML = built? 'Finish': 'Build';
-	}
-	else {
-		cancelBuildButton.innerHTML = 'Cancel';
-		buildProjectButton.innerHTML = 'Build';
-	}
+	cancelBuildButton.innerHTML = newProject? 'Back': 'Cancel';
+	//buildProjectButton.innerHTML = built? (newProject? 'Finish': 'Close'): 'Build';
+	//buildProjectButton.innerHTML = newProject? 'Finish': 'Build';
+	buildProjectButton.innerHTML = newProject&&built? 'Finish': 'Build';
+	disableButton(stopContainerButton, !running);
 
 }
 
@@ -2933,13 +2940,11 @@ function buildProject() {
 		return;
 
 	// Save build options to the project
-	//project['buildProject'] = buildProjectCheckBox.checked;
 	project['buildImage'] = buildImageCheckBox.checked;
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
 
 	// Prepare the request doc
 	var request = {'data': {'project': project}};
-	// TODO:  CHECK IF ABLE TO CONNECT TO DOCKER
 	var buildRun = !buildImageCheckBox.checked? 'project': (!startLocalhostCheckBox.checked? 'build': 'run')
 
 	// Prepare the XHR request.
@@ -2962,15 +2967,29 @@ function buildProject() {
 					// Populate the folder select list
 					popFolderSelect();
 					addStatusMessage('Project ' + projectName + ' built successfully!', null);
-					statusScrollBottom();
+					
+					var imageTags = project['imageTags'];
+					var imageID = project['imageID'];
+					if (imageTags && imageID) {
+						addStatusMessage('Container image ' + projectName + ' built successfully:', null);
+						addStatusMessage('Image ID ' + imageID.substring(7,1000), '20px');
+					}
+					
+					var containerName = project['containerName'];
+					var containerID = project['containerID'];
+					var nginxPort = project['nginxPort'];
+					nginxPort = nginxPort? nginxPort: 80;
+
+					if (containerName && containerID) {
+						running = true;
+						addStatusMessage('Container ' + containerName + ' started on port ' + nginxPort + ':', null);
+						addStatusMessage('Container ID ' + containerID, '20px');
+					}
+
 					built = true;
+					statusScrollBottom();
 					setBuildButtons();
-					/*
-					if (project['buildImage'])
-						buildImage();
-					else if (project['startLocalhost']&&project['imageID'])
-						runContainer();
-					*/
+
 				}
 				else
 					alert(data['errorMsg']);
@@ -2986,6 +3005,70 @@ function buildProject() {
 	// Send the request.
 	var contentJSON = JSON.stringify(request);
 	xhr.send(contentJSON);
+	
+}
+
+// Stops the container of the current project
+function stopContainer(nextModalID, exitURL) {
+
+	// Check that project exists and has a name
+	if (!project)
+		return;
+
+	projectName = project['projectName'];
+	if (!projectName)
+		return;
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", baseURL + "stopcontainer/" + projectName);
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and check whether the request succeeded.
+			var response = JSON.parse(xhr.responseText);
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+					project = data['project'];
+					running = false;
+					// Populate the folder select list
+					popFolderSelect();
+					addStatusMessage('Container stopped!', null);
+					statusScrollBottom();
+					setBuildButtons();
+					alert('Container stopped.');
+					if (exitURL)
+						window.location.assign(exitURL);
+					elif (nextModalID!='projectBuildModal')
+						goModal(nextModalID);
+						
+				}
+				else
+					alert(data['errorMsg']);
+			}
+			else
+				alert(response['error']);
+		} 
+		else
+			alert('Error stopping container');
+
+	}
+
+	// Send the request.
+	xhr.send();
+	
+}
+
+// Handler for stopContainerButton 
+function onStopContainer() {
+	
+	stopContainer('projectBuildModal', null);
 	
 }
 
