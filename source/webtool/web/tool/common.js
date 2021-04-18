@@ -154,7 +154,7 @@ function browserSupported() {
 	// Check browser, show error message if not compatible.
 	var browser = detectBrowser();
 	if (browser=="IE"||browser=="Unknown") {
-		alert("Browser not supported.  Please use Chrome, Firefox, or Safari.");
+		alert("Browser not supported.  Please use Chrome, Firefox, Safari, or Edge.");
 		return false;
 	}
 
@@ -162,4 +162,20 @@ function browserSupported() {
 	
 }
 
+// Shows or hides a "working" dialog.
+function showModal(modalID, show) {
+	
+	if (!modalID)
+		return;
+
+	// Get the modal.
+	var modal = $('#' + modalID);
+
+	// Show or hide the modal.
+	if (show)
+		modal.modal({});
+	else
+		modal.modal('hide');
+
+}
 

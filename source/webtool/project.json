@@ -2,7 +2,7 @@
    "projectTitle": "CANNR Web Tool",
    "projectName": "cannr-web",
    "projectDescription": "CANNR Web based analytics container building tool",
-   "baseImage": "cannr-base",
+   "baseImage": "cannr/cannr-base:latest",
    "maintainerName": "Pat Tendick",
    "maintainerEmail": "ptendick@gmail.com",
    "dependencyNotice": "Copyright/license notice for dependencies",

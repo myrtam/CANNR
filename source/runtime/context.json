@@ -1,7 +1,7 @@
 {
 	"workingDirectory": "../../working",
 	"projectsPath": "../../projects",
-	"baseImage": "cannr-base",
+	"baseImage": "cannr/cannr-base",
 	"maintainerEmail": "someone@somewhere.com",
 	"authPolicy": {
 		"authPolicyLen": 12,

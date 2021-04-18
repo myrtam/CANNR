@@ -815,7 +815,7 @@ def buildProject(resourceNames, input):
         # Get the image name
         image = imageTags[0]
         localPort = project.get('localPort', 80)
-        ports = {str(localPort) + '/tcp': 80}
+        ports = {'80/tcp': localPort}
 
         # Start the container, and get the result.
         container = client.containers.run(image, name = projectName, detach = True, remove = True, ports = ports)

@@ -134,6 +134,7 @@ var workersInput = null;
 var workerRules = null;
 var languageRow = null;
 var workersRow = null;
+var workingModal = null;
 
 // Initialize DOM object variables
 function initDOMObjects() {
@@ -236,6 +237,8 @@ function initDOMObjects() {
 	workerRules = document.getElementById('workerRules');
 	workersInput = document.getElementById('workersInput');
 	workersRow = document.getElementById('workersRow');
+	//workingModal = document.getElementById('workingModal');
+	workingModal = $('#workingModal');
 
 	// Set input event handlers
 	projectDescriptionInput.addEventListener('input', projectInput);
@@ -1198,22 +1201,14 @@ function popBuildScreen() {
 	if (!project)
 		return false;
 
+	// Clear the status pane
+	clearStatus();
+
 	// Get the project name and folders
 	projectName = project['projectName'];
 	var folders = project['folders'];
 	if (!projectName||!folders)
 		return false;
-
-	// Add the status of the connection or container as appropriate.
-	if (dockerConnected&&containerID) {
-		addStatusMessage('The following container is associated with this project:', null);
-		addStatusMessage(containerID, '20px');
-		addStatusMessage('Status is ' + containerStatus, '20px');
-	}
-	else if (containerStatus == 'unableToConnect') {
-		addStatusMessage('Unable to connect to Docker:', null);
-		addStatusMessage(containerDetail, '20px');
-	}
 
 	// Display the project name and title, if any.
 	var projectTitle = project['projectTitle'];
@@ -1276,6 +1271,17 @@ function popBuildScreen() {
 
 	addStatusMessage('', null);
 
+	// Add the status of the connection or container as appropriate.
+	if (dockerConnected&&containerID) {
+		addStatusMessage('The following container is associated with this project:', null);
+		addStatusMessage(containerID, '20px');
+		addStatusMessage('Status is ' + containerStatus, '20px');
+	}
+	else if (containerStatus == 'unableToConnect') {
+		addStatusMessage('Unable to connect to Docker:', null);
+		addStatusMessage(containerDetail, '20px');
+	}
+
 	// Set the state of the buttons.
 	setBuildButtons();
 
@@ -1313,6 +1319,9 @@ function popBuildScreen() {
 
 // Populates build screen
 function popBuildProps() {
+
+	// Show "working" modal.
+	showModal('workingModal', true);
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -1374,6 +1383,9 @@ function popBuildProps() {
 			alert('Error getting Docker status:\nHTTP ' + xhr.status);
 			onExitProject();
 		}
+
+		// Show "working" modal.
+		showModal('workingModal', false);
 
 	}
 
@@ -1438,6 +1450,9 @@ function goModal(nextModalID) {
 // Saves an existing project
 function updateProject(nextModalID) {
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Prepare the request doc
 	var request = {'data': {'project': project}};
 
@@ -1468,6 +1483,9 @@ function updateProject(nextModalID) {
 		} 
 		else
 			alert('Error updating project');
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 	}
 
@@ -1533,6 +1551,9 @@ function writeProject(project1, overwrite, cancel) {
 	if (!project2['projectName'])
 		return;
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Record the project name
 	projectName = newProjectName;
 
@@ -1597,6 +1618,9 @@ function writeProject(project1, overwrite, cancel) {
 		} else {
 			alert('Error creating project');
 		}
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 	}
 
@@ -1720,6 +1744,9 @@ function onKeepFolderProps(nextModalID) {
 	if (!folder['modules'])
 		folder['modules'] = {};
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Prepare the request doc
 	var request = {'data': {'project': project}};
 
@@ -1783,6 +1810,9 @@ function onKeepFolderProps(nextModalID) {
 							else
 								alert('Error uploading files');
 	
+							// Hide "working" modal.
+							showModal('workingModal', false);
+
 						}
 						xhr2.send(formData);
 	
@@ -1802,6 +1832,9 @@ function onKeepFolderProps(nextModalID) {
 		}
 		else
 			alert('Error updating project');
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 	}
 
@@ -1951,8 +1984,10 @@ function onKeepModuleProps(nextModalID) {
 function onKeepServiceProps(nextModalID) {
 
 	// If no change, just go to the next screen
-	if (!changed)
+	if (!changed) {
 		goModal(nextModalID);
+		return;
+	}
 
 	// Check if project exists
 	if (!project)
@@ -2097,14 +2132,7 @@ function getProject() {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	/*
-	var url = baseURL + "getproject_"
-	// Add either the project name or timestamp to the URL.
-	if (paramProjectName)
-		url += "?projectname=" + paramProjectName;
-	else if (timestamp)
-		url += "?timestamp=" + timestamp;
-	*/
+
 	var url = baseURL + "getproject/"
 	url += (paramProjectName? paramProjectName: '~') + '/';
 	url += (timestamp? timestamp: '0');
@@ -2808,9 +2836,16 @@ function setBuildButtons() {
 
 	// Change button labels appropriately
 	cancelBuildButton.innerHTML = newProject? 'Back': 'Cancel';
-	//buildProjectButton.innerHTML = built? (newProject? 'Finish': 'Close'): 'Build';
-	//buildProjectButton.innerHTML = newProject? 'Finish': 'Build';
-	buildProjectButton.innerHTML = newProject&&built? 'Finish': 'Build';
+
+	if (newProject&&built) {
+		buildProjectButton.innerHTML = 'Finish';
+		disableButton(cancelBuildButton, true);
+	}
+	else {
+		buildProjectButton.innerHTML = 'Build';
+		disableButton(cancelBuildButton, false);
+	}
+
 	disableButton(stopContainerButton, !running);
 
 }
@@ -2939,6 +2974,9 @@ function buildProject() {
 	if (!projectName)
 		return;
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Save build options to the project
 	project['buildImage'] = buildImageCheckBox.checked;
 	project['startLocalhost'] = startLocalhostCheckBox.checked;
@@ -2949,7 +2987,7 @@ function buildProject() {
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", baseURL + "buildproject/" + projectName + '/' + buildRun);
+	xhr.open("POST", baseURL + "buildproject/" + projectName + '/' + buildRun, true);
 	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 
 	// Define the callback function.
@@ -2999,6 +3037,9 @@ function buildProject() {
 		} 
 		else
 			alert('Error building project');
+		
+		// Hide the 'Working' modal.
+		showModal('workingModal', false);
 
 	}
 
@@ -3018,6 +3059,9 @@ function stopContainer(nextModalID, exitURL) {
 	projectName = project['projectName'];
 	if (!projectName)
 		return;
+
+	// Show "working" modal.
+	showModal('workingModal', true);
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -3042,10 +3086,14 @@ function stopContainer(nextModalID, exitURL) {
 					addStatusMessage('Container stopped!', null);
 					statusScrollBottom();
 					setBuildButtons();
+
+					// Hide "working" modal.
+					showModal('workingModal', false);
+
 					alert('Container stopped.');
 					if (exitURL)
 						window.location.assign(exitURL);
-					elif (nextModalID!='projectBuildModal')
+					else if (nextModalID!='projectBuildModal')
 						goModal(nextModalID);
 						
 				}
@@ -3057,6 +3105,9 @@ function stopContainer(nextModalID, exitURL) {
 		} 
 		else
 			alert('Error stopping container');
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 	}
 
@@ -3124,9 +3175,6 @@ function onCancelBuild() {
 
 // Go to the build screen for the project
 function onGoBuild() {
-
-	// Clear the status pane
-	clearStatus();
 
 	goModal('projectBuildModal');
 
