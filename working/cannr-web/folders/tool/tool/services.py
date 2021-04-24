@@ -30,12 +30,30 @@ if os.path.exists('/config/context.json'):
 elif os.path.exists('/external/config/context.json'):
     context = cc.readJSONFile('/external/config/context.json')
 
-# Try to define the projects folder
+# Try to define the projects folder and working directory, create if necessary
 if context:
+    
     projectsPath = context.get('projectsPath', None)
     workingDirectory = context.get('workingDirectory', None)
     dockerURL = context.get('dockerURL', 'unix://var/run/docker.sock')
+    baseImage = context.get('baseImage', None)
     
+    if os.path.isdir('/external'):
+        
+        if not projectsPath:
+            projectsPath = '/external/projects'
+            if not os.path.isdir(projectsPath):
+                os.mkdir(projectsPath)
+    
+        if not workingDirectory:
+            workingDirectory = '/external/working'
+            if not os.path.isdir(workingDirectory):
+                os.mkdir(workingDirectory)
+
+    if not baseImage:
+        context['baseImage'] = 'cannr/cannr-base:latest'
+
+
 # Define the projects and working folders
 projectsPath = projectsPath if projectsPath else ('/external/projects' if os.path.exists('/external/projects') else None)
 workingDirectory = workingDirectory if workingDirectory else ('/external/working' if os.path.exists('/external/working') else None)

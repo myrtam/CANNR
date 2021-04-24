@@ -1,1 +1,5 @@
-{"externalPath": "../../external", "containerID": "370f2e56e297e797284e55894e8eee111edb0c47b3b5bdf086cfd383d0f0364d", "dockerURL": "unix://var/run/docker.sock", "image": "cannr/cannr-web:latest", "localPort": 8080}
+{
+  "containerID": "b8a2ce69a1a29f679fcd73806ab0c2bfaaa19d67194e8d4891108c674436ecd6",
+  "externalPath": "external",
+  "image": "cannr/cannr-web:latest"
+}
