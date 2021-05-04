@@ -21,42 +21,42 @@ from werkzeug.utils import secure_filename
 
 # Try to read the context
 context = None
-projectsPath = None
-dockerURL = 'unix://var/run/docker.sock'
-if os.path.exists('context.json'):
-    context = cc.readJSONFile('context.json')
+dockerURL = None
+#if os.path.exists('context.json'):
+#    context = cc.readJSONFile('context.json')
+#if os.path.exists('/config/context.json'):
+#    context = cc.readJSONFile('/config/context.json')
 if os.path.exists('/config/context.json'):
     context = cc.readJSONFile('/config/context.json')
-elif os.path.exists('/external/config/context.json'):
-    context = cc.readJSONFile('/external/config/context.json')
+else:
+    # TODO: THIS IS AN ERROR!
+    pass
 
 # Try to define the projects folder and working directory, create if necessary
 if context:
     
-    projectsPath = context.get('projectsPath', None)
-    workingDirectory = context.get('workingDirectory', None)
+    projectsPath = '/projects'
+    workingDirectory = '/working'
     dockerURL = context.get('dockerURL', 'unix://var/run/docker.sock')
     baseImage = context.get('baseImage', None)
     
-    if os.path.isdir('/external'):
-        
-        if not projectsPath:
-            projectsPath = '/external/projects'
-            if not os.path.isdir(projectsPath):
-                os.mkdir(projectsPath)
-    
-        if not workingDirectory:
-            workingDirectory = '/external/working'
-            if not os.path.isdir(workingDirectory):
-                os.mkdir(workingDirectory)
+    if not os.path.isdir(projectsPath):
+        os.mkdir(projectsPath)
+
+    if not os.path.isdir(workingDirectory):
+        os.mkdir(workingDirectory)
 
     if not baseImage:
         context['baseImage'] = 'cannr/cannr-base:latest'
 
+else:
+    # TODO: THIS IS AN ERROR!
+    pass
+
 
 # Define the projects and working folders
-projectsPath = projectsPath if projectsPath else ('/external/projects' if os.path.exists('/external/projects') else None)
-workingDirectory = workingDirectory if workingDirectory else ('/external/working' if os.path.exists('/external/working') else None)
+#projectsPath = projectsPath if projectsPath else ('/external/projects' if os.path.exists('/external/projects') else None)
+#workingDirectory = workingDirectory if workingDirectory else ('/external/working' if os.path.exists('/external/working') else None)
 
       
 # Set the context for testing purposes
@@ -64,11 +64,13 @@ def setContext(newContext):
     context = newContext
     global projectsPath
     projectsPath = context.get('projectsPath', None)
-    
+   
+
 
 # Returns the projects path
 def getProjectsPath():
     return projectsPath
+
 
 
 # Parses the source file and returns a list of functions in the file.
@@ -101,9 +103,11 @@ def createProject_(input):
         if not cc.legalName(projectName):
             return {'succeeded': False, 'error': 'badProjectName', 'errorMsg': 'Bad project name'}
         
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
+        '''
         
         # Check to see if the project exists already
         projectPath = projectsPath + '/' + projectName
@@ -168,10 +172,11 @@ def deleteProject_(input):
         projectName = input.get('projectName', None)
         if not projectName:
             return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project specified'}
-        
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
+        '''
         
         # Check to see if the project exists already
         projectPath = projectsPath + '/' + projectName
@@ -237,10 +242,11 @@ def getProjectsDict():
 def getProject(resourceNames):
 
     try:
-    
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
+        '''
 
         # Get all of the projects
         projects = getProjectsDict()
@@ -409,11 +415,11 @@ def deleteFolder_(input):
         folderName = input.get('folderName', None)
         if not projectName or not folderName:
             return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'Project or folder not specified'}
-        
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
-        
+        '''
         # Project directory and project file path
         projectPath = projectsPath + '/' + projectName
         filePath = projectPath + '/project.json'
@@ -484,11 +490,11 @@ def updateProject_(input):
         projectName = project.get('projectName', None)
         if not projectName:
             return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project name'}
-        
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
-        
+        '''
         # Check to see if the project exists already
         projectPath = projectsPath + '/' + projectName
         if not os.path.isdir(projectPath):
@@ -613,11 +619,11 @@ def renameProject(input):
             return {'succeeded': False, 'error': 'noProjectName', 'errorMsg': 'No project names given'}
         
         # TODO: CHECK THAT newProjectName IS LEGAL
-        
+        '''
         # Check to make sure /projects exists
         if not projectsPath:
             return {'succeeded': False, 'error': 'noProjectsDir', 'errorMsg': 'No projects directory'}
-        
+        '''
         # Check to see if the project exists already
         oldProjectPath = projectsPath + '/' + oldProjectName
         if not os.path.isdir(oldProjectPath):

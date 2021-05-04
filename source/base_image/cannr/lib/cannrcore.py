@@ -435,8 +435,8 @@ def existsDirectory(path):
 '''
 
 
-# Returns the project path (directory where the project will be written).
-def getProjectPath(project, context):
+# Returns the working project path (directory where the project will be written).
+def getWorkingPath(project, context):
 
     # Flag telling whether local
     local = context.get('local', False)
@@ -448,7 +448,8 @@ def getProjectPath(project, context):
 
     # /external/config would contain configuration information
     # TODO:  CHANGE THIS SO IT ONLY USES /external/working IF NOT local AND workingDirectory NOT DEFINED
-    path = workingDirectory if local else '/external/working'
+    #path = workingDirectory if local else '/external/working'
+    path = workingDirectory if local else '/working'
     #path = '/external/working' if not local and not workingDirectory else workingDirectory
     if not os.path.isdir(path):
         raise RTAMError(noDirectoryMsg, noDirectoryCode)

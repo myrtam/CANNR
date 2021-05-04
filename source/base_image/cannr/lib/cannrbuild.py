@@ -371,6 +371,7 @@ def buildRModuleEpilogue(folderName, moduleName, project):
 
 
 # Checks whether the tool has a working directory.  Returns True if yes, throws exception otherwise.
+# DEPRECATED
 def checkWorkingDirectory(context):
     # Check whether the tool has a working directory
     workingDirectory = context.get("workingDirectory", None)
@@ -403,13 +404,13 @@ def initBuild(project, context):
         raise cc.RTAMError(cc.noBaseImageMsg, cc.noBaseImageCode)
 
     # Get the project path and delete it if it exists
-    projectPath = cc.getProjectPath(project, context)
-    if os.path.isdir(projectPath):
-        shutil.rmtree(projectPath)
+    workingPath = cc.getWorkingPath(project, context)
+    if os.path.isdir(workingPath):
+        shutil.rmtree(workingPath)
         
-    os.makedirs(projectPath)
+    os.makedirs(workingPath)
     
-    return projectPath
+    return workingPath
 
 # Copy the source directory into the target directory
 def copySourceFromPath(sourcePath, foldersPath, folderName):
@@ -490,10 +491,10 @@ def buildProject(project, basePath, context):
         raise cc.RTAMError(noProjectNameMsg, noProjectNameCode)    
     
     # Initialize the build
-    projectPath = initBuild(project, context)
-    foldersPath = projectPath + os.path.sep + 'folders'
+    workingPath = initBuild(project, context)
+    foldersPath = workingPath + os.path.sep + 'folders'
     os.makedirs(foldersPath)
-    logPath = projectPath + os.path.sep + 'logs'
+    logPath = workingPath + os.path.sep + 'logs'
     os.makedirs(logPath)
     os.makedirs(logPath + os.path.sep + 'smp')
     os.makedirs(logPath + os.path.sep + 'smi')
@@ -567,7 +568,8 @@ def buildProject(project, basePath, context):
 
         # Check for source path
         # TODO:  CHANGE TO USE sourcePath IF local ELSE /external/projects/ ONLY IF projectsPath UNDEFINED IN context.
-        sourcePath = folder.get("sourcePath", None) if local else '/external/projects/' + projectName + '/' + folderName
+        #sourcePath = folder.get("sourcePath", None) if local else '/external/projects/' + projectName + '/' + folderName
+        sourcePath = folder.get("sourcePath", None) if local else os.path.join('/projects', projectName, folderName)
         #projectsPath = context.get('projectsPath', None)
         #projectsPath = projectsPath if projectsPath else '/external/projects'
         #sourcePath = folder.get("sourcePath", None) if local else os.path.join(projectsPath, projectName, folderName)
@@ -703,7 +705,7 @@ def buildProject(project, basePath, context):
 
     # Handle static content
     # Create the directory for static content
-    contentPath = projectPath + os.path.sep + 'content/web'
+    contentPath = workingPath + os.path.sep + 'content/web'
     #try:
     #    os.makedirs(contentPath)
     #except:
@@ -722,7 +724,7 @@ def buildProject(project, basePath, context):
         folder = cc.getFolder(folderName, project)
 
         #sourcePath = folder.get('sourcePath', None)
-        sourcePath = folder.get("sourcePath", None) if local else '/external/projects/' + projectName + '/' + folderName
+        sourcePath = folder.get("sourcePath", None) if local else os.path.join('/projects', projectName, folderName)
         if sourcePath:
             sp = Path(sourcePath)
             if not sp.is_absolute():
@@ -737,7 +739,7 @@ def buildProject(project, basePath, context):
     
     # Save NGINX http block to conf.d/http
     nginxConfPath = nginxPath + os.path.sep + 'conf.d'
-    nginxProjectConfPath = projectPath + os.path.sep + 'conf.d'
+    nginxProjectConfPath = workingPath + os.path.sep + 'conf.d'
     try:
         os.makedirs(nginxProjectConfPath)
     except:
@@ -770,7 +772,7 @@ def buildProject(project, basePath, context):
         requirementsText += pPackageMap[packageName] + '\n'
 
     # Copy project file to project directory
-    with open(os.path.join(projectPath,'requirements.txt'), "w") as requirementsFile:
+    with open(os.path.join(workingPath,'requirements.txt'), "w") as requirementsFile:
         requirementsFile.write(requirementsText)    
 
     # Copy static content into container
@@ -786,7 +788,7 @@ def buildProject(project, basePath, context):
     project = walkNumber(project)        
 
     # Copy project file to project directory
-    with open(projectPath + os.path.sep + 'project.json', "w") as projectFile:
+    with open(workingPath + os.path.sep + 'project.json', "w") as projectFile:
         projectFile.write(json.dumps(project, indent=2))    
 
     # Add command to start NGINX
@@ -795,16 +797,16 @@ def buildProject(project, basePath, context):
     mainText += buildCodeLine(0, ["nginx -g 'daemon off;'"])
     
     # Copy startup script to project directory
-    with open(projectPath + os.path.sep + 'main.sh', "w") as mainFile:
+    with open(workingPath + os.path.sep + 'main.sh', "w") as mainFile:
         mainFile.write(mainText)
     
     # Write initial event calendar to file.
-    #os.chdir(projectPath)
+    #os.chdir(workingPath)
     #os.mkdir('eventCalendar')
-    #eventCalendar.write(projectPath + os.path.sep + 'eventCalendar')
+    #eventCalendar.write(workingPath + os.path.sep + 'eventCalendar')
 
     # Write out Dockerfile to the project directory
-    with open(projectPath + os.path.sep + 'Dockerfile', "w") as dockerFile:
+    with open(workingPath + os.path.sep + 'Dockerfile', "w") as dockerFile:
         dockerFile.write(dockerText)
         
     return

@@ -14,6 +14,9 @@ docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendi
 # Run the tool with Docker socket mounted
 docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external,target=/external -v /var/run/docker.sock:/var/run/docker.sock cannr-web
 
+# Run the tool with Docker socket mounted
+docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/config,target=/config --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/projects,target=/projects --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/working,target=/working -v /var/run/docker.sock:/var/run/docker.sock cannr-web
+
 # Restart the tool
 docker start cannr-web
 
