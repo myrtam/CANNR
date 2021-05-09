@@ -15,7 +15,7 @@ docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendi
 docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external,target=/external -v /var/run/docker.sock:/var/run/docker.sock cannr-web
 
 # Run the tool with Docker socket mounted
-docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/config,target=/config --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/projects,target=/projects --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/working,target=/working -v /var/run/docker.sock:/var/run/docker.sock cannr-web
+docker run -d -p 8080:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/config,target=/config --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/projects,target=/projects --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external/working,target=/working -v /var/run/docker.sock:/var/run/docker.sock cannr/cannr-web:latest
 
 # Restart the tool
 docker start cannr-web
@@ -23,3 +23,7 @@ docker start cannr-web
 # Remove the container
 docker rm /cannr-web
 
+# Remove all containers, images, & cached layers
+docker rm $(docker ps --filter status=created -q)
+docker rmi -f $(docker images -a -q)
+docker system prune

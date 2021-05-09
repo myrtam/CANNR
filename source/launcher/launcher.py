@@ -6,16 +6,17 @@ All rights reserved
 Maintainer Pat Tendick ptendick@gmail.com
 """
 
-import docker
 import os
 import platform
 import sys
 import json
 import time
 import subprocess as sp
-from docker.types import Mount
 import tkinter as tk
 from tkinter import messagebox
+import docker
+from docker.types import Mount
+import pathlib
 
 # Main window class
 class Launcher(tk.Frame):
@@ -25,6 +26,9 @@ class Launcher(tk.Frame):
         self.parent = parent
         self.winfo_toplevel().title("CANNR Tool Launcher")
         self.winfo_toplevel().minsize(400, 250)
+        self.winfo_toplevel().configure(background='#254D93')
+        self.winfo_toplevel().columnconfigure([0,1], minsize=5)
+        self.winfo_toplevel().rowconfigure([0, 7], minsize=50)
 
         self.titleSpace = tk.Label(text=' ', background='#254D93')
         self.titleSpace.grid(row=0, column=0, sticky="w")
@@ -97,7 +101,7 @@ class Launcher(tk.Frame):
     # Launch event handler
     def onLaunch(self):
     
-        if startup():
+        if startup(False):
     
             # Delay 5 seconds to give container time to start
             self.updateStatus('Launching.  Please wait...')
@@ -114,8 +118,7 @@ class Launcher(tk.Frame):
     
     # Settings button event handler
     def onSettings(self):
-        # TODO: IMPLEMENT THIS!
-        print('Settings!')
+
         if not self.settingsTop:
             self.settingsTop = tk.Toplevel(self.master)
             self.settings = Settings(self.settingsTop)
@@ -132,17 +135,17 @@ class Launcher(tk.Frame):
 class Settings:
     def __init__(self, master):
         
+        oneTimeSetup = not hasConfig()
+        
         self.master = master
-        self.master.title("CANNR Tool Settings")
-        self.master.minsize(400, 250)
+        settingsTitle = 'CANNR Tool One Time Setup' if oneTimeSetup else 'CANNR Tool Settings'
+        self.master.title(settingsTitle)
+        self.master.minsize(650, 250)
         self.master.configure(background='#254D93')
         self.master.protocol('WM_DELETE_WINDOW', self.close)
 
-        #self.titleFrame = tk.Frame(self.master, width=150, background='#254D93')
         self.inputFrame = tk.Frame(self.master, width=150, background='#254D93')
 
-        # TODO: Define input fields and labels
-        
         self.titleSpace = tk.Label(
             self.inputFrame,
             text='', 
@@ -162,9 +165,10 @@ class Settings:
             )
         self.titleLabel.grid(row=1, column=1, sticky="w")
         
-        # TODO: Define input fields and labels
-       
-        self.tempConfig = getConfig()
+        if oneTimeSetup:
+            self.tempConfig = makeConfig()
+        else:
+            self.tempConfig = getConfig()
        
         # Space between rowse
         self.space1 = tk.Label(
@@ -187,7 +191,13 @@ class Settings:
         # Version pulldown
         #getVersions(getDockerURL())
         #self.versions = ['0.1.0', '0.1.1', 'latest']
-        self.versions = getVersions(getDockerURL())
+
+        if oneTimeSetup:
+            self.versions = ['latest']
+        else:
+            self.versions = getVersions(getDockerURL())
+        
+        #self.versions = getVersions(getDockerURL())
         self.version = tk.StringVar(self.master)
         configVersion = self.tempConfig.get('version')
         configVersion = configVersion if configVersion in self.versions else 'latest'
@@ -214,9 +224,11 @@ class Settings:
         self.projectsLabel.grid(row=5, column=1, sticky="w")
         
         # Projects directory textbox.
-        self.projectsPath = tk.Entry(self.inputFrame)
+        self.projectsPath = tk.Entry(self.inputFrame, width=40)
         self.projectsPath.grid(row=5, column=2, sticky="w")
         self.projectsPath.insert(0, self.tempConfig.get('projectsPath'))
+        
+        # TODO:  ADD BUTTON FOR FILE PICKER
         
         # Space between rows
         self.space3 = tk.Label(
@@ -237,10 +249,12 @@ class Settings:
         self.workingLabel.grid(row=7, column=1, sticky="w")
         
         # Projects directory textbox.
-        self.workingDir = tk.Entry(self.inputFrame)
+        self.workingDir = tk.Entry(self.inputFrame, width=40)
         self.workingDir.grid(row=7, column=2, sticky="w")
         self.workingDir.insert(0, self.tempConfig.get('workingDirectory'))
         
+        # TODO:  ADD BUTTON FOR FILE PICKER
+
         self.inputFrame.pack()
 
         # Define buttons
@@ -250,9 +264,9 @@ class Settings:
         self.space4 = tk.Label(
             self.buttonFrame,
             text='', 
-            font=('Arial', 5), 
+            font=('Arial', 16), 
             background='#254D93')
-        self.space4.grid(row=0, column=0, sticky="w")
+        self.space4.grid(row=0, column=1, sticky="w")
         
         self.saveButton = tk.Button(self.buttonFrame, text = 'Save', width = 8, command=self.save)
         self.saveButton.grid(row=1, column=0)
@@ -277,21 +291,23 @@ class Settings:
             self.tempConfig['projectsPath'] != self.projectsPath.get() or
             self.tempConfig['workingDirectory'] != self.workingDir.get())
     
-    '''
-    # Restart the container
-    def restart(self):
-        containerID = config.get('containerID', 'cannr-web')
-        status = getStatus(containerID, getDockerURL())
-        succeeded = status.get('succeeded', False)
-        if succeeded:
-            statusMsg = status.get('status', 'notFound')
-            if statusMsg=='running':
-                shutdown()
-    '''
-    
+    # Save settings
     def save(self):
 
-        if (self.compare() and     
+        global window
+        global launcher
+        if self.master==window:
+            messagebox.showinfo('Container Start',
+                'The CANNR Web image will be downloaded and the container will be started for the first time.\nThis may take a while.')
+            saveConfig(self.tempConfig)
+            self.master.destroy()
+            window = tk.Tk()
+            launcher = Launcher(window)
+            startup(True)
+            window.mainloop()
+            pass
+        
+        elif (self.compare() and     
             messagebox.askokcancel('Restart', 'The container will be restarted.  Proceed?')):
             
                 launcher.updateStatus('Restarting the container.  Please wait...')
@@ -314,20 +330,14 @@ class Settings:
                 if containerState in ['running', 'exited']:
                     rmContainer()
                     
-                startup()
-        
+                startup(False)
+     
+    # Close the settings window   
     def close(self):
-        self.master.withdraw()
-
-
-# Initialize the Launcher window
-window = tk.Tk()
-window.configure(background='#254D93')
-#window.minsize(400, 250)
-window.columnconfigure([0,1], minsize=5)
-window.rowconfigure([0, 7], minsize=50)
-
-launcher = Launcher(window)
+        if self.master==window:
+            sys.exit()
+        else:
+            self.master.withdraw()
 
 
 # Get the status of the Web tool.
@@ -413,52 +423,123 @@ def getVersions(dockerURL):
     return tags
 
 
-# Checks to make sure the configuration has the right information.
-# Returns True if yes, False if no.
+# Returns the CANNR home directory
+def getCannrPath():
+    
+    osPlatform = getPlatform()
+    homePath = str(pathlib.Path.home())
+    
+    if osPlatform=='Darwin':
+        return os.path.join(homePath, 'Library', 'CannR')
+    elif osPlatform=='Windows':
+        return os.path.join(homePath, 'Documents', 'CannR')
+    elif osPlatform in ['Linux']:
+        return os.path.join(homePath, '.config', 'CannrR')
+    
+    else:
+        # TODO:  THIS IS AN ERROR!
+        return None
+
+
+# Returns the path of the config file.
+def getCannrConfigPath():
+    
+    cannrPath = getCannrPath()
+    if cannrPath:
+        return os.path.join(cannrPath, 'config.json')
+    else:
+        # TODO:  THIS IS AN ERROR!
+        return None
+
+
+# Returns whether there is a CANNR configuration file.
+def hasConfig():
+
+    return os.path.isfile(getCannrConfigPath())
+
+
+def getHomePath():
+
+    osPlatform = getPlatform()
+    homePath = str(pathlib.Path.home())
+    
+    if osPlatform in ['Windows', 'Darwin']:
+        return os.path.join(homePath, 'Documents', 'CannR')
+    elif osPlatform in ['Linux']:
+        return os.path.join(homePath, 'CannR')
+    
+    else:
+        return None    
+
+
+# Returns the standard context path
+def getContextPath():
+        
+    homePath = getHomePath()
+    
+    if homePath:
+        return os.path.join(homePath, 'config')
+    else:
+        return None    
+
+
+# Returns the standard projects path
+def getProjectsPath():
+        
+    homePath = getHomePath()
+    
+    if homePath:
+        return os.path.join(homePath, 'projects')
+    else:
+        return None    
+
+
+# Returns the standard working directory
+def getWorkingDirectory():
+        
+    homePath = getHomePath()
+    
+    if homePath:
+        return os.path.join(homePath, 'working')
+    else:
+        return None    
+
+
+# Create a blank configuration file, figures out what projects and working directories should be.
+def makeConfig():
+
+    try:
+        
+        config = {}
+        config['contextPath'] = getContextPath()        
+        config['projectsPath'] = getProjectsPath()        
+        config['workingDirectory'] = getWorkingDirectory()
+        config['version'] = 'latest'
+        config['containerID'] = 'cannr-web'
+        
+        return config
+    
+    except Exception as err:
+        return None
+    
+
+# Gets the configuration.
 def getConfig():
     
     try:
+        
+        if not hasConfig():
+            raise Exception('No configuration available.')            
 
         config = None
-        if os.path.isfile('config.json'):
-            with open('config.json', 'r') as configFile:
-                config = json.loads(configFile.read())
+        with open(getCannrConfigPath(), 'r') as configFile:
+            config = json.loads(configFile.read())
     
         if not config:
             config = {}
-    
-        # Get paths
-        externalPath = config.get('externalPath', 'external')
-        projectsPath = os.path.abspath(config.get('projectsPath', os.path.join(externalPath, 'projects')))
-        workingDirectory = os.path.abspath(config.get('workingDirectory', os.path.join(externalPath, 'working')))
-
-        # Create the external path if it doesn't exist
-        if not os.path.isdir(externalPath):
-            config['containerID'] = 'cannr-web'
-            externalPath = 'external'
-            config['externalPath'] = externalPath
-            os.mkdir(externalPath)
-            configPath = os.path.join(externalPath, 'config')
-            os.mkdir(configPath)
-            context = {
-                'dockerURL': getDockerURL()                
-                }
-            with open(os.path.join(configPath, 'context.json'), 'w') as contextFile:
-                contextFile.write(json.dumps(context, indent=2))
-        
-        # Create paths if they don't exist
-        if not os.path.isdir(projectsPath):
-            os.makedirs(projectsPath)
-            config['projectsPath'] = projectsPath
             
-        if not os.path.isdir(workingDirectory):
-            os.makedirs(workingDirectory)
-            config['workingDirectory'] = workingDirectory
-
-        saveConfig(config)
-    
         return config
-        
+
     except Exception as err:
         launcher.updateStatus('Error:  Unable to get configuration.\n' + str(err))
         return None
@@ -467,22 +548,79 @@ def getConfig():
 # Saves the configuration
 def saveConfig(config):
 
-    with open('config.json', 'w') as configFile:
-        configFile.write(json.dumps(config, indent=2))
+    try:
+        
+        contextPath = config.get('contextPath', None)
+        if not contextPath:
+            raise Exception('Context directory not specified.')
+
+        contextPath = os.path.abspath(contextPath)
+        config['contextPath'] = contextPath
+        
+        projectsPath = config.get('projectsPath', None)
+        if not projectsPath:
+            raise Exception('Projects directory not specified.')
+
+        projectsPath = os.path.abspath(projectsPath)
+        config['projectsPath'] = projectsPath
+        
+        workingDirectory = config.get('workingDirectory', None)
+        if not workingDirectory:
+            raise Exception('Working directory not specified.')
+        
+        workingDirectory = os.path.abspath(workingDirectory)
+        config['workingDirectory'] = workingDirectory
+        
+        # Create paths if they don't exist
+        if not os.path.isdir(contextPath):
+            os.makedirs(contextPath)
+            #config['contextPath'] = contextPath
+            
+        if not os.path.isdir(projectsPath):
+            os.makedirs(projectsPath)
+            #config['projectsPath'] = projectsPath
+            
+        if not os.path.isdir(workingDirectory):
+            os.makedirs(workingDirectory)
+            #config['workingDirectory'] = workingDirectory
+    
+        cannrPath = getCannrPath()
+        if not os.path.isdir(cannrPath):
+            os.makedirs(cannrPath)
+
+        with open(getCannrConfigPath(), 'w') as configFile:
+            configFile.write(json.dumps(config))
+
+        return config
+            
+    except Exception as err:
+        launcher.updateStatus('Error:  Unable to save configuration.\n' + str(err))
+        return None
+
+
+# Returns the name of the platform (OS).
+def getPlatform():
+    
+    return platform.system()
 
 
 # Returns the URL of the local Docker daemon.
 def getDockerURL():
     
-    if platform.system()=='Windows':
+    osPlatform = getPlatform()
+    
+    if osPlatform=='Windows':
         return 'tcp://localhost:2375'
-    else:
+    elif osPlatform in ['Linux', 'Darwin']:
         return 'unix://var/run/docker.sock'
+    
+    else:
+        return None
 
 
 # Check container status, try to start if not running.
 # Returns True if container running, False otherwise.
-def startup():
+def startup(firstRun):
 
     try:
         
@@ -492,8 +630,8 @@ def startup():
         if not config:
             return False
         
-        externalPath = config.get('externalPath')
-        externalPath = os.path.abspath(externalPath)
+        contextPath = config.get('contextPath')
+        contextPath = os.path.abspath(contextPath)
         projectsPath = config.get('projectsPath')
         projectsPath = os.path.abspath(projectsPath)
         workingDirectory = config.get('workingDirectory')
@@ -541,7 +679,7 @@ def startup():
  
                     # External directories to mount
                     configMount = Mount(
-                        source=os.path.join(externalPath, 'config'),
+                        source=contextPath,
                         target='/config',
                         type='bind',
                     )
@@ -561,7 +699,11 @@ def startup():
                     #mounts=[configMount, projectsMount, workingMount]
                     mounts=[configMount, projectsMount, workingMount]
                     
-                    launcher.updateStatus('Starting the container.  Please wait...')
+                    if oneTimeSetup:
+                        launcher.updateStatus('Downloading the image and starting the container.\nPlease wait...')
+                    else:
+                        launcher.updateStatus('Starting the container.  Please wait...')
+
                     # Start the container, and get the result.
                     if platform.system()=='Windows':
                         container = client.containers.run(
@@ -672,6 +814,7 @@ def shutdown():
         print(str(err))
 
 
+# Removes the container.
 def rmContainer():
 
     try:
@@ -700,12 +843,24 @@ def rmContainer():
 
 
 # Try to start the container.
+launcher = None
+window = None
 try:
     
-    startup()
+    # Initialize the Launcher window
+    window = tk.Tk()
+    
+    if not hasConfig():
+        settings = Settings(window)
+    else:
+        launcher = Launcher(window)
+        startup(False)
+    
+    #startup()
 
 except Exception as err:
-    launcher.updateStatus(str(err))
+    if launcher:
+        launcher.updateStatus(str(err))
     print(str(err))
 
 # Start the event loop

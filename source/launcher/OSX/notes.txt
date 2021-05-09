@@ -1,0 +1,16 @@
+
+The standalone launcher was created using pyinstaller.  For this to work on OSX, see
+https://stackoverflow.com/questions/62203321/pyinstaller-giving-error-error-loading-python-no-suitable-image-found
+
+This requires installing Apple's Xcode command line tools using
+xcode-select --install
+
+Then use homebrew to (re)install Python and pyinstaller?
+pip3 uninstall pyinstaller
+brew reinstall python
+brew install pyinstaller
+
+Also, pyinstaller creates its own virtual environment, so the docker package needs to be installed in that environment.
+When using the pyinstaller version of the launcher, it seems to start in the directory /Users/<current user>.
+
+pyinstaller ../launcher.py -n CannR --onefile --windowed --noconfirm --clean
