@@ -24,6 +24,7 @@ docker start cannr-web
 docker rm /cannr-web
 
 # Remove all containers, images, & cached layers
+docker rm $(docker ps --filter status=exited -q)
 docker rm $(docker ps --filter status=created -q)
 docker rmi -f $(docker images -a -q)
 docker system prune

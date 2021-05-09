@@ -17,6 +17,8 @@ from tkinter import messagebox
 import docker
 from docker.types import Mount
 import pathlib
+import requests
+
 
 # Main window class
 class Launcher(tk.Frame):
@@ -135,10 +137,10 @@ class Launcher(tk.Frame):
 class Settings:
     def __init__(self, master):
         
-        oneTimeSetup = not hasConfig()
+        firstRun = not hasConfig()
         
         self.master = master
-        settingsTitle = 'CANNR Tool One Time Setup' if oneTimeSetup else 'CANNR Tool Settings'
+        settingsTitle = 'CANNR Tool One Time Setup' if firstRun else 'CANNR Tool Settings'
         self.master.title(settingsTitle)
         self.master.minsize(650, 250)
         self.master.configure(background='#254D93')
@@ -165,7 +167,7 @@ class Settings:
             )
         self.titleLabel.grid(row=1, column=1, sticky="w")
         
-        if oneTimeSetup:
+        if firstRun:
             self.tempConfig = makeConfig()
         else:
             self.tempConfig = getConfig()
@@ -189,19 +191,16 @@ class Settings:
         self.versionLabel.grid(row=3, column=1, sticky="w")
         
         # Version pulldown
-        #getVersions(getDockerURL())
-        #self.versions = ['0.1.0', '0.1.1', 'latest']
-
-        if oneTimeSetup:
-            self.versions = ['latest']
-        else:
-            self.versions = getVersions(getDockerURL())
-        
-        #self.versions = getVersions(getDockerURL())
+        self.versions = getVersions()
         self.version = tk.StringVar(self.master)
-        configVersion = self.tempConfig.get('version')
-        configVersion = configVersion if configVersion in self.versions else 'latest'
-        self.version.set(configVersion)        
+        
+        version = None
+        if firstRun:
+            version = getLatestVersion()
+        else:
+            version = self.tempConfig.get('version', 'latest')
+        version = version if (version and version in self.versions) else 'latest'
+        self.version.set(version)
         self.versionMenu = tk.OptionMenu(self.inputFrame, self.version, *self.versions)
         self.versionMenu.grid(row=3, column=2, sticky="w")
         
@@ -297,15 +296,26 @@ class Settings:
         global window
         global launcher
         if self.master==window:
+
             messagebox.showinfo('Container Start',
                 'The CANNR Web image will be downloaded and the container will be started for the first time.\nThis may take a while.')
+
+            if self.version.get():
+                self.tempConfig['version'] = self.version.get()
+            if self.projectsPath.get():
+                self.tempConfig['projectsPath'] = self.projectsPath.get()
+            if self.workingDir.get():
+                self.tempConfig['workingDirectory'] = self.workingDir.get()
+            
             saveConfig(self.tempConfig)
+
             self.master.destroy()
             window = tk.Tk()
             launcher = Launcher(window)
+
             startup(True)
+            
             window.mainloop()
-            pass
         
         elif (self.compare() and     
             messagebox.askokcancel('Restart', 'The container will be restarted.  Proceed?')):
@@ -406,22 +416,65 @@ def getContainerState(config):
         return status.get('status', 'notFound')
 
 
-# Get the available versions of the tool.
-def getVersions(dockerURL):
-
-    # Try to connect to the Docker daemon
-    client = docker.DockerClient(base_url=dockerURL)
-    images = client.images.list(name='cannr/cannr-web')
-    imageNames = images[0].tags
+# Gets tags of the cannr/cannr-web repository
+def getCannRTags():
     
-    tags = []
-    for imageName in imageNames:
-        tags.append(imageName[16:])
+    request = requests.get('https://hub.docker.com/v2/repositories/cannr/cannr-web/tags')
+    if not request.status_code == 200:
+        raise Exception('Unable to connect to DockerHub.')
     
-    client.close()
+    request = request.json()
+    if request:
+        results = request['results']
 
+    tags = {}
+    latestDigest = None
+    hasLatest = False
+    if results:
+        for result in results:
+            name = result.get('name', None)
+            # Don't include 'latest' unless
+            if name and (len(results) > 0 or name != 'latest'):
+                images = result.get('images', None)
+                digest = images[0].get('digest', None)
+                if images:
+                    tags[name] = {
+                        'last_updated': result['last_updated'],
+                        'digest': digest
+                        }
+                if name=='latest':
+                    latestDigest = digest
+                    hasLatest = True
+    
+    for name in tags:
+        if name != 'latest':
+            tag = tags[name]
+            digest = tag.get('digest', None)
+            if digest and latestDigest and digest==latestDigest:
+                tag['latest'] = True
+    
+    if hasLatest and len(tags) > 0:
+        tags.pop('latest')
+
+                
     return tags
 
+
+# Get the available versions of the tool from DockerHub.
+def getVersions():
+
+    return list(getCannRTags())
+
+
+# Get the available versions of the tool from DockerHub, if any.
+def getLatestVersion():
+
+    tags = getCannRTags()
+    for name in tags:
+        if tags[name].get('latest', False):
+            return name
+
+    return 'latest'
 
 # Returns the CANNR home directory
 def getCannrPath():
@@ -574,20 +627,25 @@ def saveConfig(config):
         # Create paths if they don't exist
         if not os.path.isdir(contextPath):
             os.makedirs(contextPath)
-            #config['contextPath'] = contextPath
             
         if not os.path.isdir(projectsPath):
             os.makedirs(projectsPath)
-            #config['projectsPath'] = projectsPath
             
         if not os.path.isdir(workingDirectory):
             os.makedirs(workingDirectory)
-            #config['workingDirectory'] = workingDirectory
     
         cannrPath = getCannrPath()
         if not os.path.isdir(cannrPath):
             os.makedirs(cannrPath)
-
+        
+        # Create the context file if it doesn't exist
+        contextFilePath = os.path.join(contextPath, 'context.json')
+        if not os.path.isfile(contextFilePath):
+            context = {'dockerURL': getDockerURL()}
+            with open(contextFilePath, 'w') as contextFile:
+                contextFile.write(json.dumps(context))
+        
+        # Write the config file.
         with open(getCannrConfigPath(), 'w') as configFile:
             configFile.write(json.dumps(config))
 
@@ -699,7 +757,7 @@ def startup(firstRun):
                     #mounts=[configMount, projectsMount, workingMount]
                     mounts=[configMount, projectsMount, workingMount]
                     
-                    if oneTimeSetup:
+                    if firstRun:
                         launcher.updateStatus('Downloading the image and starting the container.\nPlease wait...')
                     else:
                         launcher.updateStatus('Starting the container.  Please wait...')
