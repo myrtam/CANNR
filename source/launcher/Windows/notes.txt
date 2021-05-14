@@ -1,0 +1,3 @@
+
+To build the standalone executable on Windows, change to the Windows directory and use
+pyinstaller -n CannR --onefile --windowed --noconfirm --add-data "..\folder3.png;." --clean ..\launcher.py
