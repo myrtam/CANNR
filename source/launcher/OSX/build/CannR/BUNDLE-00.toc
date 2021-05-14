@@ -1,0 +1,3 @@
+([('CannR',
+   '/Users/ptendick/Documents/GitHub/CANNR/source/launcher/OSX/dist/CannR',
+   'EXECUTABLE')],)

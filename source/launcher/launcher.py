@@ -11,12 +11,16 @@ import platform
 import sys
 import json
 import time
-import subprocess as sp
+#import subprocess as sp
+import pathlib
 import tkinter as tk
+import tkinter.font as font
 from tkinter import messagebox
+from tkinter import filedialog
+from tkinter import PhotoImage
+from tkinter import Canvas
 import docker
 from docker.types import Mount
-import pathlib
 import requests
 
 
@@ -27,7 +31,10 @@ class Launcher(tk.Frame):
         tk.Frame.__init__(self,parent)
         self.parent = parent
         self.winfo_toplevel().title("CANNR Tool Launcher")
-        self.winfo_toplevel().minsize(400, 250)
+        if getPlatform()=='Windows':
+            self.winfo_toplevel().minsize(550, 300)
+        else:
+            self.winfo_toplevel().minsize(400, 250)
         self.winfo_toplevel().configure(background='#254D93')
         self.winfo_toplevel().columnconfigure([0,1], minsize=5)
         self.winfo_toplevel().rowconfigure([0, 7], minsize=50)
@@ -109,8 +116,21 @@ class Launcher(tk.Frame):
             self.updateStatus('Launching.  Please wait...')
             time.sleep(5)
     
+            # Get the OS platform
+            osPlatform = getPlatform()
+            
             # Launch the tool and exit
-            os.system('open http://localhost:8080/web/webtool/index.html')
+            if osPlatform=='Windows':
+                os.system('cmd /c start http://localhost:8080/web/webtool/index.html')
+            elif osPlatform=='Darwin':
+                os.system('open http://localhost:8080/web/webtool/index.html')
+            elif osPlatform=='Linux':
+                os.system('xdg-open http://localhost:8080/web/webtool/index.html')
+            else:
+                # TODO:  THIS IS AN ERROR.
+                # TODO:  Linux?
+                pass
+            
             sys.exit(0)
         
     # Shutdown event handler
@@ -142,7 +162,10 @@ class Settings:
         self.master = master
         settingsTitle = 'CANNR Tool One Time Setup' if firstRun else 'CANNR Tool Settings'
         self.master.title(settingsTitle)
-        self.master.minsize(650, 250)
+        if getPlatform()=='Windows':
+            self.master.minsize(750, 300)
+        else:
+            self.master.minsize(650, 250)
         self.master.configure(background='#254D93')
         self.master.protocol('WM_DELETE_WINDOW', self.close)
 
@@ -172,7 +195,7 @@ class Settings:
         else:
             self.tempConfig = getConfig()
        
-        # Space between rowse
+        # Space between rows
         self.space1 = tk.Label(
             self.inputFrame,
             text=' ', 
@@ -202,6 +225,7 @@ class Settings:
         version = version if (version and version in self.versions) else 'latest'
         self.version.set(version)
         self.versionMenu = tk.OptionMenu(self.inputFrame, self.version, *self.versions)
+        self.versionMenu.config(font=font.Font(family='Helvetica', size=14))
         self.versionMenu.grid(row=3, column=2, sticky="w")
         
         # Space between rows
@@ -216,18 +240,44 @@ class Settings:
         self.projectsLabel = tk.Label(
             self.inputFrame,
             text='Projects Location:', 
-            font=('Arial', 16), 
+            font=('Arial', 16),
             background='#254D93', 
             foreground='white'
             )
         self.projectsLabel.grid(row=5, column=1, sticky="w")
         
         # Projects directory textbox.
-        self.projectsPath = tk.Entry(self.inputFrame, width=40)
+        self.projectsPath = tk.Entry(self.inputFrame, width=40, font=font.Font(family='Helvetica', size=14))
         self.projectsPath.grid(row=5, column=2, sticky="w")
         self.projectsPath.insert(0, self.tempConfig.get('projectsPath'))
+
+        # Space between buttons
+        self.space21 = tk.Label(
+            self.inputFrame,
+            text='', 
+            background='#254D93')
+        self.space21.grid(row=5, column=3, sticky="w")
         
-        # TODO:  ADD BUTTON FOR FILE PICKER
+        # Try to load the folder image
+        try:
+
+            try:
+                # Use this to get temporary directory used by PyInstaller, if applicable
+                base = sys._MEIPASS
+            except Exception:
+                base = os.path.abspath(".")
+
+            iconPath = os.path.join(base, 'folder3.png')
+            
+            # Projects path file picker button
+            self.folderIcon = PhotoImage(file = iconPath)
+
+        except Exception as err:
+            messagebox.showinfo('Error', str(err))
+            print(str(err))
+        
+        self.projPickButton = tk.Button(self.inputFrame, width = 32, command=self.pickProjectsPath, image=self.folderIcon)
+        self.projPickButton.grid(row=5, column=4)
         
         # Space between rows
         self.space3 = tk.Label(
@@ -248,9 +298,13 @@ class Settings:
         self.workingLabel.grid(row=7, column=1, sticky="w")
         
         # Projects directory textbox.
-        self.workingDir = tk.Entry(self.inputFrame, width=40)
+        self.workingDir = tk.Entry(self.inputFrame, width=40, font=font.Font(family='Helvetica', size=14))
         self.workingDir.grid(row=7, column=2, sticky="w")
         self.workingDir.insert(0, self.tempConfig.get('workingDirectory'))
+        
+        # Working directory file picker button
+        self.workingButton = tk.Button(self.inputFrame, text = '', width = 32, command=self.pickWorking, image=self.folderIcon)
+        self.workingButton.grid(row=7, column=4)
         
         # TODO:  ADD BUTTON FOR FILE PICKER
 
@@ -267,7 +321,7 @@ class Settings:
             background='#254D93')
         self.space4.grid(row=0, column=1, sticky="w")
         
-        self.saveButton = tk.Button(self.buttonFrame, text = 'Save', width = 8, command=self.save)
+        self.saveButton = tk.Button(self.buttonFrame, text = 'Save', width = 8, command=self.save, font=font.Font(family='Helvetica', size=14))
         self.saveButton.grid(row=1, column=0)
         
         # Space between buttons
@@ -277,11 +331,23 @@ class Settings:
             background='#254D93')
         self.space5.grid(row=1, column=1, sticky="w")
         
-        self.cancelButton = tk.Button(self.buttonFrame, text = 'Cancel', width = 8, command=self.close)
+        self.cancelButton = tk.Button(self.buttonFrame, text = 'Cancel', width = 8, command=self.close, font=font.Font(family='Helvetica', size=14))
         self.cancelButton.grid(row=1, column=2)
                 
         self.buttonFrame.pack()
     
+    
+    def pickProjectsPath(self):
+        projectsPath = filedialog.askdirectory()
+        if projectsPath:
+            self.projectsPath.delete(0, tk.END)
+            self.projectsPath.insert(0, projectsPath)
+    
+    def pickWorking(self):
+        workingDirectory = filedialog.askdirectory()
+        if workingDirectory:
+            self.workingDir.delete(0, tk.END)
+            self.workingDir.insert(0, workingDirectory)
     
     # Compare the inputs with the original configuration
     def compare(self):
@@ -642,6 +708,7 @@ def saveConfig(config):
         contextFilePath = os.path.join(contextPath, 'context.json')
         if not os.path.isfile(contextFilePath):
             context = {'dockerURL': getDockerURL()}
+            print(getDockerURL())
             with open(contextFilePath, 'w') as contextFile:
                 contextFile.write(json.dumps(context))
         
@@ -669,6 +736,7 @@ def getDockerURL():
     
     if osPlatform=='Windows':
         return 'tcp://localhost:2375'
+        # return 'tcp://localhost:2376'    # For TLS
     elif osPlatform in ['Linux', 'Darwin']:
         return 'unix://var/run/docker.sock'
     
@@ -919,9 +987,17 @@ try:
 except Exception as err:
     if launcher:
         launcher.updateStatus(str(err))
+    messagebox.showinfo('Error', str(err))
     print(str(err))
 
-# Start the event loop
-window.mainloop()
 
+try:
+
+    # Start the event loop
+    window.mainloop()
+
+
+except Exception as err:
+    messagebox.showinfo('Error', str(err))
+    print(str(err))
 

@@ -13,4 +13,8 @@ brew install pyinstaller
 Also, pyinstaller creates its own virtual environment, so the docker package needs to be installed in that environment.
 When using the pyinstaller version of the launcher, it seems to start in the directory /Users/<current user>.
 
-pyinstaller ../launcher.py -n CannR --onefile --windowed --noconfirm --clean
+For OSX and Linux, use
+pyinstaller -n CannR --onefile --windowed --noconfirm --add-data "../folder3.png:." --clean ../launcher.py
+
+For OSX and Linux, use
+pyinstaller -n CannR --onefile --windowed --noconfirm --add-data "../folder3.png;." --clean ../launcher.py
