@@ -30,7 +30,7 @@ class Launcher(tk.Frame):
     def __init__(self,parent=None):
         tk.Frame.__init__(self,parent)
         self.parent = parent
-        self.winfo_toplevel().title("CANNR Tool Launcher")
+        self.winfo_toplevel().title("CannR Tool Launcher")
         if getPlatform()=='Windows':
             self.winfo_toplevel().minsize(550, 300)
         else:
@@ -160,7 +160,7 @@ class Settings:
         firstRun = not hasConfig()
         
         self.master = master
-        settingsTitle = 'CANNR Tool One Time Setup' if firstRun else 'CANNR Tool Settings'
+        settingsTitle = 'CannR Tool One Time Setup' if firstRun else 'CannR Tool Settings'
         self.master.title(settingsTitle)
         if getPlatform()=='Windows':
             self.master.minsize(750, 300)
@@ -364,7 +364,7 @@ class Settings:
         if self.master==window:
 
             messagebox.showinfo('Container Start',
-                'The CANNR Web image will be downloaded and the container will be started for the first time.\nThis may take a while.')
+                'The CannR Web image will be downloaded and the container will be started for the first time.\nThis may take a while.')
 
             if self.version.get():
                 self.tempConfig['version'] = self.version.get()

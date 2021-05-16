@@ -75,7 +75,7 @@
                      "functionName": "deleteFolder",
                      "method": "GET",
                      "outputParseType": "default",
-                     "resourceNames": ["projectname"]
+                     "resourceNames": ["projectname", "foldername"]
                   },
                   "updateproject": {
                      "serviceDescription": "Updates project data, excluding folders",

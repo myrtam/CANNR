@@ -425,7 +425,9 @@ function popProjectProps() {
 	if (projectName) {
 
 		// Populate project properties
-		projectPageTitle.innerHTML = 'Project ' + projectName;
+		projectTitle = project['projectTitle'];
+		projectPageTitle.innerHTML = 'Project ' + projectName
+			+ (projectTitle? ' - ' + projectTitle: '');
 		projectPropertiesTitle.innerHTML = 'Project Properties';
 		projectNameRules.innerHTML = '';
 		projectNameInput.value = projectName;
@@ -2781,7 +2783,7 @@ function setProjectButtons() {
 function setFolderButtons() {
 
 	// Disable the Save button
-	disableButton(folderNext, !changed);
+	disableButton(folderNext, !changed&&!(newProject&&folderName));
 
 	// Change button labels appropriately
 	if (newProject&&folderType!='content') {
@@ -2850,6 +2852,71 @@ function setBuildButtons() {
 
 }
 
+// Deletes a folder from the project, along with its uploaded files
+function delFolder(delFolderName) {
+	
+	projectName = project['projectName'];
+	if (!projectName||!delFolderName)
+		return;
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+
+	var url = baseURL + 'deletefolder/' + projectName + '/' + delFolderName
+
+	// Add extra timestamp to prevent caching.
+	xhr.open("GET", url);
+	xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response and process it.
+			var response = JSON.parse(xhr.responseText);
+			var data = response['data'];
+			if (data) {
+				if (data.succeeded) {
+
+					project = data['project'];
+	
+					// Populate the folder select list
+					popFolderSelect();
+	
+				}
+				else {
+
+					// Display error message.
+					var errorMsg = data['errorMsg'];
+					var detail = data['detail'];
+					if (errorMsg) {
+						var alertMsg = errorMsg + (detail? '\n' + detail: '')
+						alert(alertMsg);
+						console.error(errorMsg);
+					}
+	
+				}
+
+			}
+
+		} else {
+
+			// Display error message.
+			console.error(xhr.responseText);
+			alert("Error deleting folder");
+
+		}
+
+	}
+
+	// Send the request.
+	xhr.send();
+
+}
+
+
 // Handler for delFolderButton.
 function onDelFolder() {
 
@@ -2865,17 +2932,18 @@ function onDelFolder() {
 
 	// Confirm delete
 	if (confirm('Delete folder ' + folderName +
-		'?  This will delete any directories or files that have been uploaded for the folder.')) {
+		'?  This will delete any directories or files that have been uploaded for the folder.'))
 		// Remove the folder from the pick list
-		delSelected(folderSelect);
+		//delSelected(folderSelect);
 		// Delete the folder from the folders collection
-		delete folders[folderName];
+		//delete folders[folderName];
 		// Disable the folder select as needed
-		disableFolderSelect();
+		//disableFolderSelect();
 		// Update the project
 		// TODO:  NEED TO CALL deleteFolder INSTEAD!!!
-		updateProject(null);
-	}
+		//updateProject(null);
+		
+		delFolder(folderName);
 
 }
 

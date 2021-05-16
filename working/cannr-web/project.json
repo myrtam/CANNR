@@ -86,7 +86,8 @@
               "method": "GET",
               "outputParseType": "default",
               "resourceNames": [
-                "projectname"
+                "projectname",
+                "foldername"
               ]
             },
             "updateproject": {

@@ -515,7 +515,9 @@ def buildProject(project, basePath, context):
     dockerText = dockerText.replace('<base image>', baseImage)
 
     # Label with maintainer
-    maintainerEmail = context.get("maintainerEmail", None)
+    maintainerEmail = project.get("maintainerEmail", None)
+    if not maintainerEmail:
+        maintainerEmail = context.get("maintainerEmail", None)
     if maintainerEmail:
         dockerText = dockerText.replace('#<maintainer>', 'LABEL maintainer="' + maintainerEmail + '"')
     else:

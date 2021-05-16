@@ -4,7 +4,7 @@
 # Maintainer Pat Tendick ptendick@gmail.com
 
 FROM cannr/cannr-base:latest
-LABEL maintainer="someone@somewhere.com"
+LABEL maintainer="ptendick@gmail.com"
 
 # Copy specific NGINX configuration
 COPY conf.d/http /etc/nginx/http
