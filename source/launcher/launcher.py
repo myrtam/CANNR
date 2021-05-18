@@ -416,8 +416,15 @@ class Settings:
             self.master.withdraw()
 
 
+# Returns a Docker client connection.
+def getDockerClient():
+    
+    #return docker.DockerClient(base_url=getDockerURL())
+    return docker.from_env()
+
+
 # Get the status of the Web tool.
-def getStatus(containerID, dockerURL):
+def getStatus(containerID):
 
     if not containerID:
         return {
@@ -431,7 +438,7 @@ def getStatus(containerID, dockerURL):
     try:
     
         # Try to connect to the Docker daemon
-        client = docker.DockerClient(base_url=dockerURL)
+        client = getDockerClient()
     
     except Exception as err:
         return {
@@ -474,7 +481,7 @@ def getContainerState(config):
 
     containerID = config.get('containerID', 'cannr-web')
 
-    status = getStatus(containerID, getDockerURL())
+    status = getStatus(containerID)
     succeeded = status.get('succeeded', False)
     if not succeeded:
         return 'failed'
@@ -777,7 +784,7 @@ def startup(firstRun):
 
         ports = {'80/tcp': localPort}
 
-        status = getStatus(containerID, getDockerURL())
+        status = getStatus(containerID)
         succeeded = status.get('succeeded', False)
         if not succeeded:
             if  status.get('error', 'unableToConnect')=='unableToConnect':
@@ -799,7 +806,7 @@ def startup(firstRun):
             if statusMsg in ('notFound', 'exited'):
 
                 # Try to connect to the Docker daemon
-                client = docker.DockerClient(base_url=getDockerURL())
+                client = getDockerClient()
     
                 if statusMsg=='notFound':
  
@@ -901,7 +908,7 @@ def shutdown():
         localPort = config.get('port', 8080)
         ports = {str(localPort) + '/tcp': 80}
 
-        status = getStatus(containerID, getDockerURL())
+        status = getStatus(containerID)
         succeeded = status.get('succeeded', False)
         if not succeeded:
             if  status.get('error', 'unableToConnect')=='unableToConnect':
@@ -924,7 +931,7 @@ def shutdown():
             if statusMsg=='running':
 
                 # Try to connect to the Docker daemon
-                client = docker.DockerClient(base_url=getDockerURL())
+                client = getDockerClient()
 
                 container = client.containers.get(containerID)
                 launcher.updateStatus('Stopping the container.  Please wait...')
@@ -952,7 +959,7 @@ def rmContainer():
         containerID = config.get('containerID', 'cannr-web')
 
         # Try to connect to the Docker daemon
-        client = docker.DockerClient(base_url=getDockerURL())
+        client = getDockerClient()
 
         container = client.containers.get(containerID)
         launcher.updateStatus('Removing the container.  Please wait...')
