@@ -742,8 +742,8 @@ def getDockerURL():
     osPlatform = getPlatform()
     
     if osPlatform=='Windows':
-        return 'tcp://localhost:2375'
-        # return 'tcp://localhost:2376'    # For TLS
+        #return 'tcp://localhost:2375'
+        return 'tcp://host.docker.internal:2375'
     elif osPlatform in ['Linux', 'Darwin']:
         return 'unix://var/run/docker.sock'
     
