@@ -21,7 +21,7 @@ from werkzeug.utils import secure_filename
 
 # Try to read the context
 context = None
-dockerURL = None
+#dockerURL = None
 #if os.path.exists('context.json'):
 #    context = cc.readJSONFile('context.json')
 #if os.path.exists('/config/context.json'):
@@ -37,7 +37,8 @@ if context:
     
     projectsPath = '/projects'
     workingDirectory = '/working'
-    dockerURL = context.get('dockerURL', 'unix://var/run/docker.sock')
+    #dockerURL = context.get('dockerURL', 'unix://var/run/docker.sock')
+    osPlatform = context.get('osPlatform', 'Darwin')
     baseImage = context.get('baseImage', None)
     
     if not os.path.isdir(projectsPath):
@@ -71,6 +72,17 @@ def setContext(newContext):
 def getProjectsPath():
     return projectsPath
 
+
+# Returns the URL of the local Docker daemon.
+def getDockerURL(osPlatform):
+    
+    if osPlatform=='Windows':
+        return 'tcp://host.docker.internal:2375'
+    elif osPlatform in ['Linux', 'Darwin']:
+        return 'unix://var/run/docker.sock'
+    
+    else:
+        return None
 
 
 # Parses the source file and returns a list of functions in the file.
@@ -711,7 +723,7 @@ def buildProject(resourceNames, input):
     projectName = resourceNames.get('projectname', None)
     client = None
     try:
-        client = docker.DockerClient(base_url=dockerURL)
+        client = docker.DockerClient(base_url=getDockerURL(osPlatform))
     except Exception as err:
         if buildRun and buildRun in ['build', 'run']:
             return {
@@ -918,7 +930,7 @@ def stopContainer(resourceNames):
             return {'succeeded': False, 'error': 'noContainer', 'errorMsg': 'No container associated with the project'}
         
         # Create the docker client, get the container.
-        client = docker.DockerClient(base_url=dockerURL)
+        client = docker.DockerClient(base_url=getDockerURL(osPlatform))
         container = client.containers.get(containerID)
 
         # Check the container status and stop it if it is running.
@@ -982,7 +994,7 @@ def getStatus(resourceNames):
     try:
     
         # Try to connect to the Docker daemon
-        client = docker.DockerClient(base_url=dockerURL)
+        client = docker.DockerClient(base_url=getDockerURL(osPlatform))
     
     except Exception as err:
         return {

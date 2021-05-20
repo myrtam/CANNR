@@ -714,7 +714,9 @@ def saveConfig(config):
         # Create the context file if it doesn't exist
         contextFilePath = os.path.join(contextPath, 'context.json')
         if not os.path.isfile(contextFilePath):
-            context = {'dockerURL': getDockerURL()}
+            context = {
+                'osPlatform': getPlatform()
+                }
             print(getDockerURL())
             with open(contextFilePath, 'w') as contextFile:
                 contextFile.write(json.dumps(context))
@@ -742,7 +744,6 @@ def getDockerURL():
     osPlatform = getPlatform()
     
     if osPlatform=='Windows':
-        #return 'tcp://localhost:2375'
         return 'tcp://host.docker.internal:2375'
     elif osPlatform in ['Linux', 'Darwin']:
         return 'unix://var/run/docker.sock'
