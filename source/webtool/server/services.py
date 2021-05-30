@@ -997,12 +997,18 @@ def getStatus(resourceNames):
         client = docker.DockerClient(base_url=getDockerURL(osPlatform))
     
     except Exception as err:
+        errDetail = str(err)
+        errDetail = errDetail if errDetail.find('Connection refused') < 0 else ('Connection refused'
+            + '' if osPlatform!='Windows' else (
+                "Please ensure that the option 'Expose daemon on tcp://localhost:2375 without TLS' is selected in Docker Desktop settings.\n"
+                + "Or just build the image and run the container manually using the Docker command line interface (CLI)."
+                ))
         return {
             'succeeded': False, 
             'containerID': None,
             'error': 'unableToConnect',
             'errorMsg': 'Unable to connect to Docker',
-            'detail': str(err)
+            'detail': errDetail
             }
 
     try:

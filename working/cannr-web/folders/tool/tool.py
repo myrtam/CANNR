@@ -7,7 +7,7 @@ Maintainer Pat Tendick ptendick@gmail.com
 """
 
 """
-Generated 2021-05-01 21:29:09
+Generated 2021-05-22 20:58:35
 """
 import json
 import os
@@ -86,10 +86,10 @@ def s_5(projectname, foldername, ):
 		return {"error": str(err)}
 
 # Service deletefolder in module services
-@app.route("/services/tool/services/deletefolder/<projectname>", methods=["GET"])
-def s_6(projectname, ):
+@app.route("/services/tool/services/deletefolder/<projectname>/<foldername>", methods=["GET"])
+def s_6(projectname, foldername, ):
 	try:
-		resources = {"projectname": projectname, }
+		resources = {"projectname": projectname, "foldername": foldername, }
 		output = m_1.deleteFolder(resources, )
 		return Response(ci.serviceOutput(output, "default"), content_type="application/json")
 	except Exception as err:

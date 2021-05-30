@@ -28,6 +28,7 @@ import requests
 class Launcher(tk.Frame):
 
     def __init__(self,parent=None):
+
         tk.Frame.__init__(self,parent)
         self.parent = parent
         self.winfo_toplevel().title("CannR Tool Launcher")
@@ -105,12 +106,18 @@ class Launcher(tk.Frame):
         self.statusLine['text'] = ' '
         
         self.settingsTop = None
+        '''
+        global firstRun
+        firstRun = not hasConfig()
+        if firstRun:
+            self.onSettings()
+        '''
 
 
     # Launch event handler
     def onLaunch(self):
     
-        if startup(False):
+        if self.startup(False):
     
             # Delay 5 seconds to give container time to start
             self.updateStatus('Launching.  Please wait...')
@@ -128,7 +135,6 @@ class Launcher(tk.Frame):
                 os.system('xdg-open http://localhost:8080/web/webtool/index.html')
             else:
                 # TODO:  THIS IS AN ERROR.
-                # TODO:  Linux?
                 pass
             
             sys.exit(0)
@@ -136,7 +142,7 @@ class Launcher(tk.Frame):
     # Shutdown event handler
     def onShutDown(self):
 
-        shutdown()
+        self.shutdown()
     
     # Settings button event handler
     def onSettings(self):
@@ -144,7 +150,9 @@ class Launcher(tk.Frame):
         if not self.settingsTop:
             self.settingsTop = tk.Toplevel(self.master)
             self.settings = Settings(self.settingsTop)
+            self.settings.setTitleLabel('One Time Setup')
         else:
+            self.settings.setTitleLabel('Settings')
             self.settingsTop.deiconify()
     
     # Update the status line.
@@ -153,15 +161,245 @@ class Launcher(tk.Frame):
         self.statusLine.update()
 
 
+    # Check container status, try to start if not running.
+    # Returns True if container running, False otherwise.
+    def startup(self, firstRun):
+    
+        try:
+            
+            self.updateStatus('Getting container status.  Please wait...')
+    
+            config = getConfig()
+            if not config:
+                return False
+            
+            contextPath = config.get('contextPath')
+            contextPath = os.path.abspath(contextPath)
+            projectsPath = config.get('projectsPath')
+            projectsPath = os.path.abspath(projectsPath)
+            workingDirectory = config.get('workingDirectory')
+            workingDirectory = os.path.abspath(workingDirectory)
+            
+            # Make sure all of the directories exist
+            if not (os.path.isdir(contextPath) and os.path.isdir(projectsPath)
+                and os.path.isdir(workingDirectory)):
+                saveConfig(config)
+            
+            containerID = config.get('containerID', 'cannr-web')
+    
+            # Get the image name
+            version = config.get('version', 'latest')
+            image = 'cannr/cannr-web:' + version
+                
+            # Get the local port  
+            localPort = config.get('port', 8080)
+            if not localPort:
+                localPort = 8080
+                config['localPort'] = localPort
+    
+            ports = {'80/tcp': localPort}
+    
+            status = getStatus(containerID)
+    
+            succeeded = status.get('succeeded', False)
+            if not succeeded:
+                if  status.get('error', 'unableToConnect')=='unableToConnect':
+                    self.updateStatus('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
+                    print('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
+                else:
+                    error = status.get('errorMsg', '')
+                    detail = status.get('detail', '')
+                    message = error + ':  ' + detail if (error and detail) else error + detail
+                    message = message if message else 'Error getting container status'
+                    self.updateStatus(message)
+                    print(message)
+                    
+                return False
+            
+            else:
+                statusMsg = status.get('status', 'notFound')
+                
+                if statusMsg in ('notFound', 'exited'):
+    
+                    # Try to connect to the Docker daemon
+                    client = getDockerClient()
+    
+                    # Handle the case that no container exists
+                    if statusMsg=='notFound':
+                        
+                        # See if the image has been pulled
+                        imageName = 'cannr/cannr-web:' + version
+                        allImages = client.images.list()
+                        imagePulled = False
+                        for image in allImages:
+                            if imageName in image.tags:
+                                imagePulled = True
+                                break
+     
+                        # Pull the image if it hasn't been pulled
+                        if not imagePulled:
+    
+                            #messagebox.showinfo('Image Download',
+                            #    'The CannR Web image will be downloaded.\nThis may take a while.\nPlease wait...')
+                            if messagebox.askokcancel('Image Download',
+                                'The CannR Web image will be downloaded.\nThis may take a while.\nProceed?'):
+                                
+                                self.updateStatus('Downloading the image.  Please wait...')
+    
+                                # Have to use shell command for Windows due to bug in Python 3/Windows 10/PyInstaller
+                                if getPlatform()=='Windows':
+                                    os.system('docker pull cannr/cannr-web:' + version)
+                                else:
+                                    client.images.pull('cannr/cannr-web', version)
+                                    
+                            else:
+                                self.updateStatus('Container not running - No image')
+                                return
+    
+                        self.updateStatus('Starting the container.  Please wait...')
+                    
+                        # External directories to mount
+                        configMount = Mount(
+                            source=contextPath,
+                            target='/config',
+                            type='bind',
+                        )
+                        
+                        projectsMount = Mount(
+                            source=projectsPath,
+                            target='/projects',
+                            type='bind',
+                        )
+                        
+                        workingMount = Mount(
+                            source=workingDirectory,
+                            target='/working',
+                            type='bind',
+                        )
+    
+                        #mounts=[configMount, projectsMount, workingMount]
+                        mounts=[configMount, projectsMount, workingMount]
+                        
+                        # Start the container, and get the result.
+                        if platform.system()=='Windows':
+                            container = client.containers.run(
+                                image, 
+                                name = 'cannr-web',
+                                mounts=mounts,
+                                detach = True,
+                                remove = False,
+                                ports = ports
+                                )
+    
+                        else:
+                            
+                            # Volume dictionary for mapping Docker port (OSX/Linux)
+                            volumes = {
+                                '/var/run/docker.sock': {
+                                    'bind': '/var/run/docker.sock', 'mode': 'rw'}
+                                }
+                        
+                            container = client.containers.run(
+                                image, 
+                                name = 'cannr-web',
+                                mounts=mounts,
+                                #mounts=[mount],
+                                volumes=volumes,
+                                detach = True, 
+                                remove = False, 
+                                ports = ports
+                                )
+    
+                        config['containerID'] = container.id
+                        self.updateStatus('Container started.')
+                        print('Container started.')
+        
+                    elif statusMsg=='exited':
+                        containerID = config['containerID']
+                        container = client.containers.get(containerID)
+                        self.updateStatus('Restarting the container.  Please wait...')
+                        container.start()
+                        self.updateStatus('Container restarted.')
+                        
+                    client.close()
+    
+                elif statusMsg=='running':
+                    self.updateStatus('Container is running.')
+                    
+                saveConfig(config)
+    
+                return True
+        
+        except Exception as err:
+            self.updateStatus(str(err))
+            print(str(err))
+    
+    
+    # Shuts down the container.
+    def shutdown(self):
+    
+        try:
+            
+            config = getConfig()
+            if not config:
+                return False
+            
+            containerID = config.get('containerID', 'cannr-web')
+    
+            # Get the image name
+            image = config.get('image', 'cannr/cannr-web:latest')
+            localPort = config.get('port', 8080)
+            ports = {str(localPort) + '/tcp': 80}
+    
+            status = getStatus(containerID)
+            succeeded = status.get('succeeded', False)
+            if not succeeded:
+                if  status.get('error', 'unableToConnect')=='unableToConnect':
+                    self.updateStatus('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
+                    print('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
+                else:
+                    error = status.get('errorMsg', '')
+                    detail = status.get('detail', '')
+                    message += error + ':  ' + detail if (error and detail) else error + detail
+                    message = message if message else 'Error getting container status'
+                    self.updateStatus(message)
+                    print(message)
+                    
+                return False
+            
+            else:
+    
+                statusMsg = status.get('status', 'notFound')
+                
+                if statusMsg=='running':
+    
+                    # Try to connect to the Docker daemon
+                    client = getDockerClient()
+    
+                    container = client.containers.get(containerID)
+                    self.updateStatus('Stopping the container.  Please wait...')
+                    container.stop()
+                    self.updateStatus('Container stopped.')
+                        
+                    client.close()                    
+    
+                return True
+        
+        except Exception as err:
+            self.updateStatus(str(err))
+            print(str(err))
+
+
 # Setting window class
 class Settings:
     def __init__(self, master):
         
-        firstRun = not hasConfig()
+        master.attributes('-topmost',1)
+        #master.attributes('-topmost',0)
         
         self.master = master
-        settingsTitle = 'CannR Tool One Time Setup' if firstRun else 'CannR Tool Settings'
-        self.master.title(settingsTitle)
+        #self.setTitle('CannR Tool One Time Setup' if firstRun else 'CannR Tool Settings')
+        self.setTitle('CannR Tool Settings')
         if getPlatform()=='Windows':
             self.master.minsize(750, 300)
         else:
@@ -178,17 +416,17 @@ class Settings:
             background='#254D93')
         self.titleSpace.grid(row=0, column=0, sticky="w")
         
-        
         # Add the title line to the frame.
         self.titleLabel = tk.Label(
             self.inputFrame,
-            text='Settings', 
+            text='', 
             font=('Arial', 20), 
             justify=tk.LEFT,
             background='#254D93', 
             foreground='white'
             )
         self.titleLabel.grid(row=1, column=1, sticky="w")
+        self.setTitleLabel('Settings')
         
         if firstRun:
             self.tempConfig = makeConfig()
@@ -217,12 +455,14 @@ class Settings:
         self.versions = getVersions()
         self.version = tk.StringVar(self.master)
         
+        # Set the version and configure the pulldown
         version = None
+        latestVersion = getLatestVersion()
         if firstRun:
-            version = getLatestVersion()
+            version = latestVersion
         else:
-            version = self.tempConfig.get('version', 'latest')
-        version = version if (version and version in self.versions) else 'latest'
+            version = self.tempConfig.get('version', latestVersion)
+        version = version if (version and version in self.versions) else latestVersion
         self.version.set(version)
         self.versionMenu = tk.OptionMenu(self.inputFrame, self.version, *self.versions)
         self.versionMenu.config(font=font.Font(family='Helvetica', size=14))
@@ -336,7 +576,6 @@ class Settings:
                 
         self.buttonFrame.pack()
     
-    
     def pickProjectsPath(self):
         projectsPath = filedialog.askdirectory()
         if projectsPath:
@@ -356,15 +595,22 @@ class Settings:
             self.tempConfig['projectsPath'] != self.projectsPath.get() or
             self.tempConfig['workingDirectory'] != self.workingDir.get())
     
+    # Set the title.
+    def setTitle(self, settingsTitle):
+        self.master.title(settingsTitle)
+    
+    # Set the title.
+    def setTitleLabel(self, settingsTitleLabel):
+        self.titleLabel.config(text=settingsTitleLabel)
+    
     # Save settings
     def save(self):
 
         global window
         global launcher
-        if self.master==window:
-
-            messagebox.showinfo('Container Start',
-                'The CannR Web image will be downloaded and the container will be started for the first time.\nThis may take a while.')
+        global firstRun
+        #if self.master==window:
+        if firstRun:
 
             if self.version.get():
                 self.tempConfig['version'] = self.version.get()
@@ -375,16 +621,14 @@ class Settings:
             
             saveConfig(self.tempConfig)
 
-            self.master.destroy()
-            window = tk.Tk()
-            launcher = Launcher(window)
-
-            startup(True)
+            firstRun = False
+            self.master.withdraw()
+            launcher.startup(True)
             
-            window.mainloop()
-        
-        elif (self.compare() and     
-            messagebox.askokcancel('Restart', 'The container will be restarted.  Proceed?')):
+        elif self.compare():
+            
+            self.master.attributes('-topmost',0)
+            if messagebox.askokcancel('Restart', 'The container will be restarted.  Proceed?'):
             
                 launcher.updateStatus('Restarting the container.  Please wait...')
                 self.master.withdraw()
@@ -401,17 +645,20 @@ class Settings:
                 containerState = getContainerState(self.tempConfig)
                 
                 if containerState=='running':
-                    shutdown()
+                    launcher.shutdown()
                     
                 if containerState in ['running', 'exited']:
                     rmContainer()
                     
-                startup(False)
+                self.master.withdraw()
+                launcher.startup(False)
+
      
     # Close the settings window   
     def close(self):
-        if self.master==window:
-            sys.exit()
+
+        if firstRun:
+            sys.exit(0)
         else:
             self.master.withdraw()
 
@@ -752,202 +999,6 @@ def getDockerURL():
         return None
 
 
-# Check container status, try to start if not running.
-# Returns True if container running, False otherwise.
-def startup(firstRun):
-
-    try:
-        
-        launcher.updateStatus('Getting container status.  Please wait...')
-
-        config = getConfig()
-        if not config:
-            return False
-        
-        contextPath = config.get('contextPath')
-        contextPath = os.path.abspath(contextPath)
-        projectsPath = config.get('projectsPath')
-        projectsPath = os.path.abspath(projectsPath)
-        workingDirectory = config.get('workingDirectory')
-        workingDirectory = os.path.abspath(workingDirectory)
-        
-        containerID = config.get('containerID', 'cannr-web')
-
-        # Get the image name
-        version = config.get('version', 'latest')
-        image = 'cannr/cannr-web:' + version
-            
-        # Get the local port  
-        localPort = config.get('port', 8080)
-        if not localPort:
-            localPort = 8080
-            config['localPort'] = localPort
-
-        ports = {'80/tcp': localPort}
-
-        status = getStatus(containerID)
-        succeeded = status.get('succeeded', False)
-        if not succeeded:
-            if  status.get('error', 'unableToConnect')=='unableToConnect':
-                launcher.updateStatus('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
-                print('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
-            else:
-                error = status.get('errorMsg', '')
-                detail = status.get('detail', '')
-                message = error + ':  ' + detail if (error and detail) else error + detail
-                message = message if message else 'Error getting container status'
-                launcher.updateStatus(message)
-                print(message)
-                
-            return False
-        
-        else:
-            statusMsg = status.get('status', 'notFound')
-            
-            if statusMsg in ('notFound', 'exited'):
-
-                # Try to connect to the Docker daemon
-                client = getDockerClient()
-    
-                if statusMsg=='notFound':
- 
-                    # External directories to mount
-                    configMount = Mount(
-                        source=contextPath,
-                        target='/config',
-                        type='bind',
-                    )
-                    
-                    projectsMount = Mount(
-                        source=projectsPath,
-                        target='/projects',
-                        type='bind',
-                    )
-                    
-                    workingMount = Mount(
-                        source=workingDirectory,
-                        target='/working',
-                        type='bind',
-                    )
-
-                    #mounts=[configMount, projectsMount, workingMount]
-                    mounts=[configMount, projectsMount, workingMount]
-                    
-                    if firstRun:
-                        launcher.updateStatus('Downloading the image and starting the container.\nPlease wait...')
-                    else:
-                        launcher.updateStatus('Starting the container.  Please wait...')
-
-                    # Start the container, and get the result.
-                    if platform.system()=='Windows':
-                        container = client.containers.run(
-                            image, 
-                            name = 'cannr-web',
-                            mounts=mounts,
-                            detach = True,
-                            remove = False,
-                            ports = ports
-                            )
-
-                    else:
-                        
-                        # Volume dictionary for mapping Docker port (OSX/Linux)
-                        volumes = {
-                            '/var/run/docker.sock': {
-                                'bind': '/var/run/docker.sock', 'mode': 'rw'}
-                            }
-                    
-                        container = client.containers.run(
-                            image, 
-                            name = 'cannr-web',
-                            mounts=mounts,
-                            #mounts=[mount],
-                            volumes=volumes,
-                            detach = True, 
-                            remove = False, 
-                            ports = ports
-                            )
-
-                    config['containerID'] = container.id
-                    launcher.updateStatus('Container started.')
-                    print('Container started.')
-    
-                elif statusMsg=='exited':
-                    containerID = config['containerID']
-                    container = client.containers.get(containerID)
-                    launcher.updateStatus('Restarting the container.  Please wait...')
-                    container.start()
-                    launcher.updateStatus('Container restarted.')
-                    
-                client.close()
-
-            elif statusMsg=='running':
-                launcher.updateStatus('Container is running.')
-                
-            saveConfig(config)
-
-            return True
-    
-    except Exception as err:
-        launcher.updateStatus(str(err))
-        print(str(err))
-
-
-# Shuts down the container.
-def shutdown():
-
-    try:
-        
-        config = getConfig()
-        if not config:
-            return False
-        
-        containerID = config.get('containerID', 'cannr-web')
-
-        # Get the image name
-        image = config.get('image', 'cannr/cannr-web:latest')
-        localPort = config.get('port', 8080)
-        ports = {str(localPort) + '/tcp': 80}
-
-        status = getStatus(containerID)
-        succeeded = status.get('succeeded', False)
-        if not succeeded:
-            if  status.get('error', 'unableToConnect')=='unableToConnect':
-                launcher.updateStatus('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
-                print('Unable to connect to Docker.  Please check to make sure Docker is running and configured to accept connections.')
-            else:
-                error = status.get('errorMsg', '')
-                detail = status.get('detail', '')
-                message += error + ':  ' + detail if (error and detail) else error + detail
-                message = message if message else 'Error getting container status'
-                launcher.updateStatus(message)
-                print(message)
-                
-            return False
-        
-        else:
-
-            statusMsg = status.get('status', 'notFound')
-            
-            if statusMsg=='running':
-
-                # Try to connect to the Docker daemon
-                client = getDockerClient()
-
-                container = client.containers.get(containerID)
-                launcher.updateStatus('Stopping the container.  Please wait...')
-                container.stop()
-                launcher.updateStatus('Container stopped.')
-                    
-                client.close()                    
-
-            return True
-    
-    except Exception as err:
-        launcher.updateStatus(str(err))
-        print(str(err))
-
-
 # Removes the container.
 def rmContainer():
 
@@ -979,18 +1030,21 @@ def rmContainer():
 # Try to start the container.
 launcher = None
 window = None
+firstRun = False
+        
 try:
     
     # Initialize the Launcher window
+    firstRun = not hasConfig()
     window = tk.Tk()
-    
-    if not hasConfig():
-        settings = Settings(window)
+    launcher = Launcher(window)
+    if firstRun:
+        launcher.onSettings()
     else:
-        launcher = Launcher(window)
-        startup(False)
-    
-    #startup()
+        launcher.startup(False)
+
+    # Start the event loop
+    window.mainloop()
 
 except Exception as err:
     if launcher:
@@ -998,14 +1052,4 @@ except Exception as err:
     messagebox.showinfo('Error', str(err))
     print(str(err))
 
-
-try:
-
-    # Start the event loop
-    window.mainloop()
-
-
-except Exception as err:
-    messagebox.showinfo('Error', str(err))
-    print(str(err))
 

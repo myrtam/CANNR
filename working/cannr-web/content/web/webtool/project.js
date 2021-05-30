@@ -3051,7 +3051,8 @@ function buildProject() {
 
 	// Prepare the request doc
 	var request = {'data': {'project': project}};
-	var buildRun = !buildImageCheckBox.checked? 'project': (!startLocalhostCheckBox.checked? 'build': 'run')
+	var buildRun = (!buildImageCheckBox.checked||buildImageCheckBox.disabled)?
+		'project': (!startLocalhostCheckBox.checked? 'build': 'run')
 
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
@@ -3074,24 +3075,32 @@ function buildProject() {
 					popFolderSelect();
 					addStatusMessage('Project ' + projectName + ' built successfully!', null);
 					
-					var imageTags = project['imageTags'];
-					var imageID = project['imageID'];
-					if (imageTags && imageID) {
-						addStatusMessage('Container image ' + projectName + ' built successfully:', null);
-						addStatusMessage('Image ID ' + imageID.substring(7,1000), '20px');
+					if (buildRun=='build'||buildRun=='run') {
+
+						var imageTags = project['imageTags'];
+						var imageID = project['imageID'];
+						if (imageTags && imageID) {
+							addStatusMessage('Container image ' + projectName + ' built successfully:', null);
+							addStatusMessage('Image ID ' + imageID.substring(7,1000), '20px');
+						}
+
+						if (buildRun == 'run') {
+
+							var containerName = project['containerName'];
+							var containerID = project['containerID'];
+							var nginxPort = project['nginxPort'];
+							nginxPort = nginxPort? nginxPort: 80;
+		
+							if (containerName && containerID) {
+								running = true;
+								addStatusMessage('Container ' + containerName + ' started on port ' + nginxPort + ':', null);
+								addStatusMessage('Container ID ' + containerID, '20px');
+							}
+						
+						}
+
 					}
 					
-					var containerName = project['containerName'];
-					var containerID = project['containerID'];
-					var nginxPort = project['nginxPort'];
-					nginxPort = nginxPort? nginxPort: 80;
-
-					if (containerName && containerID) {
-						running = true;
-						addStatusMessage('Container ' + containerName + ' started on port ' + nginxPort + ':', null);
-						addStatusMessage('Container ID ' + containerID, '20px');
-					}
-
 					built = true;
 					statusScrollBottom();
 					setBuildButtons();

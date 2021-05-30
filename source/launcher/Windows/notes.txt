@@ -1,3 +1,7 @@
 
 To build the standalone executable on Windows, change to the Windows directory and use
 pyinstaller -n CannR --onefile --windowed --noconfirm --add-data "..\folder3.png;." --clean ..\launcher.py
+
+Adding --console on Windows 10/Python 3 helps deal with a problem where Python doesn't provide stdin for subprocesses,
+leading to an error about a bad handle.  This issue has been fixed by using os.system to pull the image instead.
+

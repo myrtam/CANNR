@@ -16,3 +16,6 @@ When using the pyinstaller version of the launcher, it seems to start in the dir
 To build the standalone executable on OSX, change to the OSX directory and use
 pyinstaller -n CannR --onefile --windowed --noconfirm --add-data "../folder3.png:." --clean ../launcher.py
 
+To create the .dmg file, copy the CannR.app folder to the dmg directory and then follow the directions at
+https://kb.parallels.com/123895
+
