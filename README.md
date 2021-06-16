@@ -2,27 +2,20 @@ This is the CANNR<sup>TM</sup> analytics container building tool for converting 
 Python code into microservices.  The CANNR tool takes functions in R and Python
 source files and creates scalable containerized microservices that expose things
 like models and calculations so that they may be easily consumed by software
-applications.
+applications.  CannR has both a Web UI and a command line tool.
+
+If you have R code, it must be compatible with R 4.0.
+If you have Python code, it needs to be compatible with Python 3.8.
 
 NOTE:  THIS IS A PRE-RELEASE.  WATCH THIS PROJECT FOR UPCOMING RELEASES!
 
 NEW!  Single executable available for the Mac.  Windows version coming soon!
 
-Requirements
-------------
-
-You need to have Docker and Python 3.7 or higher installed.  Also, you need to
-install the stdlib_list package, using e.g.
-
-pip install stdlib_list 
-
-Future versions will probably run in a container and only require having Docker
-installed.
-
 Single Executable for the Mac
 -----------------------------
-There is now a single executable version of the Web based tool available for the Mac.
-To run it, you need to have at least 8 GB of memory and Docker installed.
+
+There is now a single executable version of the Web UI tool available for the Mac.
+To run it, you need to have at least 8 GB of memory and Docker installed, but you don't need to have Python installed.
 To install the executable, just download the dmg file at
 
 https://github.com/myrtam/CANNR/blob/master/source/launcher/OSX/CannR.dmg
@@ -36,29 +29,22 @@ Then the launcher will start the Web UI.
 Clicking the Launch button will launch the Web based tool in your default browser and close the launcher.
 To shut down the Web UI, restart the launcher and click the Shut Down button.
 
-Installation of the Command Line Tool
+Command Line Tool
 -------------------------------------
+
+CannR has a command line version.  This version builds a Docker project that you can then build and run using
+the Docker CLI.
+
+To run the command line tool, you need to have Docker and Python 3.7 or higher installed.  Also, you need to
+install the stdlib_list package, using e.g.
+
+pip install stdlib_list 
 
 To install the tool, clone the CANNR project or download and copy the
 directories to your computer.
 
-You will first need to build the CANNR base Docker image by changing to the
-source/base_image directory and running in a Windows command shell
-
-docker build -t cannr-base .
-
-For Powershell, use
-
-.\docker build -t cannr-base .
-
-Once you have built the base image, you can run the tool to create containerized
-microservices from your R or Python code.
-
-If you have R code, it must be compatible with R 4.0.  If you have Python code,
-it needs to be compatible with Python 3.8.
-
-Example
--------
+Command Line Example
+--------------------
 
 There is an example project in the directory examples/project1.
 The example consists of two Python scripts and two R scripts.  The Python
@@ -72,7 +58,8 @@ The project1 directory also contains files that specify how the project should
 be built.  project.json is the project file for OSX, whereas winproject.json
 is the project file for Windows.
 
-THIS INITIAL RELEASE DOES NOT ALLOW FOR SPACES IN FILE OR DIRECTORY NAMES!
+THIS INITIAL RELEASE DOES NOT ALLOW FOR SPACES IN FILE OR DIRECTORY NAMES
+WHEN USING THE COMMAND LINE TOOL!
 
 To run the example on OSX, navigate to the source/runtime directory, then run
 the command
@@ -108,11 +95,10 @@ To restart it, use the command
 
 docker start project1
 
-Web UI
-------
+Building the Web UI
+-------------------
 
-To use the Web-based version of the CANNR tool, you must first build it.  To build the tool,
-navigate to the working/cannr-web (or working\cannr-web on Windows) directory and use the command
+If you want to build the Web UI, navigate to the working/cannr-web (or working\cannr-web on Windows) directory and use the command
 
 docker build -t cannr-web .
 
@@ -141,3 +127,5 @@ docker stop cannr-web
 To restart it, use the command
 
 docker start cannr-web
+
+
