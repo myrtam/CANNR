@@ -6,7 +6,7 @@ applications.
 
 NOTE:  THIS IS A PRE-RELEASE.  WATCH THIS PROJECT FOR UPCOMING RELEASES!
 
-NEW!  Web Tool Available!  See Web UI below.
+NEW!  Single executable available for the Mac.  Windows version coming soon!
 
 Requirements
 ------------
@@ -18,6 +18,23 @@ pip install stdlib_list
 
 Future versions will probably run in a container and only require having Docker
 installed.
+
+Single Executable for the Mac
+-----------------------------
+There is now a single executable version of the Web based tool available for the Mac.
+To run it, you need to have at least 8 GB of memory and Docker installed.
+To install the executable, just download the dmg file at
+
+https://github.com/myrtam/CANNR/blob/master/source/launcher/OSX/CannR.dmg
+
+Then open the dmg file and copy the executable into your Applications folder.
+After that, the CannR Launcher should appear in Launchpad.
+Before running the launcher, make sure that Docker desktop is running.
+The first time you run the launcher, it will ask you to provide some information to set things up.
+The default values should work fine for most people.
+Then the launcher will start the Web UI.
+Clicking the Launch button will launch the Web based tool in your default browser and close the launcher.
+To shut down the Web UI, restart the launcher and click the Shut Down button.
 
 Installation of the Command Line Tool
 -------------------------------------
