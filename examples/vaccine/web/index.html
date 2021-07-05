@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--
+CANNR TM analytics container building tool vaccine example.
+Copyright 2021 Pat Tendick ptendick@gmail.com
+All rights reserved
+Maintainer Pat Tendick ptendick@gmail.com
+-->
+<html>
+<head>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<meta charset="UTF-8">
+<title>Vax Example</title>
+</head>
+<body style="background-color:#F5F5F5;">
+
+<div class="modal fade" id="vaxTitleModal" tabindex="-1" role="dialog" aria-labelledby="vaxTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			  <h4 class="modal-title" id="vaxTitle">Vaccination Example</h4>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+				<p>
+				This Web app illustrates the use of the CANNR<sup>TM</sup> Analytics Container Building Tool.
+				This example involves a hypothetical scenario in which a vaccine is being offered to the public
+				to control a viral pandemic.
+				</p>
+				<p>
+				The app schedules people for the vaccine by collecting their information and then calling
+				a REST service exposed by CannR to decide whether someone can be scheduled to receive the
+				vaccine immediately or should be placed on a waiting list.
+				The REST service exposes models of mortality and life expectence provided as simple Python functions.
+				</p>
+				<p>
+				The models in this example are strictly hypothetical.
+				</p>
+		    </div>
+			<div class="modal-footer">
+		        <button type="button" id="titleClose" data-dismiss="modal">Close</button>
+		    </div>
+		</div>
+	</div>
+</div>
+  
+<div style="margin-top: 40px; margin-left: 40px;">
+
+	<h2>Schedule Your Vaccination</h2>
+	<br>
+
+	Please enter the following information:
+	<table style="border-collapse: collapse;">
+		<tbody>
+			<tr>
+				<td style="border: none;">First Name:&nbsp;&nbsp;</td>
+				<td style="border: none;"><input name="firstNameInput" id="firstNameInput" type="text" maxlength="20" style="width: 20em;"/>
+				</td>
+			</tr>
+			<tr>
+				<td style="border: none;">Last Name:&nbsp;&nbsp;</td>
+				<td style="border: none;"><input name="lastNameInput" id="lastNameInput" type="text" maxlength="20" style="width: 20em;"/>
+				</td>
+			</tr>
+			<tr>
+				<td style="border: none;">Email Address:&nbsp;&nbsp;</td>
+				<td style="border: none;"><input name="emailInput" id="emailInput" type="text" maxlength="30" style="width: 30em;"/>
+				</td>
+			</tr>
+			<tr>
+				<td style="border: none;">Date of Birth:&nbsp;&nbsp;</td>
+				<td style="border: none;"><input type="date" id="dobInput" name="dobInput">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<br>
+	Please check any medical conditions you may have:
+	<table style="border-collapse: collapse;">
+		<tbody id="riskBody">
+			<tr id='hypertension'>
+				<td style="border: none;"><br>High Blood Pressure:&nbsp&nbsp</td>
+				<td style="border: none;"><br>
+				<input name="hypertension" id="hypertensionYes" type="radio"/>
+				<label for="hypertensionYes">Yes</label>&nbsp;&nbsp;&nbsp;
+				<input name="hypertension" id="hypertensionNo" type="radio"/>
+				<label for="hypertensionNo">No</label>&nbsp;&nbsp;&nbsp;
+				<input name="hypertension" id="hypertensionNone" type="radio"/>
+				<label for="hypertensionNone">Prefer not to say</label>
+				</td>
+			</tr>
+			<tr id='cardio'>
+				<td style="border: none;">Cardiovascular Disease&nbsp&nbsp<br>E.g., Arteriosclerosis:&nbsp&nbsp</td>
+				<td style="border: none;"><br>
+				<input name="cardio" id="cardioYes" type="radio"/>
+				<label for="cardioYes">Yes</label>&nbsp;&nbsp;&nbsp;
+				<input name="cardio" id="cardioNo" type="radio"/>
+				<label for="cardioNo">No</label>&nbsp;&nbsp;&nbsp;
+				<input name="cardio" id="cardioNone" type="radio"/>
+				<label for="cardioNone">Prefer not to say</label>
+				</td>
+			</tr>
+			<tr id='pulmonary'>
+				<td style="border: none;">Pulmonary Disease&nbsp&nbsp<br>E.g., COPD or Asthma:&nbsp&nbsp</td>
+				<td style="border: none;"><br>
+				<input name="pulmonary" id="pulmonaryYes" type="radio"/>
+				<label for="pulmonaryYes">Yes</label>&nbsp;&nbsp;&nbsp;
+				<input name="pulmonary" id="pulmonaryNo" type="radio"/>
+				<label for="pulmonaryNo">No</label>&nbsp;&nbsp;&nbsp;
+				<input name="pulmonary" id="pulmonaryNone" type="radio"/>
+				<label for="pulmonaryNone">Prefer not to say</label>
+				</td>
+			</tr>
+			<tr id='diabetes'>
+				<td style="border: none;"><br>Diabetes:&nbsp&nbsp</td>
+				<td style="border: none;"><br>
+				<input name="diabetes" id="diabetesYes" type="radio"/>
+				<label for="diabetesYes">Yes</label>&nbsp;&nbsp;&nbsp;
+				<input name="diabetes" id="diabetesNo" type="radio"/>
+				<label for="diabetesNo">No</label>&nbsp;&nbsp;&nbsp;
+				<input name="diabetes" id="diabetesNone" type="radio"/>
+				<label for="diabetesNone">Prefer not to say</label>
+				</td>
+			</tr>
+			<tr id='obesity'>
+				<td style="border: none;"><br>Obesity:&nbsp&nbsp</td>
+				<td style="border: none;"><br>
+				<input name="obesity" id="obesityYes" type="radio"/>
+				<label for="obesityYes">Yes</label>&nbsp;&nbsp;&nbsp;
+				<input name="obesity" id="obesityNo" type="radio"/>
+				<label for="obesityNo">No</label>&nbsp;&nbsp;&nbsp;
+				<input name="obesity" id="obesityNone" type="radio"/>
+				<label for="obesityNone">Prefer not to say</label>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<br>
+	<button type="button" id="submitButton" onclick='onSubmit()'>Submit</button>&nbsp;
+	<button type="button" id="resetButton" onclick='onReset()'>Reset</button>
+
+</div>
+
+</body>
+<script>
+
+const baseURL = '/services/decisions/vaccine/';
+
+var firstNameInput = document.getElementById('firstNameInput');
+var lastNameInput = document.getElementById('lastNameInput');
+var emailInput = document.getElementById('emailInput');
+var dobInput = document.getElementById('dobInput');
+var hypertensionYes = document.getElementById('hypertensionYes');
+var hypertensionNo = document.getElementById('hypertensionNo');
+var hypertensionNone = document.getElementById('hypertensionNone');
+var cardioYes = document.getElementById('cardioYes');
+var cardioNo = document.getElementById('cardioNo');
+var cardioNone = document.getElementById('cardioNone');
+var pulmonaryYes = document.getElementById('pulmonaryYes');
+var pulmonaryNo = document.getElementById('pulmonaryNo');
+var pulmonaryNone = document.getElementById('pulmonaryNone');
+var diabetesYes = document.getElementById('diabetesYes');
+var diabetesNo = document.getElementById('diabetesNo');
+var diabetesNone = document.getElementById('diabetesNone');
+var obesityYes = document.getElementById('obesityYes');
+var obesityNo = document.getElementById('obesityNo');
+var obesityNone = document.getElementById('obesityNone');
+
+
+// Submits the users data.
+function onSubmit() {
+	
+	var age = 0.0;
+	if (dobInput.value) {
+		var dob = new Date(dobInput.value)
+		nowMoment = moment(new Date())
+		age = nowMoment.diff(dob, 'years')
+	}
+	else {
+		alert('You need to enter your date of birth.');
+		return;
+	}
+
+	// Prepare the request doc
+	var request = {
+		'data': {
+	        'age': age,
+	        'hypertension': hypertensionYes.checked,
+	        'cardio': cardioYes.checked,
+	        'pulmonary': pulmonaryYes.checked,
+	        'diabetes': diabetesYes.checked,
+	        'obesity': obesityYes.checked,
+	        'years': false
+			}
+		};
+
+	// Prepare the XHR request.
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", baseURL + "vaxdecision");
+	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+
+	// Define the callback function.
+	xhr.onload = function () {
+
+		// Get the response, check HTTP status.
+		if (xhr.status == "200") {
+
+			// Retrieve the response.
+			var response = JSON.parse(xhr.responseText);
+			var data = response['data'];
+			if (data)
+				alert('Congratulations!  You qualify for the vaccine.')
+			else
+				alert('You will be added to the waiting list for the vaccine.')
+		} 
+		else
+			alert('Error processing request');
+
+	}
+
+	// Send the request.
+	var contentJSON = JSON.stringify(request);
+	xhr.send(contentJSON);
+		
+}
+
+// Reset the inputs.
+function onReset() {
+	
+	firstNameInput.value = '';
+	lastNameInput.value = '';
+	emailInput.value = '';
+	dobInput.value = '';
+	hypertensionYes.checked = false;
+	hypertensionNo.checked = false;
+	hypertensionNone.checked = false;
+	cardioYes.checked = false;
+	cardioNo.checked = false;
+	cardioNone.checked = false;
+	pulmonaryYes.checked = false;
+	pulmonaryNo.checked = false;
+	pulmonaryNone.checked = false;
+	diabetesYes.checked = false;
+	diabetesNo.checked = false;
+	diabetesNone.checked = false;
+	obesityYes.checked = false;
+	obesityNo.checked = false;
+	obesityNone.checked = false;
+	
+}
+
+onReset()
+
+$('#vaxTitleModal').modal({});
+
+</script>
+
+</body>
+</html>

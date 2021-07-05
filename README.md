@@ -1,5 +1,5 @@
 This is the CANNR<sup>TM</sup> analytics container building tool for converting R and
-Python code into microservices.  The CANNR tool takes functions in R and Python
+Python code into microservices.  The CannR tool takes functions in R and Python
 source files and creates scalable containerized microservices that expose things
 like models and calculations so that they may be easily consumed by software
 applications.  CannR has both a Web UI and a command line tool.
@@ -40,7 +40,7 @@ install the stdlib_list package, using e.g.
 
 pip install stdlib_list 
 
-To install the tool, clone the CANNR project or download and copy the
+To install the tool, clone the CannR project or download and copy the
 directories to your computer.
 
 Command Line Example
