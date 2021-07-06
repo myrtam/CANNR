@@ -1,3 +1,6 @@
+Introduction
+------------
+
 This is the CANNR<sup>TM</sup> analytics container building tool for converting R and
 Python code into microservices.  The CannR tool takes functions in R and Python
 source files and creates scalable containerized microservices that expose things
@@ -29,8 +32,14 @@ Then the launcher will start the Web UI.
 Clicking the Launch button will launch the Web based tool in your default browser and close the launcher.
 To shut down the Web UI, restart the launcher and click the Shut Down button.
 
+Vaccine Example
+---------------
+
+https://github.com/myrtam/CANNR/tree/master/examples/vaccine
+
+
 Command Line Tool
--------------------------------------
+-----------------
 
 CannR has a command line version.  This version builds a Docker project that you can then build and run using
 the Docker CLI.
