@@ -25,12 +25,12 @@ Once you have the example directory copied to your local machine, you can launch
 if you have not already done so.
 You can do this using the CannR Launcher:
 
-![Launcher](https://github.com/myrtam/CANNR/tree/master/examples/launcher1.png)
+![Launcher](https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png)
 
-![Title Screen](https://github.com/myrtam/CANNR/tree/master/examples/webtitle1.png)
+![Title Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png)
 
 Once you have gotten to the CannR Projects page, create a new project:
-![New Project](https://github.com/myrtam/CANNR/tree/master/examples/newproject1.png)
+![New Project](https://github.com/myrtam/CANNR/blob/master/examples/images/newproject1.png)
 
 Enter the name of the project (vaccine), and optionally a title and description:
-![New Project](https://github.com/myrtam/CANNR/tree/master/examples/projectproperties1.png)
+![New Project](https://github.com/myrtam/CANNR/blob/master/examples/images/projectproperties1.png)
