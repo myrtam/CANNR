@@ -51,8 +51,37 @@ to provide decisions about whether someone gets the vaccine.
 
 ![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png)
 
-Click the "Choose File" button to specify the location of the source folder, then navigate to the decisions
+Click Choose File to specify the location of the source folder, then navigate to the decisions
 folder and select it, then click Upload:
 
 ![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/upload1.png)
+
+Click Next to create the folder, then we will create a module:
+
+![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/folder2.png)
+
+Our folder contains one module, vaccine.py, which also may be found at
+https://github.com/myrtam/CANNR/blob/master/examples/vaccine/decisions/vaccine.py
+
+Enter vaccine as the module name, and optionally a title and description:
+
+![Module Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/module1.png)
+
+Next, we will create a service within the module.
+The first service we will create will return a sample input to be used with the real
+service we want to call.
+The sample input contains data for a hypothetical user.
+Creating a sample input function like this can be very useful when testing a POST service that requires
+us to send JSON input.
+Name the service sampleinput and enter an optional title and description.
+Then select the function sampleInput from the drop down list.
+Also, we need to specify that this service is used with HTTP GET requests:
+
+![Service Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/service1.png)
+
+Now we're ready to build and run a basic container and service.
+Make sure that both "Build image" and "Start container on localhost" are checked, then
+click Build:
+
+![Build Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/build1.png)
 
