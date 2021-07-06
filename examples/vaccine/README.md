@@ -25,7 +25,7 @@ Once you have the example directory copied to your local machine, you can launch
 if you have not already done so.
 You can do this using the CannR Launcher:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="80%" height="80%"/>
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="20%" height="20%"/>
 
 ![Title Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png)
 
