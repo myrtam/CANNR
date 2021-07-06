@@ -83,5 +83,25 @@ Now we're ready to build and run a basic container and service.
 Make sure that both "Build image" and "Start container on localhost" are checked, then
 click Build:
 
-![Build Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/build1.png)
+![Copy URL](https://github.com/myrtam/CANNR/blob/master/examples/images/build1.png)
+
+Then copy the URL for the sampleinput service from the Build screen:
+
+![Build Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/build2.png)
+
+Paste the URL into the address bar of your browser, but replace <domain or ip> with localhost:
+
+![Sample Input](https://github.com/myrtam/CANNR/blob/master/examples/images/sampleinput.png)
+
+You have now verified that the samplinput service works, and have also obtained a sample input
+for the second service you will be creating, vaxdecision.
+Next, we need to create and test the vaxdecision service and add the Web page for the app.
+First, we will stop the container that is currently running:
+
+![Stop Container](https://github.com/myrtam/CANNR/blob/master/examples/images/build3.png)
+
+Then return to the main project screen:
+
+![Close Build Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/build4.png)
+
 
