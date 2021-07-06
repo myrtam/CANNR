@@ -25,7 +25,7 @@ Once you have the example directory copied to your local machine, you can launch
 if you have not already done so.
 You can do this using the CannR Launcher:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="20%" height="20%"/>
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="50%" height="50%"/>
 
 ![Title Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png)
 
@@ -36,4 +36,23 @@ Once you have gotten to the CannR Projects page, create a new project:
 Enter the name of the project (vaccine), and optionally a title and description:
 
 ![New Project](https://github.com/myrtam/CANNR/blob/master/examples/images/projectproperties1.png)
+
+![Project Created](https://github.com/myrtam/CANNR/blob/master/examples/images/projectcreated.png)
+
+Next, you can create a folder.
+Folders contain code or content to be included in your container.
+First, we will create a folder containing the Python module that contains the models and decision logic
+used in the Vaccine app.
+A code folder can contain one or more modules, plus other files and subdirectories containing
+data and supporting modules.
+You must specify a language for a code folder, either R or Python.
+We will call the folder "decisions", because the app will be calling services in the folder
+to provide decisions about whether someone gets the vaccine.
+
+![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png)
+
+Click the "Choose File" button to specify the location of the source folder, then navigate to the decisions
+folder and select it, then click Upload:
+
+![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/upload1.png)
 
