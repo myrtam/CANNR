@@ -112,7 +112,8 @@ Go back to the vaccine module:
 
 Create a new service called vaxdecision:
 
-![Vaccine Module](https://github.com/myrtam/CANNR/blob/master/examples/images/module2.png)
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module2.png" alt="Vaccine Module" width="100%" height="100%"/>
+
 
 ![vaxdecision Service](https://github.com/myrtam/CANNR/blob/master/examples/images/vaxdecision1.png)
 
