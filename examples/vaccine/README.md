@@ -135,7 +135,7 @@ Now we can build the container, including the Web page:
 
 <img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build5.png" alt="Build Screen" width="80%" height="80%"/>
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build6.png" alt="Build Screen" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build6.png" alt="Build Screen" width="80%" height="80%"/></kbd>
 
 Now that the full container is running, let's test the vaxdecision service, which is the main microservice exposed by the container.
 To do this, we will use Postman API Client (https://www.postman.com/product/api-client/),
