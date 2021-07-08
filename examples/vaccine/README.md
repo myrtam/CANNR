@@ -108,13 +108,38 @@ Then return to the main project screen and go back to the decisions folder:
 
 Go back to the vaccine module:
 
-![Decisions Folder](https://github.com/myrtam/CANNR/blob/master/examples/images/folder2.png)
+![Decisions Folder](https://github.com/myrtam/CANNR/blob/master/examples/images/folder3.png)
 
 Create a new service called vaxdecision:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module2.png" alt="Vaccine Module" width="100%" height="100%"/>
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module2.png" alt="Vaccine Module" width="80%" height="80%"/>
 
 
 ![vaxdecision Service](https://github.com/myrtam/CANNR/blob/master/examples/images/vaxdecision1.png)
+
+Finally, let's create a folder containing the Web page for the app:
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project2.png" alt="New Folder" width="80%" height="80%"/>
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder4.png" alt="Web Folder" width="80%" height="80%"/>
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder5.png" alt="Directory" width="80%" height="80%"/>
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/upload2.png" alt="Upload" width="80%" height="80%"/>
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder6.png" alt="Save Folder" width="80%" height="80%"/>
+
+Now we can build the container, including the Web page:
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project3.png" alt="Build Project" width="80%" height="80%"/>
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build5.png" alt="Build Screen" width="80%" height="80%"/>
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build6.png" alt="Build Screen" width="80%" height="80%"/>
+
+Now that the full container is running, let's test the vaxdecision service, which is the main microservice exposed by the container.
+To do this, we will use Postman API Client (https://www.postman.com/product/api-client/),
+which can be used to send REST service requests and check the responses.
+
 
 
