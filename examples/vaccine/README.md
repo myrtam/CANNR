@@ -137,9 +137,35 @@ Now we can build the container, including the Web page:
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build6.png" alt="Build Screen" width="80%" height="80%"/></kbd>
 
-Now that the full container is running, let's test the vaxdecision service, which is the main microservice exposed by the container.
-To do this, we will use Postman API Client (https://www.postman.com/product/api-client/),
+Now that the full container is running, we can test the vaxdecision service, which is the main microservice exposed by the container.
+To do this, we can use [Postman API Client](https://www.postman.com/product/api-client/),
 which can be used to send REST service requests and check the responses.
+If you use Postman, create a new POST request, add the URL for the vaxdecision service from the Build screen
+but with <host or ip> replaced with localhost, and paste the sample input from the sampleinput service
+into the request body:
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/postman1.png" alt="Postman" width="80%" height="80%"/></kbd>
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/postman2.png" alt="Postman" width="80%" height="80%"/></kbd>
+
+We can now see that the sample input produces a <b>true</b> response from the vaxdecision service.
+Next, we can try running the app using the URL for the web folder.
+Note that because the page for the app is named index.html, we don't need to include the page name
+in the URL.
+For any other page, we would need to add the page to the end of the URL.
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/vaxapp1.png" alt="Vaccine App" width="80%" height="80%"/></kbd>
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/vaxapp2.png" alt="Vaccine App Input" width="80%" height="80%"/></kbd>
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/vaxapp3.png" alt="Vaccine App Response" width="80%" height="80%"/></kbd>
+
+Finally, we can stop the app container from the Build screen as before, exit the build screen, exit the project,
+and shut down the CannR Web Tool:
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/shutdown1.png" alt="Shutting Down" width="80%" height="80%"/></kbd>
+
+
 
 
 
