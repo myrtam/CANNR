@@ -9,63 +9,66 @@ The app schedules people for the vaccine by collecting their information and the
 a REST service exposed by the CannR tool to decide whether someone can be scheduled to receive the
 vaccine immediately or should be placed on a waiting list.
 The REST service exposes models of mortality and life expectancy provided as simple Python functions.
-
 The models in this example are strictly hypothetical.
 
-To use the tutorial, you first need to have the CannR Web tool installed.
-Please see https://github.com/myrtam/CANNR for instructions.
+To use the tutorial, you first need to have the [CannR Web Tool](https://github.com/myrtam/CANNR/) installed.
+To run the tutorial, you need to download the 
+[example directory](https://github.com/myrtam/CANNR/tree/master/examples/vaccine).
+To download the example directory, you can clone the project, download the zipped project, or just enter
+the URL
 
-To run the tutorial, you need to download the example directory, which may be found at
 https://github.com/myrtam/CANNR/tree/master/examples/vaccine
 
-To download the example directory, you can clone the project, download the zipped project, or just enter
-the URL into DownGit (https://downgit.github.io).
+into DownGit](https://downgit.github.io).
 
 Once you have the example directory copied to your local machine, you can launch the CannR Web tool
 if you have not already done so.
 You can do this using the CannR Launcher:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="50%" height="50%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="50%" height="50%"/></kbd>
 
-![Title Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png" alt="Title Screen"/></kbd>
 
 Once you have gotten to the CannR Projects page, create a new project:
 
-![New Project](https://github.com/myrtam/CANNR/blob/master/examples/images/newproject1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/newproject1.png" alt="New Project"/></kbd>
 
-Enter the name of the project (vaccine), and optionally a title and description:
+Enter the name of the project (vaccine), and optionally a title and description.
 
-![New Project](https://github.com/myrtam/CANNR/blob/master/examples/images/projectproperties1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectproperties1.png" alt="Project Properties"/></kbd>
 
-![Project Created](https://github.com/myrtam/CANNR/blob/master/examples/images/projectcreated.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectcreated.png" alt="Project Created"/></kbd>
 
 Next, you can create a folder.
 Folders contain code or content to be included in your container.
 First, we will create a folder containing the Python module that contains the models and decision logic
 used in the Vaccine app.
+We will call the folder "decisions", because the app will be calling services in the folder
+to provide decisions about whether someone gets the vaccine.
+When creating folders and other items in this tutorial, be sure to use the exact names
+specified, or else the example will not work correctly.
+
+Also, we will upload the source folder containing the Python code by clicking the Choose File button:
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png" alt="Folder Properties"/></kbd>
+
+which takes us to this:
+
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/upload1.png" alt="Folder Upload"/></kbd>
+
+We also need to specify what type of folder this is, either "code" or "content".
 A code folder can contain one or more modules, plus other files and subdirectories containing
 data and supporting modules.
 You must specify a language for a code folder, either R or Python.
-We will call the folder "decisions", because the app will be calling services in the folder
-to provide decisions about whether someone gets the vaccine.
-
-![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png)
-
-Click Choose File to specify the location of the source folder, then navigate to the decisions
-folder and select it, then click Upload:
-
-![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/upload1.png)
-
 Click Next to create the folder, then we will create a module:
 
-![Folder Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/folder2.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder2.png" alt="Creating the Folder"/></kbd>
 
-Our folder contains one module, vaccine.py, which also may be found at
-https://github.com/myrtam/CANNR/blob/master/examples/vaccine/decisions/vaccine.py
+Our folder contains one module,
+[vaccine.py](https://github.com/myrtam/CANNR/blob/master/examples/vaccine/decisions/vaccine.py).
+Enter vaccine as the module name, and optionally a title and description.
 
-Enter vaccine as the module name, and optionally a title and description:
-
-![Module Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/module1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module1.png" alt="Module Properties"/></kbd>
 
 Next, we will create a service within the module.
 The first service we will create will return a sample input to be used with the real
@@ -138,7 +141,7 @@ Now we can build the container, including the Web page:
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build6.png" alt="Build Screen" width="80%" height="80%"/></kbd>
 
 Now that the full container is running, we can test the vaxdecision service, which is the main microservice exposed by the container.
-To do this, we can use [Postman API Client](https://www.postman.com/product/api-client/),
+To do this, we can use the [Postman API Client](https://www.postman.com/product/api-client/),
 which can be used to send REST service requests and check the responses.
 If you use Postman, create a new POST request, add the URL for the vaxdecision service from the Build screen
 but with <host or ip> replaced with localhost, and paste the sample input from the sampleinput service
