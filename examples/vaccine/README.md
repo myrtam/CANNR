@@ -19,27 +19,27 @@ the URL
 
 https://github.com/myrtam/CANNR/tree/master/examples/vaccine
 
-into DownGit](https://downgit.github.io).
+into [DownGit](https://downgit.github.io).
 
 Once you have the example directory copied to your local machine, you can launch the CannR Web tool
 if you have not already done so.
-You can do this using the CannR Launcher:
+You can do this using the CannR Tool Launcher:
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="50%" height="50%"/></kbd>
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png" alt="Title Screen"/></kbd>
 
-Once you have gotten to the CannR Projects page, create a new project:
+Once you reach the CannR Projects page, create a new project:
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/newproject1.png" alt="New Project"/></kbd>
 
 Enter the name of the project (vaccine), and optionally a title and description.
 
-<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectproperties1.png" alt="Project Properties"/></kbd>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectproperties1.png" alt="Project Properties" width="60%" height="60%"/></kbd>
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectcreated.png" alt="Project Created"/></kbd>
 
-Next, you can create a folder.
+Next, you need to create a folder.
 Folders contain code or content to be included in your container.
 First, we will create a folder containing the Python module that contains the models and decision logic
 used in the Vaccine app.
@@ -50,7 +50,7 @@ specified, or else the example will not work correctly.
 
 Also, we will upload the source folder containing the Python code by clicking the Choose File button:
 
-<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png" alt="Folder Properties"/></kbd>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png" alt="Folder Properties" width="60%" height="60%"/></kbd>
 
 which takes us to this:
 
@@ -62,13 +62,13 @@ data and supporting modules.
 You must specify a language for a code folder, either R or Python.
 Click Next to create the folder, then we will create a module:
 
-<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder2.png" alt="Creating the Folder"/></kbd>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder2.png" alt="Creating the Folder" width="60%" height="60%"/></kbd>
 
 Our folder contains one module,
 [vaccine.py](https://github.com/myrtam/CANNR/blob/master/examples/vaccine/decisions/vaccine.py).
 Enter vaccine as the module name, and optionally a title and description.
 
-<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module1.png" alt="Module Properties"/></kbd>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module1.png" alt="Module Properties" width="60%" height="60%"/></kbd>
 
 Next, we will create a service within the module.
 The first service we will create will return a sample input to be used with the real
@@ -80,63 +80,68 @@ Name the service sampleinput and enter an optional title and description.
 Then select the function sampleInput from the drop down list.
 Also, we need to specify that this service is used with HTTP GET requests:
 
-![Service Properties](https://github.com/myrtam/CANNR/blob/master/examples/images/service1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/service1.png" alt="Service Properties" width="60%" height="60%"/></kbd>
 
-Now we're ready to build and run a basic container and service.
+Now we're ready to build and run a basic container and service:
 Make sure that both "Build image" and "Start container on localhost" are checked, then
 click Build:
 
-![Copy URL](https://github.com/myrtam/CANNR/blob/master/examples/images/build1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build1.png" alt="Build Screen" width="60%" height="60%"/></kbd>
 
 Then copy the URL for the sampleinput service from the Build screen:
 
-![Build Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/build2.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build2.png" alt="Copy URL" width="60%" height="60%"/></kbd>
 
-Paste the URL into the address bar of your browser, but replace <domain or ip> with localhost:
+Open a new browser window or tab and paste the URL into the address bar, but replace "<domain or ip>" with "localhost":
 
-![Sample Input](https://github.com/myrtam/CANNR/blob/master/examples/images/sampleinput1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/sampleinput1.png" alt="Sample Input"/></kbd>
 
 You have now verified that the sampleinput service works, and have also obtained a sample input
 for the second service you will be creating, vaxdecision.
 Next, we need to create and test the vaxdecision service and add the Web page for the app.
-First, we will stop the container that is currently running:
+First, stop the container that is currently running by clicking the Stop button,
+then click Finish to return to the main Project page:
 
-![Stop Container](https://github.com/myrtam/CANNR/blob/master/examples/images/build3.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build3.png" alt="Stop Container & Finish" width="60%" height="60%"/></kbd>
 
-Then return to the main project screen and go back to the decisions folder:
+Go back to the decisions folder:
 
-![Close Build Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/build4.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project1.png" alt="Project Screen"/></kbd>
 
-![Project Screen](https://github.com/myrtam/CANNR/blob/master/examples/images/project1.png)
+Then go back to the vaccine module:
 
-Go back to the vaccine module:
-
-![Decisions Folder](https://github.com/myrtam/CANNR/blob/master/examples/images/folder3.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder3.png" alt="Decisions Folder" width="60%" height="60%"/></kbd>
 
 Create a new service called vaxdecision:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module2.png" alt="Vaccine Module" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module2.png" alt="Vaccine Module" width="60%" height="60%"/></kbd>
 
+Specify vaxDecision as the function, POST as the HTTP method, and that the request body will be included: 
 
-![vaxdecision Service](https://github.com/myrtam/CANNR/blob/master/examples/images/vaxdecision1.png)
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/vaxdecision1.png" alt="vaxdecision Service" width="50%" height="50%"/></kbd>
+
+Note that the Service Properties screen tells us that the function argument(s) should be the HTTP request body.
+This is just the data we will be sending in POST requests to the service.
+By default, the CannR Tool will convert the JSON input into a Python list or dictionary depending on its content,
+and convert the output back into JSON according to the default JSON conversion performed by Python.
 
 Finally, let's create a folder containing the Web page for the app:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project2.png" alt="New Folder" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project2.png" alt="New Folder"/></kbd>
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder4.png" alt="Web Folder" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder4.png" alt="Web Folder" width="60%" height="60%"/></kbd>
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder5.png" alt="Directory" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder5.png" alt="Directory" width="80%" height="80%"/></kbd>
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/upload2.png" alt="Upload" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/upload2.png" alt="Upload" width="80%" height="80%"/></kbd>
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder6.png" alt="Save Folder" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder6.png" alt="Save Folder" width="80%" height="80%"/></kbd>
 
 Now we can build the container, including the Web page:
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project3.png" alt="Build Project" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/project3.png" alt="Build Project" width="80%" height="80%"/></kbd>
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build5.png" alt="Build Screen" width="80%" height="80%"/>
+<kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build5.png" alt="Build Screen" width="80%" height="80%"/></kbd>
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/build6.png" alt="Build Screen" width="80%" height="80%"/></kbd>
 
