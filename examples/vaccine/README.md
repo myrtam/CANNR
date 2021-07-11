@@ -25,6 +25,8 @@ You can do this using the CannR Tool Launcher:
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/launcher1.png" alt="Launcher" width="50%" height="50%"/></kbd>
 
+which will start the tool in your default browser:
+
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png" alt="Title Screen"/></kbd>
 
 Once you reach the CannR Projects page, create a new project:
@@ -37,9 +39,9 @@ Enter the name of the project (vaccine), and optionally a title and description.
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectcreated.png" alt="Project Created"/></kbd>
 
-Next, you need to create a folder.
+Next, we will create a <i>folder<i/i>.
 Folders contain code or content to be included in your container.
-First, we will create a folder containing the Python module that contains the models and decision logic
+First, we will create a folder containing the Python file that contains the models and decision logic
 used in the Vaccine app.
 We will call the folder "decisions", because the app will be calling services in the folder
 to provide decisions about whether someone gets the vaccine.
@@ -50,14 +52,15 @@ Also, we will upload the source folder containing the Python code by clicking th
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/folder1.png" alt="Folder Properties" width="60%" height="60%"/></kbd>
 
-Navigate to the vaccine folder and select the decisions subfolder:
+Navigate to the vaccine folder on your local computer and select the decisions subfolder:
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/upload1.png" alt="Folder Upload"/></kbd>
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/upload1a.png" alt="Folder Upload"/></kbd>
 
 We also need to specify what type of folder this is, either code or content.
-A code folder can contain one or more modules, plus other files and subdirectories containing
+A code folder can contain one or more files containing the code you want to expose
+as services or <i>modules</i>, plus other files and subdirectories containing
 data and supporting modules.
 You must specify a language for a code folder, either R or Python.
 Click Next to create the folder, then we will create a module:
@@ -70,9 +73,10 @@ Enter vaccine as the module name, and optionally a title and description.
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/module1.png" alt="Module Properties" width="60%" height="60%"/></kbd>
 
-Next, we will create a service within the module.
+Next, we will create a <i>service</i> within the module.
+Services describe the microservices we want to provide in the container.
 The first service we will create will return a sample input to be used with the real
-service we want to call.
+service we want to call, which will be specified later.
 The sample input contains data for a hypothetical user.
 Creating a sample input function like this can be very useful when testing a POST service that requires
 us to send JSON input.

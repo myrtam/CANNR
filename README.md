@@ -7,6 +7,14 @@ source files and creates scalable containerized microservices that expose things
 like models and calculations so that they may be easily consumed by software
 applications.  CannR has both a Web UI and a command line tool.
 
+The CannR tool takes your code and content and creates a <i>project</i>,
+which specifies what code you have and how you want it to be exposed as services.
+CannR then takes the project and generates a container using Docker,
+[Docker](https://www.docker.com),
+or at least generates a Docker project that can be used to create a container.
+
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png" alt="CannR Process"/>
+
 If you have R code, it must be compatible with R 4.0.
 If you have Python code, it needs to be compatible with Python 3.8.
 
@@ -19,9 +27,8 @@ Single Executable for the Mac
 
 There is now a single executable version of the Web UI tool available for the Mac.
 To run it, you need to have at least 8 GB of memory and Docker installed, but you don't need to have Python installed.
-To install the executable, just download the dmg file at
-
-https://github.com/myrtam/CANNR/blob/master/source/launcher/OSX/CannR.dmg
+To install the executable, just download the dmg file
+[dmg file](https://github.com/myrtam/CANNR/blob/master/source/launcher/OSX/CannR.dmg).
 
 Then open the dmg file and copy the executable into your Applications folder.
 After that, the CannR Launcher should appear in Launchpad.
@@ -35,8 +42,9 @@ To shut down the Web UI, restart the launcher and click the Shut Down button.
 Vaccine Example
 ---------------
 
-https://github.com/myrtam/CANNR/tree/master/examples/vaccine
-
+To help you learn how to use the CannR tool, there is a
+[tutorial](https://github.com/myrtam/CANNR/tree/master/examples/vaccine)
+based on a sample app that signs people up for a hypothetical vaccine.
 
 Command Line Tool
 -----------------
