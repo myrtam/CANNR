@@ -13,7 +13,7 @@ CannR then takes the project and generates a container using Docker,
 [Docker](https://www.docker.com),
 or at least generates a Docker project that can be used to create a container.
 
-<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/webtitle1.png" alt="CannR Process"/>
+<img src="https://github.com/myrtam/CANNR/blob/master/examples/images/CannRprocess.png" alt="CannR Process"/>
 
 If you have R code, it must be compatible with R 4.0.
 If you have Python code, it needs to be compatible with Python 3.8.
