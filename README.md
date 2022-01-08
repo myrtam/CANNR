@@ -27,7 +27,7 @@ Single Executable for the Mac
 
 There is now a single executable version of the Web UI tool available for the Mac.
 To run it, you need to have at least 8 GB of memory and Docker installed, but you don't need to have Python installed.
-To install the executable, just download the dmg file
+To install the executable, just download the
 [dmg file](https://github.com/myrtam/CANNR/blob/master/source/launcher/OSX/CannR.dmg).
 
 Then open the dmg file and copy the executable into your Applications folder.

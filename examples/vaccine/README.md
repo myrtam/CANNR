@@ -39,7 +39,7 @@ Enter the name of the project (vaccine), and optionally a title and description.
 
 <kbd><img src="https://github.com/myrtam/CANNR/blob/master/examples/images/projectcreated.png" alt="Project Created"/></kbd>
 
-Next, we will create a <i>folder<i/i>.
+Next, we will create a <i>folder</i>.
 Folders contain code or content to be included in your container.
 First, we will create a folder containing the Python file that contains the models and decision logic
 used in the Vaccine app.
