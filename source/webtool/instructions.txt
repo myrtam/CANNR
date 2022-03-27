@@ -1,0 +1,4 @@
+
+# To build the Web tool project, from the runtime directory, use
+./runcnr.sh ../webtool/project.json
+

@@ -1,9 +1,18 @@
 
 # Build the tool
-docker build -t cannr/cannr-web:latest -t cannr/cannr-web:0.1.0 cannr-web/
+docker build -t cannr/cannr-web:latest -t cannr/cannr-web:0.1.2 cannr-web/
 
 docker push cannr/cannr-web:latest
-docker push cannr/cannr-web:0.1.0
+docker push cannr/cannr-web:0.1.2
+
+# Run the Web tool from the command line
+docker run -d -p 8080:80 --name cannr-web \
+--mount type=bind,source=/Users/ptendick/Documents/CannR/config,target=/config \
+--mount type=bind,source=/Users/ptendick/Documents/CannR/projects,target=/projects \
+--mount type=bind,source=/Users/ptendick/Documents/CannR/working,target=/working \
+-v /var/run/docker.sock:/var/run/docker.sock cannr/cannr-web:latest
+
+
 
 # Run the tool the first time
 docker run -d -p 80:80 --name cannr-web --mount type=bind,source=/Users/ptendick/Documents/GitHub/CANNR/external,target=/external cannr-web

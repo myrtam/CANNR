@@ -9,7 +9,7 @@ applications.  CannR has both a Web UI and a command line tool.
 
 The CannR tool takes your code and content and creates a <i>project</i>,
 which specifies what code you have and how you want it to be exposed as services.
-CannR then takes the project and generates a container using Docker,
+CannR then takes the project and generates a container using 
 [Docker](https://www.docker.com),
 or at least generates a Docker project that can be used to create a container.
 

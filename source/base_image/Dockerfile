@@ -4,31 +4,37 @@
 # Maintainer Pat Tendick ptendick@gmail.com
 
 # Use Rocker image
-FROM r-base:4.0.4
+#FROM r-base:4.1.3
+FROM rocker/tidyverse:4.1.3
 
 # Install required libraries
-RUN apt-get update --fix-missing
+RUN apt-get -y update --fix-missing
+RUN apt-get -y install libssl-dev
+RUN apt-get -y install libxml2-dev
 RUN apt-get -y install libcurl4-openssl-dev
 RUN apt-get -y install libsodium-dev
 RUN apt-get -y install libsodium23
+RUN apt-get -y install libgmp3-dev
+RUN apt-get -y install libglpk-dev
+
+# Install VIM
+RUN apt-get -y install vim
 
 # Install Python 3.9
-RUN apt update --fix-missing
+RUN apt -y update --fix-missing
 RUN apt install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt install -y python3.9
+RUN apt -y install python3.9
+RUN apt-get -y install python3-pip
 
 # Create symlink and modify path
 RUN ln -s /usr/bin/python3.9 python
 ENV PATH=$PATH:/
 
-# Install pip3
-RUN apt-get -y install python3-pip
-
 # Copy the requirements file, install Python packages, and set PYTHONPATH
 COPY requirements.txt .
-RUN pip3 install -r requirements.txt
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.9/dist-packages/
+RUN python3.9 -m pip install -r requirements.txt
 
 # Install NGINX community edition and create log directories
 RUN apt install -y nginx
@@ -38,8 +44,6 @@ RUN mkdir -p /usr/share/nginx/logs/
 # Install R packages
 RUN install2.r plumber
 RUN install2.r urltools
-RUN install2.r stringr
-#RUN install2.r objectstore
 
 # Create the event calendar directory
 RUN mkdir -p /eventCalendar
@@ -58,6 +62,3 @@ ENV PYTHONPATH=$PYTHONPATH:/usr/local/cannr/lib
 
 # Install local R packages
 RUN cd /usr/local/cannr/packages && Rscript installpack.R
-
-# Set DOCKER_HOST so tool can access Docker on the host machine
-#ENV DOCKER_HOST=host.docker.internal

@@ -16,7 +16,7 @@ COPY conf.d/http /etc/nginx/http
 COPY . .
 
 # Install Python packages
-RUN pip3 install -r requirements.txt
+RUN python3.9 -m pip install -r requirements.txt
 
 # Copy static content
 #<Static Content>

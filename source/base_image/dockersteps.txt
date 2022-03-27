@@ -1,10 +1,10 @@
 
 
 # Build the tool
-docker build -t cannr/cannr-base:latest -t cannr/cannr-base:0.1.0 .
+docker build -t cannr/cannr-base:latest -t cannr/cannr-base:0.1.2 .
 
 # Push to the repository
 docker login -u cannr
 docker push cannr/cannr-base:latest
-docker push cannr/cannr-base:0.1.0
+docker push cannr/cannr-base:0.1.2
 

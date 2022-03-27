@@ -14,5 +14,5 @@ project = cc.readJSONFile(sys.argv[1])
 context = cc.readJSONFile(sys.argv[2])
 
 #print('The directory')
-print(cc.getProjectPath(project, context))
+print(cc.getWorkingPath(project, context))
 #print('and its descendants will be deleted or overwritten.')
