@@ -976,7 +976,7 @@ function prepServiceScreen() {
 	methodPOSTInput.checked = true;
 	methodGETInput.checked = false;
 	includeBodyInput.checked = true;
-	includeParamsInput.checked = false;
+	includeParamsInput.checked = true;
 	//paramsToDFInput.checked = false;
 	//paramsToDFInput.disabled = true;
 	includeRequestInput.checked = false;
@@ -1164,7 +1164,7 @@ function popServiceProps() {
 		    $('#serviceTitleInput').focus();
 		});
 
-		var function_ = service['function'];
+		var function_ = service['functionName'];
 		if (function_&&(functionSelect.length > 1))
 			setSelected(functionSelect, function_);
 
