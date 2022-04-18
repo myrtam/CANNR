@@ -503,7 +503,7 @@ function buildServicePath(folderName2, moduleName2, serviceName2) {
 	var port = project['nginxPort'];
 	port = port? (port=='80'? '': ':' + port): '';
 
-	return 'http://&ltdomain or ip&gt' + port + '/services/' + folderName2 + '/' + moduleName2 + '/' + serviceName2 + '/';
+	return 'http://&ltdomain or ip&gt' + port + '/services/' + folderName2 + '/' + moduleName2 + '/' + serviceName2;
 	
 }
 
@@ -976,7 +976,7 @@ function prepServiceScreen() {
 	methodPOSTInput.checked = true;
 	methodGETInput.checked = false;
 	includeBodyInput.checked = true;
-	includeParamsInput.checked = true;
+	includeParamsInput.checked = false;
 	//paramsToDFInput.checked = false;
 	//paramsToDFInput.disabled = true;
 	includeRequestInput.checked = false;
@@ -1334,6 +1334,9 @@ function popBuildProps() {
 	// Define the callback function.
 	xhr.onload = function () {
 
+		// Show "working" modal.
+		showModal('workingModal', false);
+
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
 
@@ -1385,9 +1388,6 @@ function popBuildProps() {
 			alert('Error getting Docker status:\nHTTP ' + xhr.status);
 			onExitProject();
 		}
-
-		// Show "working" modal.
-		showModal('workingModal', false);
 
 	}
 
@@ -1466,6 +1466,9 @@ function updateProject(nextModalID) {
 	// Define the callback function.
 	xhr.onload = function () {
 
+		// Hide "working" modal.
+		showModal('workingModal', false);
+
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
 
@@ -1485,9 +1488,6 @@ function updateProject(nextModalID) {
 		} 
 		else
 			alert('Error updating project');
-
-		// Hide "working" modal.
-		showModal('workingModal', false);
 
 	}
 
@@ -1578,6 +1578,8 @@ function writeProject(project1, overwrite, cancel) {
 	// Define the callback function.
 	xhr.onload = function () {
 
+		showModal('workingModal', false);
+
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
 
@@ -1585,6 +1587,7 @@ function writeProject(project1, overwrite, cancel) {
 			var response = JSON.parse(xhr.responseText);
 			var data = response['data'];
 			if (data) {
+
 
 				if (data.succeeded) {
 					project = data['project'];
@@ -1617,12 +1620,11 @@ function writeProject(project1, overwrite, cancel) {
 			else
 				alert(response['error']);
 
-		} else {
+		} else
 			alert('Error creating project');
-		}
 
 		// Hide "working" modal.
-		showModal('workingModal', false);
+		//showModal('workingModal', false);
 
 	}
 
@@ -1760,6 +1762,9 @@ function onKeepFolderProps(nextModalID) {
 	// Define the callback function.
 	xhr.onload = function () {
 
+		// Hide "working" modal.
+		showModal('workingModal', false);
+
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
 
@@ -1776,6 +1781,9 @@ function onKeepFolderProps(nextModalID) {
 					// If files to upload, upload them.
 					if (files&&files.length>0) {
 
+						// Show "working" modal.
+						showModal('workingModal', true);
+
 						// Populate the multipart form data.
 						var formData = new FormData();
 						for (var i = 0; i < files.length; i++)
@@ -1789,17 +1797,19 @@ function onKeepFolderProps(nextModalID) {
 						// Define the callback function.
 						xhr2.onload = function () {
 		
+							showModal('workingModal', false);
+
 							// Get the response, check HTTP status.
 							if (xhr2.status == "200") {
-		
+
 								// Retrieve the response and check whether the request succeeded.
 								var response2 = JSON.parse(xhr2.responseText);
 								var data2 = response2['data'];
 								if (data2) {
 									if (data2.succeeded) {
 										project = data2['project'];
+
 										// Update the project
-										//goModal(nextModalID);
 										updateProject(nextModalID);
 									}
 									else
@@ -1809,11 +1819,10 @@ function onKeepFolderProps(nextModalID) {
 									alert(response2['error']);
 	
 							}
-							else
+							else {
 								alert('Error uploading files');
+							}
 	
-							// Hide "working" modal.
-							showModal('workingModal', false);
 
 						}
 						xhr2.send(formData);
@@ -1835,8 +1844,6 @@ function onKeepFolderProps(nextModalID) {
 		else
 			alert('Error updating project');
 
-		// Hide "working" modal.
-		showModal('workingModal', false);
 
 	}
 
@@ -1945,6 +1952,9 @@ function onKeepModuleProps(nextModalID) {
 	if (!module['services'])
 		module['services'] = {};
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Prepare the request doc
 	var request = {'data': {'project': project}};
 
@@ -1955,6 +1965,9 @@ function onKeepModuleProps(nextModalID) {
 
 	// Define the callback function.
 	xhr.onload = function () {
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
@@ -2139,6 +2152,9 @@ function getProject() {
 	url += (paramProjectName? paramProjectName: '~') + '/';
 	url += (timestamp? timestamp: '0');
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Add extra timestamp to prevent caching.
 	//url += "&timestamp2=" +  Date.now();
 	xhr.open("GET", url);
@@ -2146,6 +2162,9 @@ function getProject() {
 
 	// Define the callback function.
 	xhr.onload = function () {
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
@@ -2483,7 +2502,24 @@ function onProjectCancel() {
 function onFolderNext() {
 
 	var modalID = (newProject&&folderType!='content')? 'modulePropertiesModal': null;
-	onKeepFolderProps(modalID);
+
+	// Get the existing folder, if any.
+	var folder = null;
+	var folders = project['folders'];
+	if (folders) {
+		var folderName = folderNameInput.value;
+		if (folderName)
+			folder = folders[folderName];
+	}
+
+	// Confirm that folder is to be overwritten, if applicable.
+	var confirmed = true;
+	var files = sourceUpload.files;
+	if (folder&&files&&files.length>0)
+		confirmed = confirm('The folder and its contents will be overwritten.  Modules and services will be deleted if the corresponding files and functions are no longer present.');
+		
+	if (confirmed)
+		onKeepFolderProps(modalID);
 
 }
 
@@ -2859,6 +2895,9 @@ function delFolder(delFolderName) {
 	if (!projectName||!delFolderName)
 		return;
 
+	// Show "working" modal.
+	showModal('workingModal', true);
+
 	// Prepare the XHR request.
 	var xhr = new XMLHttpRequest();
 
@@ -2870,6 +2909,9 @@ function delFolder(delFolderName) {
 
 	// Define the callback function.
 	xhr.onload = function () {
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
@@ -3062,6 +3104,9 @@ function buildProject() {
 	// Define the callback function.
 	xhr.onload = function () {
 
+		// Hide the 'Working' modal.
+		showModal('workingModal', false);
+
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
 
@@ -3115,9 +3160,6 @@ function buildProject() {
 		else
 			alert('Error building project');
 		
-		// Hide the 'Working' modal.
-		showModal('workingModal', false);
-
 	}
 
 	// Send the request.
@@ -3147,6 +3189,9 @@ function stopContainer(nextModalID, exitURL) {
 
 	// Define the callback function.
 	xhr.onload = function () {
+
+		// Hide "working" modal.
+		showModal('workingModal', false);
 
 		// Get the response, check HTTP status.
 		if (xhr.status == "200") {
@@ -3182,9 +3227,6 @@ function stopContainer(nextModalID, exitURL) {
 		} 
 		else
 			alert('Error stopping container');
-
-		// Hide "working" modal.
-		showModal('workingModal', false);
 
 	}
 

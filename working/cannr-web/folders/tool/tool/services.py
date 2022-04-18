@@ -318,11 +318,69 @@ def getProjects():
             }
 
 
+# Clean up modules and services in a folder
+def cleanFolder(project, projectName, folderName):
+
+    # Get the folder
+    folders = project.get('folders', None)
+    if not folders:
+        return
+
+    folder = folders.get(folderName, None)
+    if not folder:
+        return
+    
+    # Check files used by modules, remove modules and services without files or functions
+    folderType = folder.get('folderType', None)
+    if folderType == 'code':
+        
+        # Get the modules and language
+        modules = folder.get('modules', {})
+        language = folder.get('language', '')
+
+        # Check the modules and source files, re parse to find the functions
+        projectPath = projectsPath + '/' + projectName
+        for moduleName in list(modules.keys()):
+
+            # Get the source file name
+            module = modules.get(moduleName)
+            sourceFile = module.get('sourceFile', None)
+
+            if sourceFile:
+
+                # Check that the source file exists
+                sourcePath = projectPath + '/' + folderName + '/' + sourceFile                
+                # If not, remove the module
+                if not os.path.isfile(sourcePath):
+                    modules.pop(moduleName)
+
+                # Otherwise, update the list of functions and clean up services
+                else:
+                    # Read the source file
+                    with open(sourcePath, "r") as sourceFile:
+                        source = sourceFile.read()
+
+                    # Parse the source to get the function names and add them to the module.
+                    functionNames = parseSource(source, language)
+
+                    # Check the services to make sure the respective functions exist
+                    services = module['services']
+                    for serviceName in list(services.keys()):
+
+                        service = services.get(serviceName)
+                        
+                        # If function name not found, remove the service.
+                        if service.get('functionName', None) not in functionNames:
+                            services.pop(serviceName)
+
+                    # Update the function names
+                    module['functionNames'] = functionNames
+
+
 # Handles upload of folder contents.
-# * resourceNames - Dictionary containing project and folder names
-# * request - Flask request for the upload
-# * webUpload - If True, then uploaded data is assumed to be a Web multipart form data directory upload,
-#   otherwise it is assumed to be a zip file.
+# * resourceNames - Dictionary containing project and folder names.
+# * data - Byte object containing the contents of the file(s) being uploaded.
+# * uploadType - The type of object being uploaded:  folder, file, or zipfile.
 def upload(resourceNames, data, uploadType = 'folder'):
     
     # Get project name and folder name from resourceNames
@@ -400,6 +458,9 @@ def upload(resourceNames, data, uploadType = 'folder'):
     # Remove duplicates and update in the project
     fileNames = list(set(fileNames))
     folder['fileNames'] = fileNames
+
+    # Clean up the folder
+    cleanFolder(project, projectName, folderName)
     
     # Write the updated project to the project folder and return the project.
     return {
