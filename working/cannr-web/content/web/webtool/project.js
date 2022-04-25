@@ -569,6 +569,8 @@ function prepFolderScreen() {
 	folderRequired.style.color = 'Black';
 	codeFolder.checked = true;
 	contentFolder.checked = false;
+	codeFolder.disabled = false;
+	contentFolder.disabled = false;
 	languageR.checked = false;
 	languageP.checked = false;
 	sourcePathInput.innerHTML = '';
@@ -602,6 +604,7 @@ function popFolderProps() {
 	}
 
 	changed = false;
+	var isNewFolder = true;
 
 	// Prepare the folder properties screen
 	prepFolderScreen();
@@ -618,6 +621,9 @@ function popFolderProps() {
 		var folder = folders[folderName]
 		if (!folder)
 			return false;
+			
+		isNewFolder = false;
+			
 
 		// Get the folder type
 		folderType = folder['folderType'];
@@ -657,6 +663,8 @@ function popFolderProps() {
 			contentFolder.checked = true;
 		}
 		folderTypeRow.disabled = true;
+		codeFolder.disabled = true;
+		contentFolder.disabled = true;
 
 		// Set programming language
 		language = folder['language'];
@@ -666,6 +674,8 @@ function popFolderProps() {
 			else
 				languageP.checked = true;
 		}
+		//languageR.disabled = true;
+		//languageP.disabled = true;
 
 		// Handle workers
 		var workers = folder['workers'];
@@ -704,7 +714,7 @@ function popFolderProps() {
 	if (!newProject)
 		folderPropertiesModal.className = 'modal fade';
 
-	enableCodeFolderProps(!folderType||folderType&&folderType!='content');
+	enableCodeFolderProps(!folderType||folderType&&folderType!='content', isNewFolder);
 	//disableModuleSelect();
 
 	return true;
@@ -3300,7 +3310,7 @@ function onGoBuild() {
 }
 
 // Enables or disables folder properties for code.
-function enableCodeFolderProps(isCodeFolder) {
+function enableCodeFolderProps(isCodeFolder, isNewFolder) {
 
 	if (!isCodeFolder) {
 		languageR.disabled = true;
@@ -3314,8 +3324,8 @@ function enableCodeFolderProps(isCodeFolder) {
 		disableButton(newModuleButton, true);
 	}
 	else {
-		languageR.disabled = false;
-		languageP.disabled = false;
+		languageR.disabled = !isNewFolder;
+		languageP.disabled = !isNewFolder;
 		workersInput.disabled = false;
 		languageRules.style.visibility = 'visible';
 		workerRules.style.visibility = 'visible';
@@ -3324,6 +3334,7 @@ function enableCodeFolderProps(isCodeFolder) {
 
 }
 
+
 // Responds to changes of folder type.
 function checkFolderType() {
 
@@ -3331,10 +3342,11 @@ function checkFolderType() {
 	folderType = !contentFolder.checked? 'code': 'content';
 
 	// Enable/disable folder properties fields and buttons
-	enableCodeFolderProps(folderType!='content');
+	enableCodeFolderProps(folderType!='content', true);
 	setFolderButtons();
 
 	return;
 
 }
+
 
